@@ -1,40 +1,27 @@
 import scala.slick.migrations._
-object Test extends App{
-
+object SampleMigrations extends MyMigrationManager{
   import scala.slick.driver.H2Driver.simple._
-  val db = Database.forURL("jdbc:h2:mem:test1;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
-
-  val mm = new MigrationManager[Int]{
-    val alreadyAppliedIds = collection.mutable.MutableList(1)
-    def afterApply(migration:Migration[Int]) = {
-      alreadyAppliedIds += migration.id
-    }
-    override def beforeApply(migration:Migration[Int]) = {
-      println("applying migration "+migration.id)
-    }
-    override def up : Unit = {
-      val ids = migrations.map(_.id)
-      assert( ids == Range(1,ids.size+1).toList )
-      super.up
-    }
-    def migrations  = List(
-      // WARNING: never change to code of an already applied/published migration
-      new GenericMigration( 1 )(
-        session => ()
-      ),
-      new GenericMigration( 2 )(
-        session => ()
-      ),
-      new GenericMigration( 3 )(
-        session => ()
-      )
-    )
+  object Users extends Table[(Int, String, String)]("users") {
+    def id = column[Int]("id", O.PrimaryKey)
+    def first = column[String]("first")
+    def last = column[String]("last")
+    def * = id ~ first ~ last
   }
-
-  println( mm.alreadyAppliedIds )
-  println( mm.notYetAppliedMigrations.map(_.id) )
-  mm.up
-  println( mm.alreadyAppliedIds )
+  def migrations  = List(
+    // WARNING: never change to code of an already applied/published migration
+    new SqlMigration( 1 )({
+      Users.ddl.createStatements.toList
+    }),
+    new GenericMigration( 2 )(
+      implicit session =>  Users.insertAll(
+        (1,"Chris","Vogt"),
+        (2,"Stefan","Zeiger")
+      )
+    ),
+    new GenericMigration( 3 )(
+      session => ()
+    )
+  )
 }
 
 /*package scala.slick.test.migrations
