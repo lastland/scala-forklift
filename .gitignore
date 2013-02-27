@@ -1,0 +1,13 @@
+/.idea/
+*~
+target/
+/test-dbs/*-*
+/test-dbs/databases.properties
+*.log
+*.iml
+/\.target/
+/\.cache
+/\.project
+/\.classpath
+/.settings/org.scala-ide.sdt.core.prefs
+
