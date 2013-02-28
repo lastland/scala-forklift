@@ -1,11 +1,11 @@
-A proof of concept to software upgrades / migrations
-=========================================================
+A tool proof of concept for software upgrades / migrations
+===========================================================
 
-Feedback and comments are very welcome! Especially if your use case isn't covered by this scenario.
+Feedback and comments are very welcome! Especially if your use case cannot be realized using the offered tool + vcs (like git).
 
 Abstract / Vision
 ------------------------------------
-We demo a tool for convenient, easy, safe, stable and reliable handling of software upgrades including database migrations, that manages the kind of changes that your source code control system like git cannot by itself because they relate to installation specific data. Since generating upgrade scripts from comparing before and after snapshots of your project fails for anything but simple cases, we believe the solution is exclusively writing the upgrade scripts by hand and generating everything else from that.
+We demo a tool for convenient, easy, safe, stable and reliable handling of software upgrades including database migrations that manages the kind of changes related to installation specific data, which your source code control system like git cannot handle by itself. Since generating upgrade scripts from comparing before and after snapshots of your project fails for anything but simple cases, we believe the solution is exclusively writing the upgrade scripts by hand and generating everything else from that.
 
 Background
 ----------------------------------
@@ -14,10 +14,12 @@ We assume a software with several installations, at least development and produc
 Schema aware database libraries like Slick have a representation of the data model that has to correspond to the actual database schema. The  representation is usually maintained using a description in form of configuration (e.g. xml,yml,...) or some kind API calls (scala sources). Managing this description and the actual database schema both by hand is redundant and thus entails unnecessary work and a source of mistakes and inconsistencies. To overcome this we need to only maintain one of the two and generate the changes to the other from it.
 
 Scenario A (rejected)
+^^^^^^^^^^^^^^^^^^^^
 We could compare the representation before and after a change and try to generate scripts to migrate the database accordingly. However this approach is very limited as we are comparing two static snapshots and it is not unambiguous how to get from one to the other. Renaming a column can not be distinguished from removing one column and adding another one. More complicated changes like splitting of tables or else cannot be clearly detected either. This approach may work for simple cases like added or deleted tables and columns, which may be the most common. But it surely needs manual (redundant) work whenever the change is ambigious or just more complex than supported.
 
 Scenario B (chosen)
-We describe how the database needs to change and then generate the description required by Slick to build its data model representation automatically from the database schema. This works without any complication (like fallbacks to manual work) with an out-of-the-box generator which could be shipped with Slick. However, with an out-of-the-box code-generator you obviously loose flexibilty regarding your code. This may be not be a problem in most cases at this is only the data model description code. But if you want to influence it (e.g. to map names in your own style, or add doc comments), it would be. The flexibility can however be achieved with a customizable code generator. In the most flexible case, Slick could just build a data model representation from the actualy database schema and hand it to a user provided script that can do arbitrary code generation or anything based on the data model.
+^^^^^^^^^^^^^^^^^^
+We describe how the database needs to change and then generate the description required by Slick to build its data model representation automatically from the database schema. This works without any complication (like fallbacks to manual work) with an out-of-the-box generator which could be shipped with a migration tool. However, with an out-of-the-box code-generator you obviously loose flexibilty regarding your code. This may be not be a problem in most cases at this is only the data model description code. But if you want to influence it (e.g. to map names in your own style, or add doc comments), it would be. The flexibility can however be achieved with a customizable code generator. In the most flexible case, Slick could just build a data model representation from the actualy database schema and hand it to a user provided script that can do arbitrary code generation or anything based on the data model.
 
 We suggest that Scenario B is the most satisfying one of all choices.
 
@@ -28,86 +30,164 @@ This proof of concepts implements the previously describes Scenario B and helps 
 Guarantees
 -----------------------
 This implementation guarantees (if no bugs) that:
-* Migrations are applied in the right order.
-* Migrations are not applied twice.
-* Upgrading databases which state an unexpected order of previously applied migrations is rejected (may be useful later in a branched dev scenario).
+
+- Migrations are applied in the right order.
+- Migrations are not applied twice.
+- Upgrading databases which state an unexpected order of previously applied migrations is rejected (may be useful later in a branched dev scenario).
 
 Requirements: Building Slick
 -----------------------------------------------------------------------
 This project was tested against a Slick revision which has not been released in binary form. You need build it yourself and publish it locally. To do this:
-* `git clone git@github.com:slick/slick.git`
-* `git checkout d84799440894370af14f06969dff5a354496bf55`
-* `sbt publish-local` (You may have to configure the sbt-gpg plugin or gpg for this to work. Good luck :))
+
+- ``git clone git@github.com:slick/slick.git``
+- ``git checkout d84799440894370af14f06969dff5a354496bf55``
+- ``sbt publish-local`` (You may have to configure the sbt-gpg plugin or gpg for this to work. Good luck :))
 
 Getting started / Demo
 -----------------------------------------------------------------------
-Demo steps (run `run help` for command descriptions)
+Demo steps (run ``run help`` for command descriptions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# start sbt within the project folder, then type:
-# `run dbdump` to see the db is (almost) empty
-# `run init` to initialize the (currently still empty) database for migrations
-# `run dbdump` to see how init created the __migrations__ table 
-# `run status` to see the migration yet to be applied
-# `run diff` to see its sql or scala code
-# `run up` to apply it
-# `run dbdump` to see how the db changed
-# `run codegen` to generate the corresponding data model source files
-# To simulate code evolution: uncomment code in App.scala
-# `run app` to see a yet empty list of users
-# To simulate database evolution: uncomment code in SampleMigrations.scala
-# `run diff` to see sql and scala code of migrations yet to be applied
-# `run app` to see the app run fine as the version of the last generated code matches the current db version
-# `run up` now the db version does not match anymore
-# `run dbdump` to see how the db changed
-# `run app` to see how the app realizes it uses an out-dated data model
-# `run codegen` to upgrade the generated data model classes
-# `run app` to finally see the users added in migration 2
+#. start ``sbt`` within the project folder
+#. the db is empty
+   ::
+      > run dbdump
+#. initialize the database for migrations
+   ::
+      > run init
+#. init created the __migrations__ table
+   ::
+      > run dbdump
+      CREATE CACHED TABLE PUBLIC."__migrations__"(
+          "id" INTEGER NOT NULL
+      );
+#. the migration yet to be applied
+   ::
+      > run status
+      your database is outdated, not yet applied migrations: 1
+#. its sql or scala code
+   ::
+      > run diff
+      1 SqlMigration:
+              create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)
+#. apply it
+   ::
+      > run up
+      applying migration 1
+#. the db changed
+   ::
+      > run dbdump
+      CREATE CACHED TABLE PUBLIC."__migrations__"(
+          "id" INTEGER NOT NULL
+      );
+      INSERT INTO PUBLIC."__migrations__"("id") VALUES (1);
+      CREATE CACHED TABLE PUBLIC."users"(
+          "id" INTEGER NOT NULL,
+          "first" VARCHAR NOT NULL,
+          "last" VARCHAR NOT NULL
+      );
+#. generate the corresponding data model source files
+   ::
+      > run codegen
+#. To simulate code evolution: uncomment code in `App.scala <https://github.com/cvogt/migrations/blob/30591df041b2dea40106a3ebaa75387d3dd35f8d/src/main/scala/App.scala>`_
+#. a yet empty list of users
+   ::
+      > run app
+      Users in the database:
+      List()
+#. To simulate database evolution: uncomment code in `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/30591df041b2dea40106a3ebaa75387d3dd35f8d/src/main/scala/SampleMigrations.scala>`_
+#. sql and scala code of migrations yet to be applied
+   ::
+      > run diff
+      2 GenericMigration:
+            Users.insertAll(User(1, "Chris", "Vogt"), User(2, "Stefan", "Zeiger"))
+
+      3 SqlMigration:
+            alter table "users" alter column "first" rename to "firstname"
+            alter table "users" alter column "last" rename to "lastname"
+#. the app runs fine as the version of the last generated code matches the current db version
+   ::
+      > run app
+      Users in the database:
+      List()
+#. update, so the db version does not match anymore
+   ::
+      > run up
+      applying migration 2
+      applying migration 3
+#. the db changed
+   ::
+      > run dbdump
+      CREATE CACHED TABLE PUBLIC."__migrations__"(
+          "id" INTEGER NOT NULL
+      );
+      INSERT INTO PUBLIC."__migrations__"("id") VALUES (1),(2),(3);
+      CREATE CACHED TABLE PUBLIC."users"(
+          "id" INTEGER NOT NULL,
+          "first" VARCHAR NOT NULL,
+          "last" VARCHAR NOT NULL
+      );
+      INSERT INTO PUBLIC."users"("id", "firstname", "lastname") VALUES
+         (1, 'Chris', 'Vogt'),
+         (2, 'Stefan', 'Zeiger');
+#. the app realizes it uses an out-dated data model
+   ::
+      > run app
+      Generated code is outdated, please run code generator
+#. re-generate data model classes
+   ::
+      > run codegen
+#. finally we see the users added in migration 2
+   ::
+      > run app
+      Users in the database:
+      List(User(1,Chris,Vogt), User(2,Stefan,Zeiger))
 
 Play around yourself
 ^^^^^^^^^^^^^^^^^^^^
-* `run help`
-* write your own migrations
-* change the demo app
-* gather an understanding for the setup and the vision of this proof of concept :)
+
+- ``run help``
+- write your own migrations
+- change the demo app
+- gather an understanding for the setup and the vision of this proof of concept :)
 
 Pitfalls
 -----------------
-`macro implementation not found: ...`
+``macro implementation not found: ...``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 try commenting out all migrations in SampleMigrations.scala, then compile, then uncomment the migrations again. Then try again. (sbt isn't setup to compile our macros independently by itself in this demo).
 
-`org.h2.jdbc.JdbcSQLException: Table "__migrations__" not found`
+``org.h2.jdbc.JdbcSQLException: Table "__migrations__" not found``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-run `run init`
+run ``run init``
 
 other compile errors
 ^^^^^^^^^^^^^^^^^^^^^^
-You can always throw away all changes and get back to a working state by running `git reset --hard && sbt "run reset" && sbt "run init"`.
+You can always throw away all changes and get back to a working state by running ``git reset --hard && sbt "run reset" && sbt "run init"``.
 
-Work flow scenarios (run `run help` for command descriptions)
+Use cases (run ``run help`` for command descriptions)
 -----------------------------------------------------------------------
-# Code developer who has full control over database (e.g. consumer app with embedded database, startups, small business, etc.)
-   Once, initially
-      `run init` to prepare the db for managing migrations.
-      `run codegen`
-   Handle any kind of change (schema, content, file system, ...) exclusively(!) via migrations that
-      * needs to be replicated in another installation (e.g. staging, production, customer installations, etc.)
-      * cannot be covered by git alone (e.g. moving profile pictures out of db blob columns into files)
-   `run diff` for review purposes
-   `run dbdump` for backups before applying migrations
-   `run up` to peform the upgrade
-   `run codegen` if necessary
+#. Code developer who has full control over database (e.g. consumer app with embedded database, startups, small business, etc.)
+    * Once, initially
+        + ``run init`` to prepare the db for managing migrations.
+        + ``run codegen``
+    * Handle any kind of change (schema, content, file system, ...) exclusively(!) via migrations that
+        + needs to be replicated in another installation (e.g. staging, production, customer installations, etc.)
+        + cannot be covered by git alone (e.g. moving profile pictures out of db blob columns into files)
+    * ``run diff`` for review purposes
+    * ``run dbdump`` for backups before applying migrations
+    * ``run up`` to peform the upgrade
+    * ``run codegen`` if necessary
    
-   When merging changes from different developers `run status` and `run diff` allow to check for unapplied migrations.
+   When merging changes from different developers ``run status`` and ``run diff`` allow to check for unapplied migrations.
 
-# Code developer can suggest changes to Database Architect (e.g. smaller enterprise environment)
-   `run codegen` when necessary
-   Occasionally write a database migration. Then use `run diff` and suggest the change to the Database Architect.
-   Delete the migration afterwards or comment it out and put it under version control for documentation purposes.
+#. Code developer can suggest changes to Database Architect (e.g. smaller enterprise environment)
+    * ``run codegen`` when necessary
+    * Occasionally write a database migration. Then use ``run diff`` and suggest the change to the Database Architect.
+      Delete the migration afterwards or comment it out and put it under version control for documentation purposes.
 
-# Code Developer does not control database (e.g. enterprise environment)
-   `run codegen` when necessary.
-   Ignore migrations feature.
+#. Code Developer does not control database (e.g. enterprise environment)
+    * ``run codegen`` when necessary.
+    * Ignore migrations feature.
 
 For upgrading an unaccessible remote installation (e.g. a software installation on a consumer pc), use the programmatic interface similar with similar steps like scenario 1.
 

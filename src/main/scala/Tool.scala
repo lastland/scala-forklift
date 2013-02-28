@@ -6,7 +6,7 @@ object Tool extends App{
       if( ny.size == 0 )
         println("your database is up-to-date")
       else
-        println("your database is outdated, no yet applied migrations: "+SampleMigrations.notYetAppliedMigrations.map(_.id).mkString(", "))
+        println("your database is outdated, not yet applied migrations: "+SampleMigrations.notYetAppliedMigrations.map(_.id).mkString(", "))
     case "up" :: Nil =>
       println("applying migrations: "+SampleMigrations.notYetAppliedMigrations.map(_.id).mkString(", "))
       SampleMigrations.up
