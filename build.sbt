@@ -8,8 +8,11 @@ scalaVersion := "2.10.0"
 
 scalacOptions += "-deprecation"
 
+scalacOptions += "-feature"
+
 libraryDependencies ++= List(
   "com.typesafe.slick" % "slick_2.10.0" % "1.1.0-SNAPSHOT"
+  ,"org.scala-lang" % "scala-compiler" % "2.10.0"
   ,"com.h2database" % "h2" % "1.3.166"
   ,"org.xerial" % "sqlite-jdbc" % "3.6.20"
   ,"org.slf4j" % "slf4j-nop" % "1.6.4" // <- disables logging
