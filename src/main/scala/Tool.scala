@@ -7,10 +7,10 @@ object Tool extends App{
         println("your database is up-to-date")
       else
         println("your database is outdated, not yet applied migrations: "+SampleMigrations.notYetAppliedMigrations.map(_.id).mkString(", "))
-    case "up" :: Nil =>
+    case "apply" :: Nil =>
       println("applying migrations: "+SampleMigrations.notYetAppliedMigrations.map(_.id).mkString(", "))
       SampleMigrations.up
-    case "diff" :: Nil =>
+    case "preview" :: Nil =>
       println("-" * 80)
       println("NOT YET APPLIED MIGRATIONS PREVIEW:")
       println("")
@@ -57,10 +57,10 @@ A list of command available in this proof of concept:
 
   status    display the migrations that have not been applied yet
 
-  diff      display the migrations that have not been applied yet and show
+  preview      display the migrations that have not been applied yet and show
             corresponding sql for sql migrations
 
-  up        apply all migrations which have not been applied yet
+  apply     apply all migrations which have not been applied yet
             (this could be extended to allow applying only migrations up to a
              stated migration but not further)
 

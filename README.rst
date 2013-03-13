@@ -1,31 +1,23 @@
-A tool proof of concept for software upgrades / migrations
+A tool proof of concept for data migration
 ===========================================================
 
-Feedback and comments are very welcome! Especially if your use case cannot be realized using the offered tool + vcs (like git).
+Feedback and comments are very welcome! Especially if your use case cannot be realized using the offered tool.
 
 Abstract / Vision
 ------------------------------------
-We demo a tool for convenient, easy, safe, stable and reliable handling of software upgrades including database migrations that manages the kind of changes related to installation specific data, which your source code control system like git cannot handle by itself. Since generating upgrade scripts from comparing before and after snapshots of your project fails for anything but simple cases, we believe the solution is exclusively writing the upgrade scripts by hand and generating everything else from that.
+This is a proof of concept of a data migration tool, which eliminates redundant manual work and supports a convenient, minimal effort, reliable and (in comparison to its alternatives) safer migration process.
 
-Background
-----------------------------------
-We assume a software with several installations, at least development and production, but possibly also staging or even remote installations on consumer computers (e.g. for a tax app). Changes need to be able to be applied initially in development and later applied on different installations. For source code this is easy. You manage the code in git or else and ship a new jar to your customers at some point. For installation specific data (like user added files, database content, etc.) you need to run a script to manipulate it dynamically. The same for the database schema, because it is attached to the stored data and cannot simply be replaced like code. The scripts to perform these changes, we call migrations here. This software aims to manage migrations (semi-)automatically and avoid redundancy in writing them and maintaining the related code.
+When an installation of an application is upgraded to a new version, which changes the data model or storage engine, the existing data of the installation needs to be migrated accordingly. This is usually done using migration scripts which can be applied to each installation (e.g. dev, staging, production, customer).
 
-Schema aware database libraries like Slick have a representation of the data model that has to correspond to the actual database schema. The  representation is usually maintained using a description in form of configuration (e.g. xml,yml,...) or some kind API calls (scala sources). Managing this description and the actual database schema both by hand is redundant and thus entails unnecessary work and a source of mistakes and inconsistencies. To overcome this we need to only maintain one of the two and generate the changes to the other from it.
+The data model of an application can manifest itself in several places, e.g. the database schema, corresponding case classes and Slick table objects. Some developers maintain the corresponding manifestations manually, e.g. change the name of a field in a class and then write a migration script to change the database schema accordingly. This logically redundant activity means not only unnecessary work, but also a source of potential bugs due to inconsistent changes.
 
-Scenario A (rejected)
-^^^^^^^^^^^^^^^^^^^^
-We could compare the representation before and after a change and try to generate scripts to migrate the database accordingly. However this approach is very limited as we are comparing two static snapshots and it is not unambiguous how to get from one to the other. Renaming a column can not be distinguished from removing one column and adding another one. More complicated changes like splitting of tables or else cannot be clearly detected either. This approach may work for simple cases like added or deleted tables and columns, which may be the most common. But it surely needs manual (redundant) work whenever the change is ambigious or just more complex than supported.
+This tools offers a framework, api and user interface for writing, managing, previewing and applying migration scripts. It includes a customizable code generator, which can generate code corresponding to the data model automatically and exactly in the shape a developer wants it. It relieves the developer of changing it by hand in correspondance to the migration script. The tool allows to write migration scripts using SQL, Slick queries or arbitrary Scala code. Unlike SQL, Slick queries are type-checked and allow abstraction over the used database engine. Importantly, this tool allows to collectively type-check and compile multiple migration scripts referring to different versions of the data model. Migration scripts written in arbitrary Scala code allow for complex changes like relocating data from the database into the file-system. Like other migration tools, this tools also helps developers by providing ready, unified way to review and apply migrations, so that they do not have to design a process of their own.
 
-Scenario B (chosen)
-^^^^^^^^^^^^^^^^^^
-We describe how the database needs to change and then generate the description required by Slick to build its data model representation automatically from the database schema. This works without any complication (like fallbacks to manual work) with an out-of-the-box generator which could be shipped with a migration tool. However, with an out-of-the-box code-generator you obviously loose flexibilty regarding your code. This may be not be a problem in most cases at this is only the data model description code. But if you want to influence it (e.g. to map names in your own style, or add doc comments), it would be. The flexibility can however be achieved with a customizable code generator. In the most flexible case, Slick could just build a data model representation from the actualy database schema and hand it to a user provided script that can do arbitrary code generation or anything based on the data model.
+Note: Some developers feel uncomfortable with code generation and would rather change their classes by hand. To reduce the problem of having to write logically redundant migration scripts, some envision generating these scripts by analysing the code changes afterwards. We don't think this is feasible because it only works for very simple cases like added classes or fields. But already renaming fields cannot be distinguished from removing one field and adding another one. More complex changes like splitting of tables or columns can hardly be detected automatically. The approach is limited and would require manual review and enhancement of migration scripts.
 
-We suggest that Scenario B is the most satisfying one of all choices.
-
-Proof of concept implementation
+Limitations of the proof of concept
 -----------------------------------------------------------------------
-This proof of concepts implements the previously describes Scenario B and helps in writing and managing the application of transactions and provides a flexible code generator, which should eventually be replaced by Slick type providers. It features diagnostics, semi-automatic upgrades and code-generation. This implementation allows to get a feeling how working with such a software would be like, but is far from production ready. Plumbing, flexibility and details are not as they should be in the current state, especially regarding the numeric version numbers and all the hard coded things like the database connection etc. This only a rough demo.
+This implementation allows to get a feeling how working with such a software would be like, but is far from production ready. Plumbing, flexibility and details are not as they should be in the current state, especially regarding the numeric version numbers and all the hard coded things like the database connection etc. This only a rough demo.
 
 Guarantees
 -----------------------
@@ -33,7 +25,8 @@ This implementation guarantees (if no bugs) that:
 
 - Migrations are applied in the right order.
 - Migrations are not applied twice.
-- Upgrading databases which state an unexpected order of previously applied migrations is rejected (may be useful later in a branched dev scenario).
+- Migrations are only applied on top of known migrations which have been applied in the right order. 
+  Otherwise the application is rejected (which may prevent invalid states). 
 
 Requirements: Building Slick
 -----------------------------------------------------------------------
@@ -66,12 +59,12 @@ Demo steps (run ``run help`` for command descriptions)
       your database is outdated, not yet applied migrations: 1
 #. its sql or scala code
    ::
-      > run diff
+      > run preview
       1 SqlMigration:
               create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)
 #. apply it
    ::
-      > run up
+      > run apply
       applying migration 1
 #. the db changed
    ::
@@ -97,7 +90,7 @@ Demo steps (run ``run help`` for command descriptions)
 #. To simulate database evolution: uncomment code in `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/30591df041b2dea40106a3ebaa75387d3dd35f8d/src/main/scala/SampleMigrations.scala>`_
 #. sql and scala code of migrations yet to be applied
    ::
-      > run diff
+      > run preview
       2 GenericMigration:
             Users.insertAll(User(1, "Chris", "Vogt"), User(2, "Stefan", "Zeiger"))
 
@@ -111,7 +104,7 @@ Demo steps (run ``run help`` for command descriptions)
       List()
 #. update, so the db version does not match anymore
    ::
-      > run up
+      > run apply
       applying migration 2
       applying migration 3
 #. the db changed
@@ -173,16 +166,16 @@ Use cases (run ``run help`` for command descriptions)
     * Handle any kind of change (schema, content, file system, ...) exclusively(!) via migrations that
         + needs to be replicated in another installation (e.g. staging, production, customer installations, etc.)
         + cannot be covered by git alone (e.g. moving profile pictures out of db blob columns into files)
-    * ``run diff`` for review purposes
+    * ``run preview`` for review purposes
     * ``run dbdump`` for backups before applying migrations
-    * ``run up`` to peform the upgrade
+    * ``run apply`` to peform the upgrade
     * ``run codegen`` if necessary
    
-   When merging changes from different developers ``run status`` and ``run diff`` allow to check for unapplied migrations.
+   When merging changes from different developers ``run status`` and ``run preview`` allow to check for unapplied migrations.
 
 #. Code developer can suggest changes to Database Architect (e.g. smaller enterprise environment)
     * ``run codegen`` when necessary
-    * Occasionally write a database migration. Then use ``run diff`` and suggest the change to the Database Architect.
+    * Occasionally write a database migration. Then use ``run preview`` and suggest the change to the Database Architect.
       Delete the migration afterwards or comment it out and put it under version control for documentation purposes.
 
 #. Code Developer does not control database (e.g. enterprise environment)
@@ -193,11 +186,11 @@ For upgrading an unaccessible remote installation (e.g. a software installation 
 
 Important notes
 -----------------------------
-Commit the generated data model source files to your source control system as other people need it to compile your migrations ahead of applying them.
+Commit the generated code to your source control system as other people need it to compile your migrations ahead of applying them.
 
-If code of older migrations ever becomes incompatible with a new version of Slick, delete or comment out the old migrations, but (!!) keep around an old binary of your app, which can upgrade old clients to a version which can still be upgraded by newer versions of your app.
+If code of older migrations ever becomes incompatible with a new version of Slick itself, delete or comment out the old migrations, but (!!) keep around an old binary of your app, which can upgrade old installations to a version which can then be upgraded by newer versions of your app.
 
-Migrations are wrapped in database transactions automatically. If you get an exception within a transaction the database state is rolled back. Any other changes you did to the file system or else, you have to recover yourself.
+Migrations are wrapped in database transactions automatically to prevent semi applied migrations. If you get an exception within a transaction the database state is rolled back. In migration script written in arbitrary Scala code, you need to take thatAny other changes you did to the file system or else, you have to recover yourself.
 
 Currently, the generated data model code is versioned into packages, which means many old versions of the generated data model code will be stored in your code folders and should be versioned in your version control. When you commit a migration that changes the schema you SHOULD also commit the generated source for it. The reason is, that if you write migration code using Slick's type-safe database-independent API, older migrations will depend on older versions of your data model code. If that would not be available they could not be compiled anymore. If you are using only plain SQL migrations you can disable the generation of the version data model source files and always only ship the latest generated version, applying SQL migrations to achieve compatibility with it.
 
