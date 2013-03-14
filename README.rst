@@ -1,7 +1,6 @@
-A tool proof of concept for data migration
+A proof of concept of a tool for data migrations
 ===========================================================
-
-Feedback and comments are very welcome! Especially if your use case cannot be realized using the offered tool.
+Feedback and comments are very welcome! Especially if your use case cannot be realized using this tool.
 
 Abstract / Vision
 ------------------------------------
@@ -28,6 +27,8 @@ This implementation guarantees (if no bugs) that:
 - Migrations are only applied on top of known migrations which have been applied in the right order. 
   Otherwise the application is rejected (which may prevent invalid states). 
 
+Also an app can check that the code it uses matches the database schema version, so it does not run with incompatible versions.
+
 Requirements: Building Slick
 -----------------------------------------------------------------------
 This project was tested against a Slick revision which has not been released in binary form. You need build it yourself and publish it locally. To do this:
@@ -38,8 +39,9 @@ This project was tested against a Slick revision which has not been released in 
 
 Getting started / Demo
 -----------------------------------------------------------------------
-Demo steps (run ``run help`` for command descriptions)
+Demo steps (simplified output shown here; run ``run help`` for command descriptions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 #. start ``sbt`` within the project folder
 #. the db is empty
    ::
@@ -81,13 +83,13 @@ Demo steps (run ``run help`` for command descriptions)
 #. generate the corresponding data model source files
    ::
       > run codegen
-#. To simulate code evolution: uncomment code in `App.scala <https://github.com/cvogt/migrations/blob/30591df041b2dea40106a3ebaa75387d3dd35f8d/src/main/scala/App.scala>`_
+#. To simulate code evolution: uncomment code in `App.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/App.scala>`_
 #. a yet empty list of users
    ::
       > run app
       Users in the database:
       List()
-#. To simulate database evolution: uncomment code in `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/30591df041b2dea40106a3ebaa75387d3dd35f8d/src/main/scala/SampleMigrations.scala>`_
+#. To simulate database evolution: uncomment code in `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/SampleMigrations.scala>`_
 #. sql and scala code of migrations yet to be applied
    ::
       > run preview
@@ -139,8 +141,8 @@ Play around yourself
 ^^^^^^^^^^^^^^^^^^^^
 
 - ``run help``
-- write your own migrations
-- change the demo app
+- write your own migrations `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/SampleMigrations.scala>`_
+- change the demo app `App.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/App.scala>`_
 - gather an understanding for the setup and the vision of this proof of concept :)
 
 Pitfalls
@@ -199,7 +201,15 @@ Future improvement ideas
 A SlickMigration, which takes type-safe Slick queries (instead of SQL or arbitrary code), but still allows to show or even store the generated SQL.
 (either using a common api for getting it from different types of queries, like inserts, drops, etc. or by logging the generated queries in a rolled back transaction). The stored SQL could be put put in git and used itseld to apply the migration instead of running the Scala code snippet, which may give some people a feeling of more control over what is happening, especially with production databases, since they see the exact SQL not just the abstracted Slick query.
 
+An SqlFileMigration, which takes SQL from a file instead of a String literal.
+
+A Iterator which yields Migration objects based on SQL files in a certain directory, to support similar use to play's migration framework.
+
+Maybe a way to dump migrations as a set of SQL script files, to feed Play's migration manager.
+
 Upgrading to particular versions
+
+A way to specify that data model classes are compatible with a range of database schema versions, not only one (for more flexible upgrade processes).
 
 An option to NOT version generated code (by version we mean putting it into packages containing the version in the name)
 
@@ -211,3 +221,4 @@ Version numbers should probably not be integers to avoid conflicts, especially i
 FIXME
 ---------------------
 There are some dependencies on the order of results of the h2 database in some assert statements. This should not be the case.
+And much more...
