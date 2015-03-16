@@ -1,6 +1,6 @@
 import scala.slick.migrations._
 import scala.slick.driver.H2Driver.simple._
-import Database.threadLocalSession
+import Database.dynamicSession
 object App{
   def run(mm:MyMigrationManager){
 /*
@@ -12,7 +12,7 @@ object App{
     }
     println("Users in the database:")
     println(
-      mm.db.withSession{
+      mm.db.withDynSession{
         Users.map(u=>u).list
       }
     )

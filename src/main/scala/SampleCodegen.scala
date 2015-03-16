@@ -4,10 +4,10 @@ import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.H2Driver
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.migrations._
-import Database.threadLocalSession
+import Database.dynamicSession
 object SampleCodegen{
   def gen(mm:MyMigrationManager){
-    mm.db withSession {
+    mm.db withDynSession {
       if(mm.notYetAppliedMigrations.size > 0){
         println("Your database is not up to date, code generation denied for compatibility reasons. Please update first.")
         return

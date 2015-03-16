@@ -29,14 +29,6 @@ This implementation guarantees (if no bugs) that:
 
 Also an app can check that the code it uses matches the database schema version, so it does not run with incompatible versions.
 
-Requirements: Building Slick
------------------------------------------------------------------------
-This project was tested against a Slick revision which has not been released in binary form. You need build it yourself and publish it locally. To do this:
-
-- ``git clone git@github.com:slick/slick.git``
-- ``git checkout d84799440894370af14f06969dff5a354496bf55``
-- ``sbt publish-local`` (You may have to configure the sbt-gpg plugin or gpg for this to work. Good luck :))
-
 Getting started / Demo
 -----------------------------------------------------------------------
 Demo steps (simplified output shown here; run ``run help`` for command descriptions)
