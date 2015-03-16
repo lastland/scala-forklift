@@ -28,12 +28,12 @@ class Column(val table:Table,val column:MColumn)(implicit session:JdbcBackend#Se
   val t = table
   val c = column
   def _value = (t,c) 
-  def name = c.column
+  def name = c.name
   def autoInc = c.isAutoInc
   def primaryKey = t.primaryKey.contains(this)
   def nullable = c.nullable // FIXME: what is the difference between nullable and isNullable?
   def sqlType = c.sqlType
   def sqlTypeName = c.sqlTypeName // <- shouldn't this go into the code generator?
-  def columnSize = c.columnSize
+  def columnSize = c.size
   override def toString = s"Column(${name})"
 }

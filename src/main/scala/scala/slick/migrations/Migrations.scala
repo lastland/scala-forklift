@@ -2,7 +2,7 @@ package scala.slick.migrations
 
 import java.io._
 import scala.slick.driver.H2Driver.simple._
-import Database.threadLocalSession
+import Database.dynamicSession
 
 trait Migration[T]{
   def id : T
@@ -27,9 +27,9 @@ trait MigrationManager[T]{
   def up {
     // make sure there are no duplicate ids
     assert( Set(migrations.map(_.id):_*).size == migrations.size )
-    db.withSession{
+    db.withDynSession{
       while(notYetAppliedMigrations.size > 0){
-        db.withTransaction{
+        db.withDynTransaction{
           if(notYetAppliedMigrations.size > 0){
             assert( ids.take(alreadyAppliedIds.size) == alreadyAppliedIds )
             val migration = notYetAppliedMigrations.head
@@ -38,7 +38,7 @@ trait MigrationManager[T]{
               migration.up
               afterApply(migration)
             } catch {
-              case e:Exception => threadLocalSession.rollback; throw e
+              case e:Exception => dynamicSession.rollback; throw e
             }
           }
         }
@@ -48,17 +48,18 @@ trait MigrationManager[T]{
   def beforeApply(migration:Migration[T]){}
   def afterApply(migration:Migration[T])
 }
-object MigrationsTable extends Table[Int]("__migrations__") {
+class MigrationsTable(tag: Tag) extends Table[Int](tag, "__migrations__") {
   def id = column[Int]("id", O.PrimaryKey)
   def * = id
 }
 
 trait MyMigrationManager extends MigrationManager[Int]{
-  def init = db.withSession(MigrationsTable.ddl.create)
-  def alreadyAppliedIds = db.withSession{MigrationsTable.map(_.id).list}
+  val migrationsTable = TableQuery[MigrationsTable]
+  def init = db.withDynSession(migrationsTable.ddl.create)
+  def alreadyAppliedIds = db.withDynSession{migrationsTable.map(_.id).list}
   def latest = alreadyAppliedIds.last
   def afterApply(migration:Migration[Int]) = {
-    db.withSession{MigrationsTable.insert( migration.id )}
+    db.withDynSession{migrationsTable.insert( migration.id )}
   }
   override def beforeApply(migration:Migration[Int]) = {
     println("applying migration "+migration.id)
@@ -69,7 +70,7 @@ trait MyMigrationManager extends MigrationManager[Int]{
     super.up
   }
   def reset(){
-    db.withSession{updateNA("DROP ALL OBJECTS DELETE FILES").execute}
+    db.withDynSession{updateNA("DROP ALL OBJECTS DELETE FILES").execute}
     try{
       (Glob.glob((f: File) => !f.isDirectory && f.getName.endsWith("schema.scala"))
              (List(System.getProperty("user.dir")+"/src/main/scala/datamodel/")))

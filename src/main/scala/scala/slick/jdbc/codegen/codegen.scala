@@ -102,12 +102,12 @@ class Table (val schema:Schema,val table:reflect.Table)(implicit session:JdbcBac
   def entityFullyQualifiedName : String = s.entitiesPackage+"."+entityName
   def column(c:reflect.Column) = new Column(this,c)
   def columns = t.columns.map(column _)
-  def star = "def * = " + columns.map(_.scalaName).mkString(" ~ ")
+  def star = "def * = (" + columns.map(_.scalaName).mkString(", ") + ")"
   def mappedToFullyQualified = Some(entityFullyQualifiedName)
   def importEntity = mappedToFullyQualified.map("import "+_)
   def mappedToClassName = Some(entityName)
-  def factory = mappedToClassName.get
-  def extractor = mappedToClassName.get+".unapply _"
+  def factory = mappedToClassName.get+".tupled"
+  def extractor = mappedToClassName.get+".unapply"
   def mapping = mappedToClassName.map(_=>s"<> (${factory}, ${extractor})").getOrElse("")
   def types = mappedToClassName.getOrElse(
     if(columns.length == 1) columns(0).scalaType
@@ -127,7 +127,7 @@ ${indent(renderConcreteTable)}
 }
 """
   def renderBaseTable = importEntity.map(_+lineBreak).getOrElse("")+s"""
-abstract class ${scalaName} extends Table[${types}]("${name}"){
+abstract class ${scalaName}(tag: Tag) extends Table[${types}](tag, "${name}"){
   // columns
 ${indent(columns)}
 
@@ -143,7 +143,8 @@ ${indent(columns)}
 }
     """.trim()
   def renderConcreteTable = s"""
-object ${scalaName} extends ${s.baseTablePackage}.${scalaName}
+class ${scalaName}(tag: Tag) extends ${s.baseTablePackage}.${scalaName}(tag)
+object ${scalaName} extends TableQuery(new ${scalaName}(_)) {}
     """.trim()
   def renderEntity = s"""
 case class ${entityName}( ${columns.map(c=>c.name+" :"+c.scalaType).mkString(", ")} )

@@ -1,10 +1,10 @@
 package scala.slick.migrations
 import scala.slick.driver.H2Driver.simple._
-import Database.threadLocalSession
+import Database.dynamicSession
 import scala.language.experimental.macros
 
 abstract class GenericMigration[T]( val id:T )(f : Session => Unit) extends Migration[T]{
-  def up : Unit = f(threadLocalSession)
+  def up : Unit = f(dynamicSession)
   def code : String
 }
 
