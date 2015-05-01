@@ -5,8 +5,8 @@ object App{
   def run(mm:MyMigrationManager){
 /*
     import datamodel.latest.schema.tables._
-    import datamodel.latest.schema.version.Version._
-    if( version != mm.latest ){
+    import datamodel.latest.schema.Version
+    if( Version.version != mm.latest ){
       println("!!Generated code is outdated, please run code generator") // or you could also do it automatically here
       return
     }

@@ -11,11 +11,11 @@ object SampleMigrations extends MyMigrationManager{
     ,GenericMigration( 2 )({
       // this is typesafe :), but requires the corresponding code version to have been generated
       import datamodel.v1.schema.tables.Users
-      import datamodel.v1.schema.entities.User
+      import datamodel.v1.schema.tables.UsersRow
       // if you really have to do content changes in migrations, make sure they cannot conflict with data in one of your installations
       implicit session =>  Users.insertAll(
-        User(1,"Chris","Vogt"),
-        User(2,"Stefan","Zeiger")
+        UsersRow(1,"Chris","Vogt"),
+        UsersRow(2,"Stefan","Zeiger")
       )
     })
     ,SqlMigration( 3 )(List(

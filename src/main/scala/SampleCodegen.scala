@@ -1,9 +1,9 @@
-import scala.slick.jdbc.codegen
-import scala.slick.jdbc.reflect
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.H2Driver
 import scala.slick.driver.H2Driver.simple._
+import scala.slick.codegen.SourceCodeGenerator
 import scala.slick.migrations._
+
 import Database.dynamicSession
 object SampleCodegen{
   def gen(mm:MyMigrationManager){
@@ -12,32 +12,25 @@ object SampleCodegen{
         println("Your database is not up to date, code generation denied for compatibility reasons. Please update first.")
         return
       }
-      class MyTableGen (schema:codegen.Schema,table:reflect.Table) extends codegen.Table(schema, table){
-        override def entityName = Map(
-          "users" -> "User"
-        )(name)
-      }
-      
+      val tableNames = List("users")
+      val model = H2Driver.createModel(Some(
+        H2Driver.defaultTables.filter(t =>
+          tableNames.contains(t.name.name))))
       val latest = mm.latest
-      List( "v" + latest, "latest" ).foreach{
-        version =>
-          val pkg = "datamodel." + version + ".schema"
-          val generator = new codegen.Schema(
-            "H2",
-            new scala.slick.jdbc.reflect.Schema((List("users"))),
-            pkg
-          ){
-            override def table( t:reflect.Table ) = new MyTableGen(this,t)
-            override def render = super.render + s"""
-package $pkg.version{
-  object Version{
-    def version = $latest
-  }
+      List( "v" + latest, "latest" ).foreach{ version =>
+        val pkg = "datamodel." + version + ".schema"
+        val folder = System.getProperty("user.dir")+"/src/main/scala"
+        val generator = new SourceCodeGenerator(model) {
+          override def packageCode(
+            profile: String, pkg: String, container: String) : String =
+            super.packageCode(profile, pkg, container) + s"""
+object Version{
+  def version = $latest
 }
 """
-          }
-          val folder = System.getProperty("user.dir")+"/src/main/scala"
-          generator.singleFile(folder)
+        }
+        generator.writeToFile("scala.slick.driver.H2Driver",
+          folder, pkg, "tables", "schema.scala")
       }
     }
   }
