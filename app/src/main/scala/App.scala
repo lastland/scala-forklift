@@ -1,4 +1,4 @@
-import scala.slick.migrations._
+import scala.migrations._
 import scala.slick.driver.H2Driver.simple._
 import Database.dynamicSession
 object App{

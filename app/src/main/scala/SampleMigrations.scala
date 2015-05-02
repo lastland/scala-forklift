@@ -1,4 +1,4 @@
-import scala.slick.migrations._
+import scala.migrations.slick._
 
 object SampleMigrations extends MyMigrationManager{
   import scala.slick.driver.H2Driver.simple._

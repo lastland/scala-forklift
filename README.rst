@@ -35,6 +35,9 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. start ``sbt`` within the project folder
+#. switch the project to ``app``
+   ::
+      > project app
 #. the db is empty
    ::
       > run dbdump

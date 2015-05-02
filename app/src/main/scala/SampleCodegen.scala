@@ -2,7 +2,7 @@ import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.H2Driver
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.codegen.SourceCodeGenerator
-import scala.slick.migrations._
+import scala.migrations.slick._
 
 import Database.dynamicSession
 object SampleCodegen{
@@ -19,7 +19,7 @@ object SampleCodegen{
       val latest = mm.latest
       List( "v" + latest, "latest" ).foreach{ version =>
         val pkg = "datamodel." + version + ".schema"
-        val folder = System.getProperty("user.dir")+"/src/main/scala"
+        val folder = System.getProperty("user.dir")+"/app/src/main/scala"
         val generator = new SourceCodeGenerator(model) {
           override def packageCode(
             profile: String, pkg: String, container: String) : String =
