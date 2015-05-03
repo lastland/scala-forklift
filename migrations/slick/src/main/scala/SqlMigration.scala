@@ -11,5 +11,6 @@ trait SqlMigrationInterface[T] extends Migration[T]{
     queries.foreach(updateNA(_).execute)
   }
 }
-case class SqlMigration[T] (val id:T)(val queries:Seq[String])
+
+case class SqlMigration[T](val id:T)(val queries:Seq[String])
     extends SqlMigrationInterface[T]

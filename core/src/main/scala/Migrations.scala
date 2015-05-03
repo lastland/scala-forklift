@@ -11,9 +11,13 @@ trait MigrationManager[T]{
   def alreadyAppliedIds : Seq[T]
   def notYetAppliedMigrations = migrations.drop(alreadyAppliedIds.size)
 
+  def init: Unit
+  def latest: T
   def beforeApply(migration:Migration[T]){}
   def afterApply(migration:Migration[T])
   def up {
+    val ids = migrations.map(_.id)
+    assert( ids == Range(1,ids.size+1).toList )
     while(notYetAppliedMigrations.size > 0){
       singleUp
     }
@@ -34,4 +38,5 @@ trait MigrationManager[T]{
   }
 
   def rollback: Unit
+  def reset: Unit
 }
