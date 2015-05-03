@@ -1,13 +1,22 @@
 import scala.migrations.slick._
+//import scala.migrations.plain._
 
 object SampleMigrations extends MyMigrationManager{
   import scala.slick.driver.H2Driver.simple._
   // WARNING!! never change version number or contents of any already published migration
   def migrations  = List(
+/*
+    PlainMigration( 1 ){
+      println("Hello World 1!")
+    },
+    PlainMigration( 2 ){
+      println("Hello World 2!")
+    }
+ */
     SqlMigration( 1 )(List(
        """create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)"""
     ))
-    /*
+/*
     ,GenericMigration( 2 )({
       // this is typesafe :), but requires the corresponding code version to have been generated
       import datamodel.v1.schema.tables.Users
@@ -23,6 +32,6 @@ object SampleMigrations extends MyMigrationManager{
        """alter table "users" alter column "first" rename to "firstname" """,
        """alter table "users" alter column "last" rename to "lastname" """
     ))
-    */
+ */
   )
 }
