@@ -24,8 +24,8 @@ This implementation guarantees (if no bugs) that:
 
 - Migrations are applied in the right order.
 - Migrations are not applied twice.
-- Migrations are only applied on top of known migrations which have been applied in the right order. 
-  Otherwise the application is rejected (which may prevent invalid states). 
+- Migrations are only applied on top of known migrations which have been applied in the right order.
+  Otherwise the application is rejected (which may prevent invalid states).
 
 Also an app can check that the code it uses matches the database schema version, so it does not run with incompatible versions.
 
@@ -35,9 +35,9 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. start ``sbt`` within the project folder
-#. switch the project to ``app``
+#. switch the project to ``example``
    ::
-      > project app
+      > project example
 #. the db is empty
    ::
       > run dbdump
@@ -167,7 +167,7 @@ Use cases (run ``run help`` for command descriptions)
     * ``run dbdump`` for backups before applying migrations
     * ``run apply`` to peform the upgrade
     * ``run codegen`` if necessary
-   
+
    When merging changes from different developers ``run status`` and ``run preview`` allow to check for unapplied migrations.
 
 #. Code developer can suggest changes to Database Architect (e.g. smaller enterprise environment)

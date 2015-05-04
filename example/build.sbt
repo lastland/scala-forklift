@@ -1,6 +1,6 @@
 organization := "com.typesafe"
 
-name := "migrations-app"
+name := "migrations-example"
 
 version := "1.0"
 
