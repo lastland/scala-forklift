@@ -12,4 +12,5 @@ target/
 /.settings/org.scala-ide.sdt.core.prefs
 *.db
 *.swp
-src/main/scala/datamodel/
+migrationInfo.txt
+example/src/main/scala/datamodel/

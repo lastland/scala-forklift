@@ -1,4 +1,4 @@
-import scala.slick.migrations._
+import scala.migrations.slick._
 object Tool extends App{
   args.toList match{
     case "status" :: Nil =>
@@ -17,7 +17,7 @@ object Tool extends App{
       SampleMigrations.notYetAppliedMigrations.map{
         migration =>
           migration match{
-            case m:SqlMigration[_] => 
+            case m:SqlMigration[_] =>
               println( migration.id+" SqlMigration:")
               println( "\t" + m.queries.mkString("\n\t") )
             case m:GenericMigration[_] =>
@@ -29,7 +29,7 @@ object Tool extends App{
       println("-" * 80)
     case "init" :: Nil  => SampleMigrations.init
     case "reset" :: Nil => SampleMigrations.reset
-    case "codegen" :: Nil => 
+    case "codegen" :: Nil =>
       SampleCodegen.gen( SampleMigrations ) // SampleMigrations is passed in here only because it contains the db connection
     case "dbdump" :: Nil =>
       import scala.slick.driver.H2Driver.simple._

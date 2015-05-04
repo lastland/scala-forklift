@@ -1,7 +1,10 @@
-package scala.slick.migrations
+package scala.migrations.slick
+
 import scala.slick.driver.H2Driver.simple._
 import Database.dynamicSession
 import scala.language.experimental.macros
+
+import scala.migrations.Migration
 
 abstract class GenericMigration[T]( val id:T )(f : Session => Unit) extends Migration[T]{
   def up : Unit = f(dynamicSession)
@@ -17,7 +20,7 @@ trait GenericMigrationFunction{
   }
 }
 // GenericMigrationPreviewMacros
-trait GenericMigrationMacro{ 
+trait GenericMigrationMacro{
   def apply[T]( id:T )(f : Session => Unit) = macro GenericMigrationMacros.impl[T]
 }
 object GenericMigrationMacros{
@@ -31,7 +34,7 @@ object GenericMigrationMacros{
             case Apply(TypeApply(Select(_, name), _), List(table)) if name.toString == "columnBaseToInsertInvoker" => makeMoreReadable(table)
             case Apply(tree,List(Ident(name))) if name.toString == "session" => makeMoreReadable(tree)
             case Select(Select(Select(Select(Ident(datamodel), _), schema), entities_or_tables), table)
-              if datamodel.toString == "datamodel" && schema.toString == "schema" && 
+              if datamodel.toString == "datamodel" && schema.toString == "schema" &&
                  (entities_or_tables.toString == "entities" || entities_or_tables.toString == "tables")
               => makeMoreReadable(Ident(table))
             case Select(tree, name) if name.toString == "apply" => makeMoreReadable(tree)
