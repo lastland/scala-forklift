@@ -17,20 +17,22 @@ object SampleCodegen{
         H2Driver.defaultTables.filter(t =>
           tableNames.contains(t.name.name))))
       val latest = mm.latest
-      List( "v" + latest, "latest" ).foreach{ version =>
-        val pkg = "datamodel." + version + ".schema"
-        val folder = System.getProperty("user.dir")+"/app/src/main/scala"
-        val generator = new SourceCodeGenerator(model) {
-          override def packageCode(
-            profile: String, pkg: String, container: String) : String =
-            super.packageCode(profile, pkg, container) + s"""
+      List("/app", "/migrations").foreach { proj =>
+        List( "v" + latest, "latest" ).foreach { version =>
+          val pkg = "datamodel." + version + ".schema"
+          val folder = System.getProperty("user.dir")+ proj + "/src/main/scala"
+          val generator = new SourceCodeGenerator(model) {
+            override def packageCode(
+              profile: String, pkg: String, container: String) : String =
+              super.packageCode(profile, pkg, container) + s"""
 object Version{
   def version = $latest
 }
 """
+          }
+          generator.writeToFile("scala.slick.driver.H2Driver",
+            folder, pkg, "tables", "schema.scala")
         }
-        generator.writeToFile("scala.slick.driver.H2Driver",
-          folder, pkg, "tables", "schema.scala")
       }
     }
   }
