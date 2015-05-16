@@ -1,6 +1,6 @@
 organization := "com.typesafe"
 
-name := "migrations-example"
+name := "migrations-example-generated-code"
 
 version := "1.0"
 
@@ -10,5 +10,6 @@ scalacOptions += "-deprecation"
 
 scalacOptions += "-feature"
 
-addCommandAlias("mgm", "migration_manager/run")
-addCommandAlias("mg", "migrations/run")
+libraryDependencies ++= List(
+  "com.typesafe.slick" %% "slick" % "2.1.0"
+)
