@@ -10,11 +10,18 @@ import java.io.File
 trait SlickRescueCommands extends RescueCommands {
   this: SlickCodegen =>
 
+  private def deleteRecursively(f: File) {
+    if (f.isDirectory) {
+      for {
+        files <- Option(f.listFiles)
+        file <- files
+      } deleteRecursively(file)
+    }
+    f.delete
+  }
+
   def rescueCommand {
-    for {
-      files <- Option(new File(generatedDir).listFiles)
-      file <- files
-    } file.delete
+    deleteRecursively(new File(generatedDir))
   }
 }
 
