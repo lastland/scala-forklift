@@ -38,8 +38,6 @@ object Tool extends App{
       SampleMigrations.db.withDynSession{
         println( queryNA[String]("SCRIPT").list.mkString("\n") )
       }
-    case "app" :: Nil =>
-      App.run( SampleMigrations ) // SampleMigrations is passed in here only because it contains the db connection
     case _ =>
       println("""
 -------------------------------------------------------------------------------

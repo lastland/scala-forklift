@@ -35,37 +35,41 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. start ``sbt`` within the project folder
-#. switch the project to ``example``
+#. publish the project locally
    ::
-      > project example
+      > publishLocal
+#. go to the `example` directory, then start ``sbt``
+#. switch current project to ``app``
+   ::
+      > project app
 #. the db is empty
    ::
-      > run dbdump
+      > mg dbdump
 #. initialize the database for migrations
    ::
-      > run init
+      > mg init
 #. init created the __migrations__ table
    ::
-      > run dbdump
+      > mg dbdump
       CREATE CACHED TABLE PUBLIC."__migrations__"(
           "id" INTEGER NOT NULL
       );
 #. the migration yet to be applied
    ::
-      > run status
+      > mg status
       your database is outdated, not yet applied migrations: 1
 #. its sql or scala code
    ::
-      > run preview
+      > mg preview
       1 SqlMigration:
               create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)
 #. apply it
    ::
-      > run apply
+      > mg apply
       applying migration 1
 #. the db changed
    ::
-      > run dbdump
+      > mg dbdump
       CREATE CACHED TABLE PUBLIC."__migrations__"(
           "id" INTEGER NOT NULL
       );
@@ -77,17 +81,17 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
       );
 #. generate the corresponding data model source files
    ::
-      > run codegen
+      > mg codegen
 #. To simulate code evolution: uncomment code in `App.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/App.scala>`_
 #. a yet empty list of users
    ::
-      > run app
+      > run
       Users in the database:
       List()
 #. To simulate database evolution: uncomment code in `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/SampleMigrations.scala>`_
 #. sql and scala code of migrations yet to be applied
    ::
-      > run preview
+      > mg preview
       2 GenericMigration:
             Users.insertAll(User(1, "Chris", "Vogt"), User(2, "Stefan", "Zeiger"))
 
@@ -96,17 +100,17 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
             alter table "users" alter column "last" rename to "lastname"
 #. the app runs fine as the version of the last generated code matches the current db version
    ::
-      > run app
+      > run
       Users in the database:
       List()
 #. update, so the db version does not match anymore
    ::
-      > run apply
+      > mg apply
       applying migration 2
       applying migration 3
 #. the db changed
    ::
-      > run dbdump
+      > mg dbdump
       CREATE CACHED TABLE PUBLIC."__migrations__"(
           "id" INTEGER NOT NULL
       );
@@ -121,21 +125,21 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
          (2, 'Stefan', 'Zeiger');
 #. the app realizes it uses an out-dated data model
    ::
-      > run app
+      > run
       Generated code is outdated, please run code generator
 #. re-generate data model classes
    ::
-      > run codegen
+      > mg codegen
 #. finally we see the users added in migration 2
    ::
-      > run app
+      > run
       Users in the database:
       List(User(1,Chris,Vogt), User(2,Stefan,Zeiger))
 
 Play around yourself
 ^^^^^^^^^^^^^^^^^^^^
 
-- ``run help``
+- ``mg help``
 - write your own migrations `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/SampleMigrations.scala>`_
 - change the demo app `App.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/App.scala>`_
 - gather an understanding for the setup and the vision of this proof of concept :)
@@ -148,35 +152,35 @@ try commenting out all migrations in SampleMigrations.scala, then compile, then 
 
 ``org.h2.jdbc.JdbcSQLException: Table "__migrations__" not found``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-run ``run init``
+mg ``mg init``
 
 other compile errors
 ^^^^^^^^^^^^^^^^^^^^^^
-You can always throw away all changes and get back to a working state by running ``git reset --hard && sbt "run reset" && sbt "run init"``.
+You can always throw away all changes and get back to a working state by running ``git reset --hard && sbt "mg reset" && sbt "mg init"``.
 
-Use cases (run ``run help`` for command descriptions)
+Use cases (run ``mg help`` for command descriptions)
 -----------------------------------------------------------------------
 #. Code developer who has full control over database (e.g. consumer app with embedded database, startups, small business, etc.)
     * Once, initially
-        + ``run init`` to prepare the db for managing migrations.
-        + ``run codegen``
+        + ``mg init`` to prepare the db for managing migrations.
+        + ``mg codegen``
     * Handle any kind of change (schema, content, file system, ...) exclusively(!) via migrations that
         + needs to be replicated in another installation (e.g. staging, production, customer installations, etc.)
         + cannot be covered by git alone (e.g. moving profile pictures out of db blob columns into files)
-    * ``run preview`` for review purposes
-    * ``run dbdump`` for backups before applying migrations
-    * ``run apply`` to peform the upgrade
-    * ``run codegen`` if necessary
+    * ``mg preview`` for review purposes
+    * ``mg dbdump`` for backups before applying migrations
+    * ``mg apply`` to peform the upgrade
+    * ``mg codegen`` if necessary
 
-   When merging changes from different developers ``run status`` and ``run preview`` allow to check for unapplied migrations.
+   When merging changes from different developers ``mg status`` and ``mg preview`` allow to check for unapplied migrations.
 
 #. Code developer can suggest changes to Database Architect (e.g. smaller enterprise environment)
-    * ``run codegen`` when necessary
-    * Occasionally write a database migration. Then use ``run preview`` and suggest the change to the Database Architect.
+    * ``mg codegen`` when necessary
+    * Occasionally write a database migration. Then use ``mg preview`` and suggest the change to the Database Architect.
       Delete the migration afterwards or comment it out and put it under version control for documentation purposes.
 
 #. Code Developer does not control database (e.g. enterprise environment)
-    * ``run codegen`` when necessary.
+    * ``mg codegen`` when necessary.
     * Ignore migrations feature.
 
 For upgrading an unaccessible remote installation (e.g. a software installation on a consumer pc), use the programmatic interface similar with similar steps like scenario 1.
