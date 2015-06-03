@@ -6,7 +6,7 @@ trait Migration[T]{
 }
 
 trait MigrationManager[T]{
-  def migrations : Seq[Migration[T]]
+  var migrations : Seq[Migration[T]] = List()
   def ids = migrations.map(_.id)
   def alreadyAppliedIds : Seq[T]
   def notYetAppliedMigrations = migrations.drop(alreadyAppliedIds.size)

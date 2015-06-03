@@ -82,6 +82,10 @@ trait SlickMigrationCommands extends MigrationCommands[Int] {
 trait SlickMigrationCommandLineTool extends MigrationCommandLineTool[Int] {
   this: SlickMigrationCommands =>
 
+  override def idShouldBeHandled(id: String, appliedIds: Seq[Int]) =
+    if (appliedIds.isEmpty) id.toInt == 1
+    else id.toInt <= appliedIds.max + 1
+
   override def execCommands(args: List[String]) = args match {
     case "dbdump" :: Nil => dbdumpCommand
     case "codegen" :: Nil => codegenCommand
