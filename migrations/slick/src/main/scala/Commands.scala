@@ -1,5 +1,6 @@
 package scala.migrations.slick
 
+import scala.migrations.MigrationFilesHandler
 import scala.migrations.RescueCommands
 import scala.migrations.RescueCommandLineTool
 import scala.migrations.MigrationCommands
@@ -7,7 +8,17 @@ import scala.migrations.MigrationCommandLineTool
 
 import java.io.File
 
-trait SlickRescueCommands extends RescueCommands {
+trait SlickMigrationFilesHandler extends MigrationFilesHandler[Int] {
+  def nameIsId(name: String) =
+    name forall Character.isDigit
+
+  def idShouldBeHandled(id: String, appliedIds: Seq[Int]) =
+    if (appliedIds.isEmpty) id.toInt == 1
+    else id.toInt <= appliedIds.max + 1
+}
+
+trait SlickRescueCommands extends RescueCommands[Int]
+    with SlickMigrationFilesHandler{
   this: SlickCodegen =>
 
   private def deleteRecursively(f: File) {
@@ -20,12 +31,17 @@ trait SlickRescueCommands extends RescueCommands {
     f.delete
   }
 
-  def rescueCommand {
+  override def rescueCommand {
+    super.rescueCommand
     deleteRecursively(new File(generatedDir))
   }
 }
 
-trait SlickMigrationCommands extends MigrationCommands[Int] {
+trait SlickRescueCommandLineTool extends RescueCommandLineTool[Int]
+    with SlickRescueCommands with SlickCodegen
+
+trait SlickMigrationCommands extends MigrationCommands[Int]
+    with SlickMigrationFilesHandler {
   this: SlickMigrationManager with SlickCodegen =>
 
   override def statusCommand {
@@ -60,9 +76,15 @@ trait SlickMigrationCommands extends MigrationCommands[Int] {
     up
   }
 
-  override def initCommand { init }
+  override def initCommand {
+    super.initCommand
+    init
+  }
 
-  override def resetCommand { reset }
+  override def resetCommand {
+    super.resetCommand
+    reset
+  }
 
   def dbdumpCommand {
     import scala.slick.driver.H2Driver.simple._
@@ -82,9 +104,6 @@ trait SlickMigrationCommands extends MigrationCommands[Int] {
 trait SlickMigrationCommandLineTool extends MigrationCommandLineTool[Int] {
   this: SlickMigrationCommands =>
 
-  override def idShouldBeHandled(id: String, appliedIds: Seq[Int]) =
-    if (appliedIds.isEmpty) id.toInt == 1
-    else id.toInt <= appliedIds.max + 1
 
   override def execCommands(args: List[String]) = args match {
     case "dbdump" :: Nil => dbdumpCommand

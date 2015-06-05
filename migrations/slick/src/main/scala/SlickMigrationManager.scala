@@ -16,6 +16,7 @@ class MigrationsTable(tag: Tag) extends Table[Int](tag, "__migrations__") {
 
 trait SlickMigrationManager extends MigrationManager[Int] {
   private lazy val config = MigrationsConfig.config
+
   protected lazy val dburl = config.getString("migrations.db.url")
   protected lazy val dbdriver = config.getString("migrations.db.driver")
 

@@ -2,39 +2,32 @@ package scala.migrations
 
 import java.io.File
 import java.nio.file.Files
+import java.io.BufferedWriter
+import java.io.FileWriter
 
-trait RescueCommands {
-  def rescueCommand: Unit
-}
-
-trait MigrationCommands[T] { this: MigrationManager[T] =>
-  def appliedMigrationIds = alreadyAppliedIds
-
-  def statusCommand: Unit
-  def previewCommand: Unit
-  def applyCommand: Unit
-  def initCommand: Unit
-  def resetCommand: Unit
-}
-
-trait RescueCommandLineTool { this: RescueCommands =>
-  def execCommands(args: List[String]) = args match {
-    case "rescue" :: Nil => rescueCommand
-    case _ => println("Unknown commands")
-  }
-}
-
-// TODO: This trait may need to be rewritten in the future.
-// e.g.: use macros etc. to make adding command (and help info) easier
-trait MigrationCommandLineTool[T] { this: MigrationCommands[T] =>
+trait MigrationFilesHandler[T] {
   private lazy val config = MigrationsConfig.config
   protected lazy val unhandledLoc =
     config.getString("migrations.unhandled_location")
   protected lazy val handledLoc =
     config.getString("migrations.handled_location")
 
+  def nameIsId(name: String): Boolean
   def idShouldBeHandled(id: String, appliedIds: Seq[T]): Boolean
-  def handleMigrations {
+
+  protected def writeSummary(ids: Seq[String]) {
+    val code = "object MigrationSummary {\n" + ids.map(
+      n => "M" + n).mkString("\n") + "\n}\n"
+    val sumFile = new File(handledLoc + "/Summary.scala")
+
+    if (!sumFile.exists) sumFile.createNewFile()
+    val fw = new FileWriter(sumFile.getAbsoluteFile())
+    val bw = new BufferedWriter(fw)
+    bw.write(code)
+    bw.close()
+  }
+
+  def handleMigrationFiles(appliedMigrationIds: Seq[T]) {
     val unhandled = new File(unhandledLoc)
     assert(unhandled.isDirectory)
     val toMove: Seq[File] = for {
@@ -42,7 +35,7 @@ trait MigrationCommandLineTool[T] { this: MigrationCommands[T] =>
       fullName = file.getName
       if fullName.endsWith(".scala")
       name = fullName.substring(0, fullName.length - 6)
-      if name forall Character.isDigit
+      if nameIsId(name)
       if idShouldBeHandled(name, appliedMigrationIds)
     } yield file
 
@@ -55,20 +48,62 @@ trait MigrationCommandLineTool[T] { this: MigrationCommands[T] =>
         Files.createSymbolicLink(link.toPath, target)
       }
     }
-
     val ids = toMove.map(n => n.getName.substring(0, n.getName.length - 6))
-    val code = "object MigrationSummary {\n" + ids.map(
-      n => "M" + n).mkString("\n") + "\n}\n"
-    val sumFile = new File(handledLoc + "/Summary.scala")
-
-    if (!sumFile.exists) sumFile.createNewFile()
-    import java.io.BufferedWriter
-    import java.io.FileWriter
-    val fw = new FileWriter(sumFile.getAbsoluteFile())
-    val bw = new BufferedWriter(fw)
-    bw.write(code)
-    bw.close()
+    writeSummary(ids)
   }
+  def resetMigrationFiles {
+    writeSummary(List())
+    val handled = new File(handledLoc)
+    val migs = for {
+      file <- handled.listFiles
+      fullName = file.getName
+      if fullName.endsWith(".scala")
+      name = fullName.substring(0, fullName.length - 6)
+      if nameIsId(name)
+    } yield file
+    for (file <- migs) {
+      file.delete
+    }
+  }
+}
+
+trait RescueCommands[T] {
+  this: MigrationFilesHandler[T] =>
+  def rescueCommand {
+    resetMigrationFiles
+  }
+}
+
+trait MigrationCommands[T] {
+  this: MigrationManager[T] with MigrationFilesHandler[T] =>
+  def appliedMigrationIds = alreadyAppliedIds
+
+
+  def statusCommand: Unit
+  def previewCommand: Unit
+  def applyCommand: Unit
+
+  def initCommand {
+    writeSummary(List())
+  }
+  def resetCommand {
+    resetMigrationFiles
+  }
+  def updateCommand = {
+    handleMigrationFiles(appliedMigrationIds)
+  }
+}
+
+trait RescueCommandLineTool[T] { this: RescueCommands[T] =>
+  def execCommands(args: List[String]) = args match {
+    case "rescue" :: Nil => rescueCommand
+    case _ => println("Unknown commands")
+  }
+}
+
+// TODO: This trait may need to be rewritten in the future.
+// e.g.: use macros etc. to make adding command (and help info) easier
+trait MigrationCommandLineTool[T] { this: MigrationCommands[T] =>
 
   def execCommands(args: List[String]) = args match {
     case "status" :: Nil => statusCommand
@@ -76,7 +111,7 @@ trait MigrationCommandLineTool[T] { this: MigrationCommands[T] =>
     case "apply" :: Nil => applyCommand
     case "init" :: Nil => initCommand
     case "reset" :: Nil => resetCommand
-    case "update" :: Nil => handleMigrations
+    case "update" :: Nil => updateCommand
     case _ => println(helpOutput)
   }
 
