@@ -12,13 +12,16 @@ trait SlickMigrationFilesHandler extends MigrationFilesHandler[Int] {
   def nameIsId(name: String) =
     name forall Character.isDigit
 
+  def nameToId(name: String): Int =
+    name.toInt
+
   def idShouldBeHandled(id: String, appliedIds: Seq[Int]) =
     if (appliedIds.isEmpty) id.toInt == 1
     else id.toInt <= appliedIds.max + 1
 }
 
 trait SlickRescueCommands extends RescueCommands[Int]
-    with SlickMigrationFilesHandler{
+    with SlickMigrationFilesHandler {
   this: SlickCodegen =>
 
   private def deleteRecursively(f: File) {
@@ -37,27 +40,32 @@ trait SlickRescueCommands extends RescueCommands[Int]
   }
 }
 
-trait SlickRescueCommandLineTool extends RescueCommandLineTool[Int]
-    with SlickRescueCommands with SlickCodegen
+trait SlickRescueCommandLineTool extends RescueCommandLineTool[Int] {
+  this: SlickRescueCommands =>
+}
 
 trait SlickMigrationCommands extends MigrationCommands[Int]
     with SlickMigrationFilesHandler {
   this: SlickMigrationManager with SlickCodegen =>
 
+  override def applyCommands: Seq[() => Unit] = List(
+    () => applyCommand, () => codegenCommand)
+
+
   override def statusCommand {
     val ny = notYetAppliedMigrations
-    if( ny.size == 0 )
+    if( ny.size == 0 ) {
       println("your database is up-to-date")
-    else
+    } else {
       println("your database is outdated, not yet applied migrations: "+notYetAppliedMigrations.map(_.id).mkString(", "))
+    }
   }
 
   override def previewCommand {
     println("-" * 80)
     println("NOT YET APPLIED MIGRATIONS PREVIEW:")
     println("")
-    notYetAppliedMigrations.map{
-      migration =>
+    notYetAppliedMigrations.map { migration =>
       migration match{
         case m:SqlMigration[_] =>
           println( migration.id+" SqlMigration:")
@@ -72,7 +80,8 @@ trait SlickMigrationCommands extends MigrationCommands[Int]
   }
 
   override def applyCommand {
-    println("applying migrations: "+notYetAppliedMigrations.map(_.id).mkString(", "))
+    val ids = notYetAppliedMigrations.map(_.id)
+    println("applying migrations: " + ids.mkString(", "))
     up
   }
 

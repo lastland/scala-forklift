@@ -4,16 +4,58 @@ import java.io.File
 import java.nio.file.Files
 import java.io.BufferedWriter
 import java.io.FileWriter
+import scala.io.StdIn
 
 trait MigrationFilesHandler[T] {
+
   private lazy val config = MigrationsConfig.config
   protected lazy val unhandledLoc =
     config.getString("migrations.unhandled_location")
   protected lazy val handledLoc =
     config.getString("migrations.handled_location")
 
+  private def getId(name: String): Option[String] = {
+    if (!name.endsWith(".scala")) None
+    else Some(name.substring(0, name.length - 6))
+  }
+
   def nameIsId(name: String): Boolean
+  def nameToId(name: String): T
   def idShouldBeHandled(id: String, appliedIds: Seq[T]): Boolean
+
+  def migrationFiles(alreadyAppliedIds: => Seq[T]): Stream[File] = {
+    val appliedMigrationIds = alreadyAppliedIds
+    val unhandled = new File(unhandledLoc)
+    assert(unhandled.isDirectory)
+    val toMove: Seq[File] = for {
+      file <- unhandled.listFiles
+      name <- getId(file.getName)
+      if nameIsId(name)
+      if idShouldBeHandled(name, appliedMigrationIds)
+      if !appliedMigrationIds.contains(nameToId(name))
+    } yield file
+    toMove.toStream
+  }
+
+  def handleMigrationFile(file: File) {
+    val link = new File(handledLoc + "/" + file.getName)
+    val target = new File(
+      unhandledLoc + "/" + file.getName).getAbsoluteFile.toPath
+    if (!link.exists) {
+      println("create link to " + link.toPath + " for " + target)
+      Files.createSymbolicLink(link.toPath, target)
+    }
+  }
+
+  protected def summary: Seq[String] = {
+    val handled = new File(handledLoc)
+    assert(handled.isDirectory)
+    for {
+      file <- handled.listFiles
+      name <- getId(file.getName)
+      if nameIsId(name)
+    } yield name
+  }
 
   protected def writeSummary(ids: Seq[String]) {
     val code = "object MigrationSummary {\n" + ids.map(
@@ -27,38 +69,12 @@ trait MigrationFilesHandler[T] {
     bw.close()
   }
 
-  def handleMigrationFiles(appliedMigrationIds: Seq[T]) {
-    val unhandled = new File(unhandledLoc)
-    assert(unhandled.isDirectory)
-    val toMove: Seq[File] = for {
-      file <- unhandled.listFiles
-      fullName = file.getName
-      if fullName.endsWith(".scala")
-      name = fullName.substring(0, fullName.length - 6)
-      if nameIsId(name)
-      if idShouldBeHandled(name, appliedMigrationIds)
-    } yield file
-
-    for (file <- toMove) {
-      val link = new File(handledLoc + "/" + file.getName)
-      val target = new File(
-        unhandledLoc + "/" + file.getName).getAbsoluteFile.toPath
-      if (!link.exists) {
-        println("create link to " + link.toPath + " for " + target)
-        Files.createSymbolicLink(link.toPath, target)
-      }
-    }
-    val ids = toMove.map(n => n.getName.substring(0, n.getName.length - 6))
-    writeSummary(ids)
-  }
   def resetMigrationFiles {
     writeSummary(List())
     val handled = new File(handledLoc)
     val migs = for {
       file <- handled.listFiles
-      fullName = file.getName
-      if fullName.endsWith(".scala")
-      name = fullName.substring(0, fullName.length - 6)
+      name <- getId(file.getName)
       if nameIsId(name)
     } yield file
     for (file <- migs) {
@@ -76,12 +92,24 @@ trait RescueCommands[T] {
 
 trait MigrationCommands[T] {
   this: MigrationManager[T] with MigrationFilesHandler[T] =>
-  def appliedMigrationIds = alreadyAppliedIds
 
+  def previewCommands: Seq[() => Unit] = List(() => previewCommand)
+  def applyCommands: Seq[() => Unit] = List(() => applyCommand)
 
   def statusCommand: Unit
   def previewCommand: Unit
   def applyCommand: Unit
+  def migrateCommand(options: Seq[String]) {
+    val prompt = options.contains("-p")
+    if (!notYetAppliedMigrations.isEmpty) {
+      for (c <- previewCommands) c()
+      if (prompt) {
+        if (StdIn.readLine("Do you wish to continue? [Y/N]") != "Y") return
+      }
+      for (c <- applyCommands) c()
+    }
+    updateCommand
+  }
 
   def initCommand {
     writeSummary(List())
@@ -89,8 +117,15 @@ trait MigrationCommands[T] {
   def resetCommand {
     resetMigrationFiles
   }
-  def updateCommand = {
-    handleMigrationFiles(appliedMigrationIds)
+  def updateCommand {
+    val files = migrationFiles(alreadyAppliedIds)
+    if (!files.isEmpty) {
+      for (file <- files) {
+        handleMigrationFile(file)
+      }
+      // only write summary if files are moved
+      writeSummary(summary)
+    }
   }
 }
 
@@ -112,6 +147,8 @@ trait MigrationCommandLineTool[T] { this: MigrationCommands[T] =>
     case "init" :: Nil => initCommand
     case "reset" :: Nil => resetCommand
     case "update" :: Nil => updateCommand
+    case "migrate" :: (options: Seq[String]) =>
+      migrateCommand(options)
     case _ => println(helpOutput)
   }
 
