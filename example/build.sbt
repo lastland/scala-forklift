@@ -11,4 +11,5 @@ scalacOptions += "-deprecation"
 scalacOptions += "-feature"
 
 addCommandAlias("mgm", "migration_manager/run")
+
 addCommandAlias("mg", "migrations/run")
