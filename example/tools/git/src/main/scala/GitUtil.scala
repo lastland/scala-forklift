@@ -2,7 +2,7 @@ import java.io.File
 import java.nio.file.{Paths, Files, StandardCopyOption}
 import com.typesafe.config._
 import scala.migrations.MigrationDatabase
-import scala.migrations.tools.{GitUtil => Git}
+import scala.migrations.core.tools.{GitUtil => Git}
 
 class MyMigrationDatabase(dbLoc: String, objLoc: String)
     extends MigrationDatabase {

@@ -1,4 +1,4 @@
-package scala.migrations.tools
+package scala.migrations.core.tools
 
 import scala.migrations.MigrationDatabase
 
