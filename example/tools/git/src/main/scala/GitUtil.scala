@@ -3,6 +3,7 @@ import java.nio.file.{Paths, Files, StandardCopyOption}
 import com.typesafe.config._
 import scala.migrations.MigrationDatabase
 import scala.migrations.core.tools.{GitUtil => Git}
+import scala.migrations.tools.git.Installer
 
 class MyMigrationDatabase(dbLoc: String, objLoc: String)
     extends MigrationDatabase {
@@ -56,6 +57,18 @@ class MyMigrationDatabase(dbLoc: String, objLoc: String)
   }
 }
 
+class MyGitUtil(db: MyMigrationDatabase) extends Git(db) {
+  override def run(args: List[String]) {
+    args match {
+      case "install" :: Nil =>
+        val currentDir = System.getProperty("user.dir")
+        Installer.install(currentDir + "/../.git", currentDir, "git-tools")
+      case _ =>
+        super.run(args)
+    }
+  }
+}
+
 object GitUtil {
   private val config = ConfigFactory.load()
   val dbLoc = config.getString("db.url")
@@ -63,7 +76,7 @@ object GitUtil {
 
   def main(args: Array[String]) {
     val db = new MyMigrationDatabase(dbLoc, objLoc)
-    val tool = new Git(db)
+    val tool = new MyGitUtil(db)
     tool.run(args.toList)
   }
 }

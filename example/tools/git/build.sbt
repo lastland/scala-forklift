@@ -12,5 +12,6 @@ scalacOptions += "-feature"
 
 libraryDependencies ++= List(
   "com.typesafe" %% "slick-migrations" % "1.0"
+  ,"com.typesafe" %% "migrations-git-tool" % "1.0"
   ,"com.typesafe" % "config" % "1.3.0"
 )
