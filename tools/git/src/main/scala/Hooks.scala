@@ -41,7 +41,7 @@ log = subprocess.check_output("git log -1 HEAD".split())
 commit_id = log.split("\n")[0][7:]
 subprocess.call(commit_command(commit_id), shell=True)
 """
-    val fileName = dir + "/hooks/post_commit"
+    val fileName = dir + "/hooks/post-commit"
     writeFileAndSetPermission(fileName, content)
   }
 }
