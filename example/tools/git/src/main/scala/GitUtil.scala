@@ -1,6 +1,7 @@
 import java.io.File
 import java.nio.file.{Paths, Files, StandardCopyOption}
 import com.typesafe.config._
+import scala.sys.process._
 import scala.migrations.MigrationDatabase
 import scala.migrations.core.tools.{GitUtil => Git}
 import scala.migrations.tools.git.Installer
@@ -21,43 +22,46 @@ class MyMigrationDatabase(dbLoc: String, objLoc: String)
     file
   }
 
-  private def findDirOfCommit(commitId: String): File = {
+  private def findBranchDir(branch: String): File = {
     getOrMkDir(objLoc)
-    val head2 = commitId.substring(0, 2)
-    val dir1 = objLoc + "/" + head2
-    getOrMkDir(dir1)
-    val rest = commitId.substring(2)
-    val dir2 = dir1 + "/" + rest
-    getOrMkDir(dir2)
+    getOrMkDir(objLoc + "/" + branch)
   }
 
-  private def dbNameOfCommit(commitId: String): String = {
-    val dir = findDirOfCommit(commitId)
-    dir.getAbsolutePath + "/db"
+  private def dbNameOfBranch(branch: String): String = {
+    findBranchDir(branch).getAbsolutePath + "/db"
   }
 
-  private def dbOfCommit(commitId: String): File = {
-    new File(dbNameOfCommit(commitId))
-  }
-
-  def copy(commitId: String) {
+  def copy(branch: String, commitId: String) {
     val db = new File(dbName)
     if (!db.isFile) {
       throw new RuntimeException("The DB must be a file!")
     }
-    val dir = findDirOfCommit(commitId)
+    val gitDbName = dbNameOfBranch(branch)
     val dbStream = Files.newInputStream(Paths.get(db.getAbsolutePath))
-    Files.copy(dbStream, Paths.get(dbNameOfCommit(commitId)))
+    Files.copy(dbStream, Paths.get(gitDbName), StandardCopyOption.REPLACE_EXISTING)
   }
 
-  def use(mainBranchId: String) {
-    val db = dbOfCommit(mainBranchId)
-    val dbStream = Files.newInputStream(Paths.get(db.getAbsolutePath))
-    Files.copy(dbStream, Paths.get(dbName), StandardCopyOption.REPLACE_EXISTING)
+  def use(branch: String, commitId: String) {
+    val gitDbName = dbNameOfBranch(branch)
+    val db = new File(gitDbName)
+    if (!db.exists) {
+      rebuild(branch, commitId)
+    } else {
+      val dbStream = Files.newInputStream(Paths.get(db.getAbsolutePath))
+      Files.copy(dbStream, Paths.get(dbName), StandardCopyOption.REPLACE_EXISTING)
+    }
+  }
+
+  def rebuild(branch: String, commitId: String) {
+    "sbt run reset".!
+    "sbt run init".!
+    "sbt run ~migrate".!
+    copy(branch, commitId)
   }
 }
 
-class MyGitUtil(db: MyMigrationDatabase) extends Git(db) {
+class MyGitUtil(db: MyMigrationDatabase)
+    extends Git(db, System.getProperty("user.dir") + "/../.git") {
   override def run(args: List[String]) {
     args match {
       case "install" :: Nil =>

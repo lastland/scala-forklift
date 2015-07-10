@@ -1,6 +1,7 @@
 package scala.migrations
 
 abstract class MigrationDatabase {
-  def copy(commitId: String): Unit
-  def use(mainBranchId: String): Unit
+  def copy(branch: String, commitId: String): Unit
+  def use(branch: String, commitId: String): Unit
+  def rebuild(branch: String, commitId: String): Unit
 }

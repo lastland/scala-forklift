@@ -6,8 +6,10 @@ trait Installer {
   def install(gitDir: String, gitToolDir: String, gitToolProjectName: String) {
     val commands = new Commands(gitDir, gitToolDir, gitToolProjectName)
     commands.generate()
-    val postCommit = new PostCommitHook(gitDir)
-    postCommit.generate()
+    (new PostCommitHook(gitDir)).generate()
+    (new PostMergeHook(gitDir)).generate()
+    (new PostCheckoutHook(gitDir)).generate()
+    (new PostRewriteHook(gitDir)).generate()
   }
 }
 

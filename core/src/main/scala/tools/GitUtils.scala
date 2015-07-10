@@ -1,21 +1,52 @@
 package scala.migrations.core.tools
 
+import java.io.File
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import scala.migrations.MigrationDatabase
 
-class GitUtil(db: MigrationDatabase) {
-  def postCommit(commitId: String) = {
-    db.copy(commitId)
+class GitUtil(db: MigrationDatabase, gitLoc: String) {
+  lazy val repo =
+    new FileRepositoryBuilder().setGitDir(
+      new File(gitLoc)).readEnvironment().findGitDir().build()
+
+  protected def findCommit(commitId: String) = {
+    val objectReader = repo.newObjectReader()
+    val objectLoader = objectReader.open(ObjectId.fromString(commitId))
+    RevCommit.parse(objectLoader.getBytes)
   }
 
-  def postMerge(mainBranchId: String) = {
-    db.use(mainBranchId)
+  def postCommit(branch: String, commitId: String) = {
+    db.copy(branch, commitId)
+  }
+
+  def postMerge(branch: String, commitId: String) = {
+    def mergeCommit = findCommit(commitId)
+    def firstParentId = ObjectId.toString(mergeCommit.getParent(0))
+    println(s"use $firstParentId")
+    db.use(branch, firstParentId)
+    println(s"commit $commitId")
+    db.copy(branch, commitId)
+  }
+
+  def postCheckout(branch: String, commitId: String) = {
+    db.use(branch, commitId)
+  }
+
+  def postRewrite(branch: String, commitId: String) = {
+    db.use(branch, commitId)
   }
 
   def run(args: List[String]) = args match {
-    case "commit" :: id :: Nil =>
-      postCommit(id)
-    case "merge" :: id :: Nil =>
-      postMerge(id)
+    case "commit" :: branch :: id :: Nil =>
+      postCommit(branch, id)
+    case "merge" :: branch :: id :: Nil =>
+      postMerge(branch, id)
+    case "checkout" :: branch :: id :: Nil =>
+      postCheckout(branch, id)
+    case "rewrite" :: branch :: id :: Nil =>
+      postRewrite(branch, id)
     case _ =>
       println("Unknown command!")
   }

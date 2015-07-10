@@ -5,7 +5,12 @@ import java.nio.file.{Files, Paths}
 import java.nio.file.attribute.PosixFilePermissions
 
 abstract class Script(dir: String) {
-  def generate(): Unit
+  val content: String
+  val fileName: String
+
+  def generate() {
+    writeFileAndSetPermission(fileName, content)
+  }
 
   protected def writeFileAndSetPermission(fileName: String, content: String) {
     val writer = new PrintWriter(fileName)
@@ -18,30 +23,67 @@ abstract class Script(dir: String) {
 
 class Commands(val dir: String, gitToolDir: String, gitToolProject: String)
     extends Script(dir) {
-  override def generate() {
-    val content = s"""
-#!/usr/local/bin/python
-tool_dir = "$gitToolDir"
-tool_running_command = "$gitToolProject/run"
-def commit_command(commit_id):
-    return " ".join(["cd", tool_dir, "; sbt '", tool_running_command, "commit", commit_id, "'"])
+  override val content = s"""#!/usr/local/bin/python
+tool_dir = "/Users/lastland/workspace/slick/migrations/example"
+tool_running_command = "git-tools/run"
+
+def common_command(command, branch, commit_id):
+    return " ".join(["cd", tool_dir, "; sbt '", tool_running_command, command, branch, commit_id, "'"])
+
+def commit_command(branch, commit_id):
+    return common_command("commit", branch, commit_id)
+
+def merge_command(branch, commit_id):
+    return common_command("merge", branch, commit_id)
+
+def checkout_command(branch, commit_id):
+    return common_command("checkout", branch, commit_id)
+
+def rewrite_command(branch, commit_id):
+    return common_command("rewrite", branch, commit_id)
 """
-    val fileName = dir + "/hooks/commands.py"
-    writeFileAndSetPermission(fileName, content)
-  }
+  override val fileName = dir + "/hooks/commands.py"
 }
 
-class PostCommitHook(dir: String) extends Script(dir) {
-  override def generate() {
-    val content = s"""
-#!/usr/local/bin/python
-from commands import commit_command
+abstract class CommandHook(dir: String) extends Script(dir) {
+  protected def scriptHead = "#!/usr/local/bin/python\n"
+  protected def scriptImports(command: String) =
+    s"""from commands import $command
 import subprocess
-log = subprocess.check_output("git log -1 HEAD".split())
-commit_id = log.split("\n")[0][7:]
-subprocess.call(commit_command(commit_id), shell=True)
 """
-    val fileName = dir + "/hooks/post-commit"
-    writeFileAndSetPermission(fileName, content)
-  }
+  protected def scriptBody(command: String) =
+    s"""log = subprocess.check_output("git log -1 HEAD".split())
+commit_id = log.split("\\n")[0][7:]
+branch = subprocess.check_output("git rev-parse --abbrev-ref HEAD".split())
+subprocess.call($command(branch, commit_id), shell=True)
+"""
+
+  def script(command: String) = List(
+    scriptHead, scriptImports(command), scriptBody(command)).mkString("")
+}
+
+class PostCommitHook(dir: String) extends CommandHook(dir) {
+  override val content = script("commit_command")
+  override val fileName = dir + "/hooks/post-commit"
+}
+
+class PostMergeHook(dir: String) extends CommandHook(dir) {
+  override val content = script("merge_command")
+  override val fileName = dir + "/hooks/post-merge"
+}
+
+class PostCheckoutHook(dir: String) extends CommandHook(dir) {
+  override val content = script("checkout_command")
+  override val fileName = dir + "/hooks/post-checkout"
+}
+
+class PostRewriteHook(dir: String) extends CommandHook(dir) {
+  override protected def scriptImports(command: String) =
+    super.scriptImports(command) + "import sys\n"
+  override protected def scriptBody(command: String) =
+    s"""if sys.argv != "rebase":
+    sys.exit(0)
+""" + super.scriptBody(command)
+  override val content = script("rewrite_command")
+  override val fileName = dir + "/hooks/post-rewrite"
 }
