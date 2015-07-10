@@ -24,9 +24,7 @@ class GitUtil(db: MigrationDatabase, gitLoc: String) {
   def postMerge(branch: String, commitId: String) = {
     def mergeCommit = findCommit(commitId)
     def firstParentId = ObjectId.toString(mergeCommit.getParent(0))
-    println(s"use $firstParentId")
     db.use(branch, firstParentId)
-    println(s"commit $commitId")
     db.copy(branch, commitId)
   }
 
