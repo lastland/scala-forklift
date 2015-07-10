@@ -52,10 +52,14 @@ class MyMigrationDatabase(dbLoc: String, objLoc: String)
     }
   }
 
+  def rebuild() {
+    Seq("sbt", "mg reset").!
+    Seq("sbt", "mg init").!
+    Seq("sbt", "~mg migrate").!
+  }
+
   def rebuild(branch: String, commitId: String) {
-    "sbt mg reset".!
-    "sbt mg init".!
-    "sbt mg ~migrate".!
+    rebuild()
     copy(branch, commitId)
   }
 }
@@ -67,6 +71,8 @@ class MyGitUtil(db: MyMigrationDatabase)
       case "install" :: Nil =>
         val currentDir = System.getProperty("user.dir")
         Installer.install(currentDir + "/../.git", currentDir, "git-tools")
+      case "rebuild" :: Nil =>
+        db.rebuild()
       case _ =>
         super.run(args)
     }
