@@ -53,9 +53,9 @@ class MyMigrationDatabase(dbLoc: String, objLoc: String)
   }
 
   def rebuild(branch: String, commitId: String) {
-    "sbt run reset".!
-    "sbt run init".!
-    "sbt run ~migrate".!
+    "sbt mg reset".!
+    "sbt mg init".!
+    "sbt mg ~migrate".!
     copy(branch, commitId)
   }
 }
