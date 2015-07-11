@@ -1,10 +1,10 @@
 package example.migration.manager
 
-import scala.migrations.RescueCommandLineTool
 import scala.migrations.slick.SlickRescueCommands
+import scala.migrations.slick.SlickRescueCommandLineTool
 
 object Tool extends App
-    with RescueCommandLineTool
+    with SlickRescueCommandLineTool
     with SlickRescueCommands
     with MyCodegen {
   execCommands(args.toList)

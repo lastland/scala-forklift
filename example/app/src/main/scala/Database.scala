@@ -4,7 +4,7 @@ import Database.dynamicSession
 
 object MyDatabase {
   private val config = ConfigFactory.load()
-  val dburl = config.getString("migrations.db.url")
-  val dbdriver = config.getString("migrations.db.driver")
+  val dburl = config.getString("db.url")
+  val dbdriver = config.getString("db.driver")
   def db = Database.forURL(dburl, driver = dbdriver)
 }

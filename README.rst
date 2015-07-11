@@ -54,6 +54,10 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
       CREATE CACHED TABLE PUBLIC."__migrations__"(
           "id" INTEGER NOT NULL
       );
+#. update the migrations
+   ::
+      > mg update
+      create link to ./migrations/src/main/scala/migrations/1.scala for /Users/lastland/workspace/slick/migrations/example/./migrations/src_migrations/main/scala/1.scala
 #. the migration yet to be applied
    ::
       > mg status
@@ -88,16 +92,15 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
       > run
       Users in the database:
       List()
-#. To simulate database evolution: uncomment code in `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/SampleMigrations.scala>`_
+#. To simulate database evolution, continue run
+   ::
+      > mg update
 #. sql and scala code of migrations yet to be applied
    ::
       > mg preview
       2 GenericMigration:
             Users.insertAll(User(1, "Chris", "Vogt"), User(2, "Stefan", "Zeiger"))
 
-      3 SqlMigration:
-            alter table "users" alter column "first" rename to "firstname"
-            alter table "users" alter column "last" rename to "lastname"
 #. the app runs fine as the version of the last generated code matches the current db version
    ::
       > run
@@ -107,26 +110,28 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
    ::
       > mg apply
       applying migration 2
-      applying migration 3
 #. the db changed
    ::
       > mg dbdump
+      CREATE USER IF NOT EXISTS "" SALT '' HASH '' ADMIN;
       CREATE CACHED TABLE PUBLIC."__migrations__"(
           "id" INTEGER NOT NULL
       );
-      INSERT INTO PUBLIC."__migrations__"("id") VALUES (1),(2),(3);
+      ALTER TABLE PUBLIC."__migrations__" ADD CONSTRAINT PUBLIC.CONSTRAINT_A PRIMARY KEY("id");
+      -- 2 +/- SELECT COUNT(*) FROM PUBLIC."__migrations__";
+      INSERT INTO PUBLIC."__migrations__"("id") VALUES
+      (1),
+      (2);
       CREATE CACHED TABLE PUBLIC."users"(
           "id" INTEGER NOT NULL,
           "first" VARCHAR NOT NULL,
           "last" VARCHAR NOT NULL
       );
-      INSERT INTO PUBLIC."users"("id", "firstname", "lastname") VALUES
-         (1, 'Chris', 'Vogt'),
-         (2, 'Stefan', 'Zeiger');
-#. the app realizes it uses an out-dated data model
-   ::
-      > run
-      Generated code is outdated, please run code generator
+      ALTER TABLE PUBLIC."users" ADD CONSTRAINT PUBLIC.CONSTRAINT_6 PRIMARY KEY("id");
+      -- 2 +/- SELECT COUNT(*) FROM PUBLIC."users";
+      INSERT INTO PUBLIC."users"("id", "first", "last") VALUES
+      (1, 'Chris', 'Vogt'),
+      (2, 'Stefan', 'Zeiger');
 #. re-generate data model classes
    ::
       > mg codegen
@@ -134,7 +139,14 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
    ::
       > run
       Users in the database:
-      List(User(1,Chris,Vogt), User(2,Stefan,Zeiger))
+      List(UsersRow(1,Chris,Vogt), UsersRow(2,Stefan,Zeiger))
+
+Yet there's another way...
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. alternatively, you can simply run the following command after database has been initialized
+   ::
+      > ~mg migrate
 
 Play around yourself
 ^^^^^^^^^^^^^^^^^^^^
