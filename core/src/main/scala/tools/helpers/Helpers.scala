@@ -12,7 +12,9 @@ import scala.sys.process._
 
 object Helpers {
 
-  trait HelperProcessBuilder {
+  class IOProcessor {
+    var finished = false
+
     @tailrec final def noOutput(
       flag: Boolean, input: InputStream, text: String): Unit = {
       var byte: Array[Byte] = new Array(1)
@@ -28,16 +30,32 @@ object Helpers {
         case Success(_) => noOutput(fl, input, text + s)
         case Failure(ex) => ex match {
           case te: TimeoutException =>
-            if (fl) input.close() else throw te
+            if (fl) {
+              finished = true
+              input.close()
+            } else throw te
         }
       }
+    }
+
+    def enter(output: OutputStream) {
+      while (!finished) { Thread.sleep((1 second).toMillis) }
+      output.write(13)
+      output.close()
+    }
+
+    def destroyOnFinish(p: Process) {
+      while (!finished) { Thread.sleep((1 second).toMillis) }
+      p.destroy()
     }
   }
 
   implicit class SeqHelperProcessBuilder(val pb: Seq[String])
-      extends HelperProcessBuilder {
+      extends AnyVal {
     private def runCommandUntilNoOutput(command: Seq[String]) {
-      command run new ProcessIO(_.close(), noOutput(false, _, ""), _.close())
+      val io = new IOProcessor
+      val p = command run new ProcessIO(io.enter, io.noOutput(false, _, ""), _.close(), false)
+      io.destroyOnFinish(p)
     }
 
     def !-> = {
@@ -46,9 +64,11 @@ object Helpers {
   }
 
   implicit class StringHelperProcessBuilder(val pb: String)
-      extends HelperProcessBuilder {
+      extends AnyVal {
     private def runCommandUntilNoOutput(command: String) {
-      command run new ProcessIO(_.close(), noOutput(false, _, ""), _.close())
+      val io = new IOProcessor
+      val p = command run new ProcessIO(io.enter, io.noOutput(false, _, ""), _.close(), false)
+      io.destroyOnFinish(p)
     }
 
     def !-> = {
