@@ -21,14 +21,16 @@ abstract class Script(dir: String) {
   }
 }
 
-class Commands(val dir: String, gitToolDir: String, gitToolProject: String)
+class Commands(sbtDir: String, val dir: String,
+  gitToolDir: String, gitToolProject: String)
     extends Script(dir) {
   override val content = s"""#!/usr/local/bin/python
 tool_dir = "/Users/lastland/workspace/slick/migrations/example"
 tool_running_command = "git-tools/run"
+sbt = "$sbtDir"
 
 def common_command(command, branch, commit_id):
-    return " ".join(["cd", tool_dir, "; sbt '", tool_running_command, command, branch, commit_id, "'"])
+    return " ".join(["cd", tool_dir, "; ", sbt," '", tool_running_command, command, branch, commit_id, "'"])
 
 def commit_command(branch, commit_id):
     return common_command("commit", branch, commit_id)

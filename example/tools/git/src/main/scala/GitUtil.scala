@@ -72,7 +72,8 @@ class MyGitUtil(db: MyMigrationDatabase)
     args match {
       case "install" :: Nil =>
         val currentDir = System.getProperty("user.dir")
-        Installer.install(currentDir + "/../.git", currentDir, "git-tools")
+        Installer.install("/usr/local/bin/sbt", currentDir + "/../.git",
+          currentDir, "git-tools")
       case "rebuild" :: Nil =>
         db.rebuild()
       case _ =>
