@@ -25,7 +25,7 @@ class Commands(sbtDir: String, val dir: String,
   gitToolDir: String, gitToolProject: String)
     extends Script(dir) {
   override val content = s"""#!/usr/local/bin/python
-tool_dir = "/Users/lastland/workspace/slick/migrations/example"
+tool_dir = "${System.getProperty("user.dir")}"
 tool_running_command = "git-tools/run"
 sbt = "$sbtDir"
 
