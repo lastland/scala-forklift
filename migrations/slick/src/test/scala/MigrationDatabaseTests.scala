@@ -43,7 +43,7 @@ object TestDir {
 }
 
 class MigrationDatabaseTest extends FlatSpec
-    with BeforeAndAfter with ParallelTestExecution {
+    with BeforeAndAfter with ParallelTestExecution with GivenWhenThen {
   val dir = TestDir.getDir
   val objDir = dir.testPath + "/.db"
 
@@ -61,19 +61,55 @@ class MigrationDatabaseTest extends FlatSpec
     Process(commands, dir.testDir)
   }
 
+  def runInTestDir(commands: Seq[String]) = {
+    inTestDir(commands) ! ProcessLogger(line => (), line => println(line))
+  }
+
   def inDir(commands: Seq[String]) = {
     Process(commands, dir.dir)
   }
 
-  "copy" should "commit db into .db" in {
-    assert(inDir(Seq("git", "init")).! === 0)
-    assert(inTestDir(Seq("sbt", "git-tools/run install")).! === 0)
-    assert(inTestDir(Seq("sbt", "git-tools/run rebuild")).! === 0)
-    assert(inDir(Seq("git", "add", ".")).! === 0)
-    assert(inDir(Seq("git", "commit", "-m", "test")).! === 0)
+  def runInDir(commands: Seq[String]) = {
+    inDir(commands) ! ProcessLogger(line => (), line => println(line))
+  }
+
+  "copy" should "commit db into .db on master branch" in {
+    Given("an example project")
+    assert(runInDir(Seq("git", "init")) === 0)
+    assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
+    assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
+
+    When("commit on master branch")
+    assert(runInDir(Seq("git", "add", ".")) === 0)
+    assert(runInDir(Seq("git", "commit", "-m", "test")) === 0)
+
+    Then("a db file should be stored in objDir")
     val dbFile = new File(objDir + "/master/db")
     assert(dbFile.exists === true)
     assert(dbFile.isFile === true)
+
+    And("the stored db should be identical with current db")
+    assert(FileUtils.contentEquals(dbFile,
+      new File(dir.testPath + "/test.tb.h2.db")) === true)
+  }
+
+  it should "commit db into .db on test branch" in {
+    Given("an example project")
+    assert(runInDir(Seq("git", "init")) === 0)
+    assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
+    assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
+
+    When("commit on master branch")
+    assert(runInDir(Seq("git", "checkout", "-b", "test")) === 0)
+    assert(runInDir(Seq("git", "add", ".")) === 0)
+    assert(runInDir(Seq("git", "commit", "-m", "test")) === 0)
+
+    Then("a db file should be stored in objDir")
+    val dbFile = new File(objDir + "/test/db")
+    assert(dbFile.exists === true)
+    assert(dbFile.isFile === true)
+
+    And("the stored db should be identical with current db")
     assert(FileUtils.contentEquals(dbFile,
       new File(dir.testPath + "/test.tb.h2.db")) === true)
   }
