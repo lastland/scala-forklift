@@ -113,4 +113,32 @@ class MigrationDatabaseTest extends FlatSpec
     assert(FileUtils.contentEquals(dbFile,
       new File(dir.testPath + "/test.tb.h2.db")) === true)
   }
+
+  "checkout" should "use the db of the target branch" in {
+    Given("an example project with two branches and one commit on test branch")
+    assert(runInDir(Seq("git", "init")) === 0)
+    assert(runInDir(Seq("git", "add", "test/build.sbt")) === 0)
+    assert(runInDir(Seq("git", "commit", "-m", "initial")) === 0)
+    assert(runInDir(Seq("git", "checkout", "-b", "test")) === 0)
+    assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
+    assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
+    val tmpFile = new File(dir.testDir + "/test_dir")
+    tmpFile.createNewFile()
+    assert(runInDir(Seq("git", "add", tmpFile.getAbsolutePath)) === 0)
+    assert(runInDir(Seq("git", "commit", "-m", "test")) === 0)
+    assert(runInDir(Seq("git", "checkout", "master")) === 0)
+    new File(dir.testPath + "/test.tb.h2.db").delete()
+
+    When("checkout to test branch")
+    assert(runInDir(Seq("git", "checkout", "test")) === 0)
+
+    Then("the db should be in the test directory")
+    val db = new File(dir.testPath + "/test.tb.h2.db")
+    assert(db.exists === true)
+    assert(db.isFile === true)
+
+    And("the db is identical with that stored in .db")
+    assert(FileUtils.contentEquals(db,
+      new File(objDir + "/test/db")) === true)
+  }
 }
