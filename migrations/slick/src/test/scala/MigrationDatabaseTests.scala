@@ -73,7 +73,7 @@ class MigrationDatabaseTest extends FlatSpec
     inDir(commands) ! ProcessLogger(line => (), line => println(line))
   }
 
-  "copy" should "commit db into .db on master branch" in {
+  "commit" should "copy db into .db on master branch" in {
     Given("an example project")
     assert(runInDir(Seq("git", "init")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
@@ -93,7 +93,7 @@ class MigrationDatabaseTest extends FlatSpec
       new File(dir.testPath + "/test.tb.h2.db")) === true)
   }
 
-  it should "commit db into .db on test branch" in {
+  it should "copy db into .db on test branch" in {
     Given("an example project")
     assert(runInDir(Seq("git", "init")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
