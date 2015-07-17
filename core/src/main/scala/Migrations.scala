@@ -10,7 +10,7 @@ trait MigrationManager[T]{
   def ids = migrations.map(_.id)
   def alreadyAppliedIds : Seq[T]
   def notYetAppliedMigrations = migrations.filter(
-	m => !alreadyAppliedIds.exists(_ == m.id))
+    m => !alreadyAppliedIds.exists(_ == m.id))
 
   def init: Unit
   def latest: T
