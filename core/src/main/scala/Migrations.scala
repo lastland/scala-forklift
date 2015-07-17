@@ -9,7 +9,8 @@ trait MigrationManager[T]{
   var migrations : Seq[Migration[T]] = List()
   def ids = migrations.map(_.id)
   def alreadyAppliedIds : Seq[T]
-  def notYetAppliedMigrations = migrations.drop(alreadyAppliedIds.size)
+  def notYetAppliedMigrations = migrations.filter(
+	m => !alreadyAppliedIds.exists(_ == m.id))
 
   def init: Unit
   def latest: T
@@ -25,7 +26,6 @@ trait MigrationManager[T]{
 
   def singleUp {
     if(notYetAppliedMigrations.size > 0){
-      assert( ids.take(alreadyAppliedIds.size).toSet == alreadyAppliedIds.toSet )
       val migration = notYetAppliedMigrations.head
       try{
         beforeApply(migration)
