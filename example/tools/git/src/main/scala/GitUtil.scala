@@ -1,4 +1,5 @@
 import java.io.File
+import scala.sys.process._
 import com.typesafe.config._
 import scala.migrations.slick.tools.git.H2MigrationDatabase
 import scala.migrations.core.tools.{GitUtil => Git}
@@ -10,7 +11,7 @@ class MyGitUtil(db: H2MigrationDatabase)
     args match {
       case "install" :: Nil =>
         val currentDir = System.getProperty("user.dir")
-        Installer.install("/usr/local/bin/sbt", currentDir + "/../.git",
+        Installer.install("which sbt".!!.trim, currentDir + "/../.git",
           currentDir, "git-tools")
       case "rebuild" :: Nil =>
         db.rebuild()

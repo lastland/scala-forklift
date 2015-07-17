@@ -1,5 +1,6 @@
 package scala.migrations.tools.git.hooks
 
+import scala.sys.process._
 import java.io.PrintWriter
 import java.nio.file.{Files, Paths}
 import java.nio.file.attribute.PosixFilePermissions
@@ -24,7 +25,7 @@ abstract class Script(dir: String) {
 class Commands(sbtDir: String, val dir: String,
   gitToolDir: String, gitToolProject: String)
     extends Script(dir) {
-  override val content = s"""#!/usr/local/bin/python
+  override val content = s"""#!${"which python".!!.trim}
 tool_dir = "${System.getProperty("user.dir")}"
 tool_running_command = "git-tools/run"
 sbt = "$sbtDir"
@@ -48,7 +49,7 @@ def rewrite_command(branch, commit_id):
 }
 
 abstract class CommandHook(dir: String) extends Script(dir) {
-  protected def scriptHead = "#!/usr/local/bin/python\n"
+  protected def scriptHead = s"""#!${"which python".!!.trim}\n"""
   protected def scriptImports(command: String) =
     s"""from commands import $command
 import subprocess
