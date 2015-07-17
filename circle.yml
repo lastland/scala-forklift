@@ -1,3 +1,6 @@
+machine:
+  java:
+    version: oraclejdk8
 test:
   pre:
     - sbt publishLocal
