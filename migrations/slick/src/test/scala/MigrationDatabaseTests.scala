@@ -6,62 +6,48 @@ import scala.sys.process._
 import collection.mutable.ListBuffer
 import scala.migrations.slick.tools.git.H2MigrationDatabase
 
-case class TestDir(path: String) {
+class TestDir {
+  val path = "tmp"
   val testPath = path + "/test"
 
-  lazy val dir = {
-    val file = new File(path)
-    if (!file.exists) file.mkdir()
-    file
-  }
-
-  lazy val testDir = {
-    dir
-    val file = new File(testPath)
-    if (!file.exists) file.mkdir()
-    file
-  }
+  var dir: Option[File] = None
+  var testDir: Option[File] = None
 
   def setup() {
-    val examples = new File(System.getProperty("user.dir") + "/example")
-    FileUtils.copyDirectory(examples, testDir)
-  }
-
-  def clean() {
     FileUtils.deleteDirectory(new File(path))
+    val theDir = new File(path)
+    if (!theDir.exists) theDir.mkdir()
+    dir = Some(theDir)
+    val theTestDir = new File(testPath)
+    if (!theTestDir.exists) theTestDir.mkdir()
+    testDir = Some(theTestDir)
+    val example = new File(System.getProperty("user.dir") + "/example")
+    FileUtils.copyDirectory(example, theTestDir)
   }
 
   override def toString = path
 }
 
-object TestDir {
-  var counter = 0
-  def getDir = synchronized {
-    counter += 1
-    TestDir("tmp" + counter)
-  }
-}
-
 class MigrationDatabaseTest extends FlatSpec
-    with BeforeAndAfter with ParallelTestExecution with GivenWhenThen {
-  val dir = TestDir.getDir
+    with BeforeAndAfter with GivenWhenThen {
+  val dir = new TestDir
   val objDir = dir.testPath + "/.db"
 
   before {
-    assert(dir.testDir.isDirectory === true)
     dir.setup()
     FileUtils.deleteDirectory(new File(objDir))
     assert(runInDir(Seq("git", "init")) === 0)
-    assert(runInDir(Seq("git", "config", "user.email", "''test@test.com'")) === 0)
+    assert(runInDir(Seq("git", "config", "user.email", "'test@test.com'")) === 0)
     assert(runInDir(Seq("git", "config", "user.name", "'Tester'")) === 0)
   }
 
-  after {
-    dir.clean()
-  }
-
   def inTestDir(commands: Seq[String]) = {
-    Process(commands, dir.testDir)
+    dir.testDir match {
+      case Some(testDir) =>
+        Process(commands, testDir)
+      case None =>
+        throw new RuntimeException("the test dir has not been created yet!")
+    }
   }
 
   def runInTestDir(commands: Seq[String]) = {
@@ -69,7 +55,12 @@ class MigrationDatabaseTest extends FlatSpec
   }
 
   def inDir(commands: Seq[String]) = {
-    Process(commands, dir.dir)
+    dir.dir match {
+      case Some(dir) =>
+        Process(commands, dir)
+      case None =>
+        throw new RuntimeException("the tmp dir has not been created yet!")
+    }
   }
 
   def runInDir(commands: Seq[String]) = {
@@ -122,7 +113,7 @@ class MigrationDatabaseTest extends FlatSpec
     assert(runInDir(Seq("git", "checkout", "-b", "test")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
-    val tmpFile = new File(dir.testDir + "/test_file")
+    val tmpFile = new File(dir.testPath + "/test_file")
     tmpFile.createNewFile()
     assert(runInDir(Seq("git", "add", tmpFile.getAbsolutePath)) === 0)
     assert(runInDir(Seq("git", "commit", "-m", "test")) === 0)
@@ -149,7 +140,9 @@ class MigrationDatabaseTest extends FlatSpec
     FileUtils.moveFile(new File(m3Name), new File(m3DisabledName))
     assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
-    FileUtils.copyFileToDirectory(new File(".gitignore"), dir.dir)
+    for (dir <- dir.dir) {
+      FileUtils.copyFileToDirectory(new File(".gitignore"), dir)
+    }
     assert(runInDir(Seq("git", "add", ".")) === 0)
     assert(runInDir(Seq("git", "commit", "-m", "initial")) === 0)
     assert(runInDir(Seq("git", "checkout", "-b", "test")) === 0)
@@ -158,7 +151,7 @@ class MigrationDatabaseTest extends FlatSpec
     assert(runInDir(Seq("git", "add", ".")) === 0)
     assert(runInDir(Seq("git", "commit", "-m", "test")) === 0)
     assert(runInDir(Seq("git", "checkout", "master")) === 0)
-    val tmpFile = new File(dir.testDir + "/test_file")
+    val tmpFile = new File(dir.testPath + "/test_file")
     tmpFile.createNewFile()
     assert(runInDir(Seq("git", "add", tmpFile.getAbsolutePath)) === 0)
     assert(runInDir(Seq("git", "commit", "-m", "master")) === 0)
