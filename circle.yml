@@ -1,3 +1,3 @@
 test:
-    pre:
-	- sbt publishLocal
+  pre:
+    - sbt publishLocal
