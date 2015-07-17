@@ -1,6 +1,8 @@
 machine:
   java:
     version: oraclejdk8
+  python:
+    version: 2.7.9
 test:
   pre:
     - sbt publishLocal
