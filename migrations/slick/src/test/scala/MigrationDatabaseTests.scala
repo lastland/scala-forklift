@@ -51,6 +51,9 @@ class MigrationDatabaseTest extends FlatSpec
     assert(dir.testDir.isDirectory === true)
     dir.setup()
     FileUtils.deleteDirectory(new File(objDir))
+    assert(runInDir(Seq("git", "init")) === 0)
+    assert(runInDir(Seq("git", "config", "user.email", "''test@test.com'")) === 0)
+    assert(runInDir(Seq("git", "config", "user.name", "'Tester'")) === 0)
   }
 
   after {
@@ -75,7 +78,6 @@ class MigrationDatabaseTest extends FlatSpec
 
   "commit" should "copy db into .db on master branch" in {
     Given("an example project")
-    assert(runInDir(Seq("git", "init")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
 
@@ -95,7 +97,6 @@ class MigrationDatabaseTest extends FlatSpec
 
   it should "copy db into .db on test branch" in {
     Given("an example project")
-    assert(runInDir(Seq("git", "init")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
 
@@ -116,7 +117,6 @@ class MigrationDatabaseTest extends FlatSpec
 
   "checkout" should "use the db of the target branch" in {
     Given("an example project with two branches and one commit on test branch")
-    assert(runInDir(Seq("git", "init")) === 0)
     assert(runInDir(Seq("git", "add", "test/build.sbt")) === 0)
     assert(runInDir(Seq("git", "commit", "-m", "initial")) === 0)
     assert(runInDir(Seq("git", "checkout", "-b", "test")) === 0)
@@ -146,7 +146,6 @@ class MigrationDatabaseTest extends FlatSpec
     val m3Name = dir.testPath + "/migrations/src_migrations/main/scala/3.scala"
     val m3DisabledName = m3Name + ".disabled"
     Given("an example project with two branches with different db")
-    assert(runInDir(Seq("git", "init")) === 0)
     FileUtils.moveFile(new File(m3Name), new File(m3DisabledName))
     assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
