@@ -17,7 +17,7 @@ trait MigrationManager[T]{
   def afterApply(migration:Migration[T])
   def up {
     val ids = migrations.map(_.id)
-    assert( ids == Range(1,ids.size+1).toList )
+    assert( ids.sorted == Range(1,ids.size+1).toList.sorted )
     while(notYetAppliedMigrations.size > 0){
       singleUp
     }
