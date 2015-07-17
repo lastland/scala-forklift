@@ -25,7 +25,7 @@ trait MigrationManager[T]{
 
   def singleUp {
     if(notYetAppliedMigrations.size > 0){
-      assert( ids.take(alreadyAppliedIds.size) == alreadyAppliedIds )
+      assert( ids.take(alreadyAppliedIds.size).toSet == alreadyAppliedIds.toSet )
       val migration = notYetAppliedMigrations.head
       try{
         beforeApply(migration)
