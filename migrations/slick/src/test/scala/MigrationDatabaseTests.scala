@@ -122,7 +122,7 @@ class MigrationDatabaseTest extends FlatSpec
     assert(runInDir(Seq("git", "checkout", "-b", "test")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run install")) === 0)
     assert(runInTestDir(Seq("sbt", "git-tools/run rebuild")) === 0)
-    val tmpFile = new File(dir.testDir + "/test_dir")
+    val tmpFile = new File(dir.testDir + "/test_file")
     tmpFile.createNewFile()
     assert(runInDir(Seq("git", "add", tmpFile.getAbsolutePath)) === 0)
     assert(runInDir(Seq("git", "commit", "-m", "test")) === 0)
