@@ -1,4 +1,6 @@
 machine:
+  environment:
+    JAVA_OPTS: "-Xms256m -Xmx512m"
   java:
     version: oraclejdk8
   python:
