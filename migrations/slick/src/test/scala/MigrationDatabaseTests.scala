@@ -51,7 +51,8 @@ class MigrationDatabaseTest extends FlatSpec
   }
 
   def runInTestDir(commands: Seq[String]) = {
-    inTestDir(commands) ! ProcessLogger(line => (), line => println(line))
+    inTestDir(commands) ! ProcessLogger(line => println(line),
+      line => println(line))
   }
 
   def inDir(commands: Seq[String]) = {
@@ -64,7 +65,8 @@ class MigrationDatabaseTest extends FlatSpec
   }
 
   def runInDir(commands: Seq[String]) = {
-    inDir(commands) ! ProcessLogger(line => (), line => println(line))
+    inDir(commands) ! ProcessLogger(line => println(line),
+      line => println(line))
   }
 
   "commit" should "copy db into .db on master branch" in {
