@@ -14,16 +14,16 @@ abstract class GenericMigration[T]( val id:T )(f : Session => Unit) extends Migr
 object GenericMigration extends GenericMigrationMacro // comment out all usages when compiling this
 //object GenericMigration extends GenericMigrationFunction
 
-trait GenericMigrationFunction{
+trait GenericMigrationFunction {
   def apply[T]( id:T )(f : Session => Unit) = new GenericMigration[T](id)(f){
     def code = "(Scala source code preview requires GenericMigration extends GenericMigrationMacro but it currently extends GenericMigrationFunction.)"
   }
 }
 // GenericMigrationPreviewMacros
-trait GenericMigrationMacro{
+trait GenericMigrationMacro {
   def apply[T]( id:T )(f : Session => Unit) = macro GenericMigrationMacros.impl[T]
 }
-object GenericMigrationMacros{
+object GenericMigrationMacros {
   def impl[T:c.WeakTypeTag](c: scala.reflect.macros.Context)(id: c.Expr[T])(f : c.Expr[Session => Unit]) = {
     import c.universe._
     object makeMoreReadable extends Transformer {

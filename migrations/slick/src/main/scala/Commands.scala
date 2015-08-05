@@ -67,7 +67,7 @@ trait SlickMigrationCommands extends MigrationCommands[Int]
     println("")
     notYetAppliedMigrations.map { migration =>
       migration match{
-        case m:SqlMigration[_] =>
+        case m:SqlMigrationInterface[_] =>
           println( migration.id+" SqlMigration:")
           println( "\t" + m.queries.mkString("\n\t") )
         case m:GenericMigration[_] =>

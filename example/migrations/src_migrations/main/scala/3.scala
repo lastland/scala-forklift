@@ -1,4 +1,4 @@
-import scala.migrations.slick.SqlMigration
+import scala.migrations.slick.H2Migration.SqlMigration
 
 object M3 {
   MyMigrations.migrations = MyMigrations.migrations :+ SqlMigration( 3 )(List(

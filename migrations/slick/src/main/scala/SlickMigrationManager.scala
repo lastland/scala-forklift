@@ -44,17 +44,17 @@ trait SlickMigrationManager extends MigrationManager[Int] {
   }
 
   override def afterApply(migration: Migration[Int]) = {
-    db.withDynSession{migrationsTable.insert( migration.id )}
+    db.withDynSession { migrationsTable.insert( migration.id ) }
   }
 
   override def reset() {
     db.withDynSession{updateNA("DROP ALL OBJECTS DELETE FILES").execute}
-    try{
+    try {
       (Glob.glob((f: File) => !f.isDirectory && f.getName.endsWith("schema.scala"))
         (List(System.getProperty("user.dir")+"/src/main/scala/datamodel/")))
         .foreach(_.delete)
-    }catch{
-      case e:FileNotFoundException =>
+    } catch {
+      case e: FileNotFoundException =>
     }
   }
 }
