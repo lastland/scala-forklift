@@ -8,4 +8,6 @@ object migrationBuild extends Build {
     "slick-migrations", file("migrations/slick")) dependsOn(coreProject)
   lazy val plainMigrationProject = Project(
     "plain-migrations", file("migrations/plain")) dependsOn(coreProject)
+  lazy val gitToolProject = Project(
+    "git-tools", file("tools/git")) dependsOn(coreProject)
 }

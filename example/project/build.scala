@@ -11,6 +11,9 @@ object AppBuild extends Build {
   lazy val migrations = Project("migrations",
     file("migrations")).dependsOn(generatedCode, migrationManager)
 
+  lazy val tools = Project("git-tools",
+    file("tools/git"))
+
   lazy val generatedCode = Project("generate_code",
     file("generated_code"))
 }
