@@ -90,34 +90,57 @@ trait RescueCommands[T] {
   }
 }
 
-trait MigrationCommands[T] {
-  this: MigrationManager[T] with MigrationFilesHandler[T] =>
+trait MigrationCommands[T, S] {
+  this: MigrationManager[T, S] with MigrationFilesHandler[T] =>
 
-  def previewCommands: Seq[() => Unit] = List(() => previewCommand)
-  def applyCommands: Seq[() => Unit] = List(() => applyCommand)
+  def previewOps: Seq[() => Unit] = List(() => previewOp)
+  def applyOps: Seq[() => Unit] = List(() => applyOp)
 
-  def statusCommand: Unit
-  def previewCommand: Unit
-  def applyCommand: Unit
-  def migrateCommand(options: Seq[String]) {
+  def statusOp: Unit
+  def statusCommand {
+    statusOp
+  }
+
+  def previewOp: Unit
+  def previewCommand {
+    previewOp
+  }
+
+  def applyOp: Unit
+  def applyCommand {
+    applyOp
+  }
+
+  def migrateOp(options: Seq[String]) {
     val prompt = options.contains("-p")
     if (!notYetAppliedMigrations.isEmpty) {
-      for (c <- previewCommands) c()
+      for (op <- previewOps) op()
       if (prompt) {
         if (StdIn.readLine("Do you wish to continue? [Y/N]") != "Y") return
       }
-      for (c <- applyCommands) c()
+      for (op <- applyOps) op()
     }
-    updateCommand
+    updateOp
+  }
+  def migrateCommand(options: Seq[String]) {
+    migrateOp(options)
   }
 
-  def initCommand {
+  def initOp {
     writeSummary(List())
   }
-  def resetCommand {
+  def initCommand {
+    initOp
+  }
+
+  def resetOp {
     resetMigrationFiles
   }
-  def updateCommand {
+  def resetCommand {
+    resetOp
+  }
+
+  def updateOp {
     val files = migrationFiles(alreadyAppliedIds)
     if (!files.isEmpty) {
       for (file <- files) {
@@ -126,6 +149,9 @@ trait MigrationCommands[T] {
       // only write summary if files are moved
       writeSummary(summary)
     }
+  }
+  def updateCommand {
+    updateOp
   }
 }
 
@@ -138,7 +164,7 @@ trait RescueCommandLineTool[T] { this: RescueCommands[T] =>
 
 // TODO: This trait may need to be rewritten in the future.
 // e.g.: use macros etc. to make adding command (and help info) easier
-trait MigrationCommandLineTool[T] { this: MigrationCommands[T] =>
+trait MigrationCommandLineTool[T, S] { this: MigrationCommands[T, S] =>
 
   def execCommands(args: List[String]) = args match {
     case "status" :: Nil => statusCommand

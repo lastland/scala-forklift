@@ -1,5 +1,6 @@
 package scala.migrations.slick
 
+import slick.driver.JdbcDriver.api._
 import scala.migrations.MigrationFilesHandler
 import scala.migrations.RescueCommands
 import scala.migrations.RescueCommandLineTool
@@ -44,15 +45,14 @@ trait SlickRescueCommandLineTool extends RescueCommandLineTool[Int] {
   this: SlickRescueCommands =>
 }
 
-trait SlickMigrationCommands extends MigrationCommands[Int]
+trait SlickMigrationCommands extends MigrationCommands[Int, DBIO[Unit]]
     with SlickMigrationFilesHandler {
   this: SlickMigrationManager with SlickCodegen =>
 
-  override def applyCommands: Seq[() => Unit] = List(
-    () => applyCommand, () => codegenCommand)
+  override def applyOps: Seq[() => Unit] = List(
+    () => applyOp, () => codegenOp)
 
-
-  override def statusCommand {
+  override def statusOp {
     val ny = notYetAppliedMigrations
     if( ny.size == 0 ) {
       println("your database is up-to-date")
@@ -61,17 +61,25 @@ trait SlickMigrationCommands extends MigrationCommands[Int]
     }
   }
 
-  override def previewCommand {
+  override def statusCommand {
+    try {
+      super.statusCommand
+    } finally {
+      db.close()
+    }
+  }
+
+  override def previewOp {
     println("-" * 80)
     println("NOT YET APPLIED MIGRATIONS PREVIEW:")
     println("")
     notYetAppliedMigrations.map { migration =>
       migration match{
-        case m:SqlMigrationInterface[_] =>
-          println( migration.id+" SqlMigration:")
-          println( "\t" + m.queries.mkString("\n\t") )
-        case m:GenericMigration[_] =>
-          println( migration.id+" GenericMigration:")
+        case m: SqlMigrationInterface[_] =>
+          println( migration.id + " SqlMigration:")
+          println( "\t" + m.queries.map(_.getDumpInfo.mainInfo).mkString("\n\t") )
+        case m: GenericMigration[_] =>
+          println( migration.id + " GenericMigration:")
           println( "\t" + m.code )
       }
       println("")
@@ -79,51 +87,103 @@ trait SlickMigrationCommands extends MigrationCommands[Int]
     println("-" * 80)
   }
 
-  override def applyCommand {
-    val ids = notYetAppliedMigrations.map(_.id)
-    println("applying migrations: " + ids.mkString(", "))
-    up
-  }
-
-  override def initCommand {
-    super.initCommand
-    init
-  }
-
-  override def resetCommand {
-    super.resetCommand
-    reset
-  }
-
-  def dbdumpCommand {
-    import scala.slick.driver.H2Driver.simple._
-    import Database.dynamicSession
-    import scala.slick.jdbc.StaticQuery._
-    db.withDynSession{
-      println( queryNA[String]("SCRIPT").list.mkString("\n") )
+  override def previewCommand {
+    try {
+      super.previewCommand
+    } finally {
+      db.close()
     }
   }
 
-  def codegenCommand {
+  override def applyOp {
+    val ids = notYetAppliedMigrations.map(_.id)
+    println("applying migrations: " + ids.mkString(", "))
+    up()
+  }
+
+  override def applyCommand {
+    try {
+      super.applyCommand
+    } finally {
+      db.close()
+    }
+  }
+
+  override def migrateCommand(options: Seq[String]) {
+    try {
+      super.migrateCommand(options)
+    } finally {
+      db.close()
+    }
+  }
+
+  override def initOp {
+    super.initOp
+    init
+  }
+
+  override def initCommand {
+    try {
+      super.initCommand
+    } finally {
+      db.close()
+    }
+  }
+
+  override def resetOp {
+    super.resetOp
+    reset
+  }
+
+  override def resetCommand {
+    try {
+      super.resetCommand
+    } finally {
+      db.close()
+    }
+  }
+
+  override def updateCommand {
+    try {
+      super.updateCommand
+    } finally {
+      db.close()
+    }
+  }
+
+//  def dbdumpCommand {
+//    import scala.slick.driver.H2Driver.simple._
+//    import Database.dynamicSession
+//    import scala.slick.jdbc.StaticQuery._
+//    db.withDynSession{
+//      println( queryNA[String]("SCRIPT").list.mkString("\n") )
+//    }
+//  }
+
+  def codegenOp {
     genCode(this)
+  }
+
+  def codegenCommand {
+    try {
+      codegenOp
+    } finally {
+      db.close()
+    }
   }
 }
 
 
-trait SlickMigrationCommandLineTool extends MigrationCommandLineTool[Int] {
+trait SlickMigrationCommandLineTool
+    extends MigrationCommandLineTool[Int, DBIO[Unit]] {
   this: SlickMigrationCommands =>
 
-
   override def execCommands(args: List[String]) = args match {
-    case "dbdump" :: Nil => dbdumpCommand
     case "codegen" :: Nil => codegenCommand
     case _ => super.execCommands(args)
   }
 
   override def help = super.help + """
-
-  codegen   generate data model code (table objects, case classes) from the
-            database schema
 
   dbdump    print a dump of the current database
 """

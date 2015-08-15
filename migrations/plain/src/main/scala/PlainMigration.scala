@@ -2,7 +2,7 @@ package scala.migrations.plain
 
 import scala.migrations.Migration
 
-trait PlainMigrationInterface[T] extends Migration[T] {
+trait PlainMigrationInterface[T] extends Migration[T, Unit] {
   def queries: () => Unit
   override def up {
     queries()

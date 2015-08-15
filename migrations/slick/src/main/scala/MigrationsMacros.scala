@@ -1,30 +1,32 @@
 package scala.migrations.slick
 
-import scala.slick.driver.H2Driver.simple._
-import Database.dynamicSession
+import slick.dbio.DBIO
+import slick.driver.JdbcDriver.api._
 import scala.language.experimental.macros
 
 import scala.migrations.Migration
 
-abstract class GenericMigration[T]( val id:T )(f : Session => Unit) extends Migration[T]{
-  def up : Unit = f(dynamicSession)
-  def code : String
+abstract class GenericMigration[T](val id:T)(f: DBIO[Unit])
+    extends Migration[T, DBIO[Unit]] {
+  def up: DBIO[Unit] = f
+  def code: String
 }
 
 object GenericMigration extends GenericMigrationMacro // comment out all usages when compiling this
 //object GenericMigration extends GenericMigrationFunction
 
 trait GenericMigrationFunction {
-  def apply[T]( id:T )(f : Session => Unit) = new GenericMigration[T](id)(f){
+  def apply[T](id: T)(f: DBIO[Unit]) = new GenericMigration[T](id)(f){
     def code = "(Scala source code preview requires GenericMigration extends GenericMigrationMacro but it currently extends GenericMigrationFunction.)"
   }
 }
 // GenericMigrationPreviewMacros
 trait GenericMigrationMacro {
-  def apply[T]( id:T )(f : Session => Unit) = macro GenericMigrationMacros.impl[T]
+  def apply[T](id:T)(f: DBIO[Unit]) = macro GenericMigrationMacros.impl[T]
 }
+
 object GenericMigrationMacros {
-  def impl[T:c.WeakTypeTag](c: scala.reflect.macros.Context)(id: c.Expr[T])(f : c.Expr[Session => Unit]) = {
+  def impl[T:c.WeakTypeTag](c: scala.reflect.macros.Context)(id: c.Expr[T])(f: c.Expr[DBIO[Unit]]) = {
     import c.universe._
     object makeMoreReadable extends Transformer {
       def apply( tree:Tree ) = transform(tree)

@@ -5,28 +5,34 @@ import scala.io.Source
 import scala.migrations.Migration
 import scala.migrations.MigrationManager
 
-trait PlainMigrationManager extends MigrationManager[Int] {
+trait PlainMigrationManager extends MigrationManager[Int, Unit] {
   def dblocation = System.getProperty("user.dir")+"/migrationInfo.txt"
-  override def alreadyAppliedIds = 1 to latest
+  override def alreadyAppliedIds = alreadyAppliedIds_
   override def init = {
     val writer = new PrintWriter(new File(dblocation))
     writer.write("0")
     writer.close()
   }
-  override def latest = {
+
+  private def alreadyAppliedIds_ = {
     val source = Source.fromFile(dblocation)
-    val res = source.getLines.next.toInt
-    source.close
-    res
+    source.getLines.map(_.toInt).toList
   }
-  override def afterApply(migration: Migration[Int]) = {
-    val writer = new PrintWriter(new File(dblocation))
+
+  private def afterApply(migration: Migration[Int, Unit]) = {
+    val writer = new PrintWriter(new FileOutputStream(
+      new File(dblocation), true))
     writer.write( migration.id.toString )
     writer.close()
   }
-  override def rollback {
-    // intentionally do nothing
+
+  override def up(migrations: Iterator[Migration[Int, Unit]]) {
+    migrations foreach { m =>
+      m.up
+      afterApply(m)
+    }
   }
+
   override def reset {
     init
   }

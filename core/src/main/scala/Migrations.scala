@@ -1,42 +1,26 @@
 package scala.migrations
 
-trait Migration[T]{
+trait Migration[T, S]{
   def id : T
-  def up : Unit
+  def up : S
 }
 
-trait MigrationManager[T]{
-  var migrations : Seq[Migration[T]] = List()
+trait MigrationManager[T, S] {
+  var migrations : Seq[Migration[T, S]] = List()
   def ids = migrations.map(_.id)
   def alreadyAppliedIds : Seq[T]
   def notYetAppliedMigrations = migrations.filter(
     m => !alreadyAppliedIds.exists(_ == m.id))
 
   def init: Unit
-  def latest: T
-  def beforeApply(migration:Migration[T]){}
-  def afterApply(migration:Migration[T])
-  def up {
+  def up() {
     val ids = migrations.map(_.id)
-    assert( ids.toSet == Range(1,ids.size+1).toSet )
-    while(notYetAppliedMigrations.size > 0){
-      singleUp
-    }
+    up(notYetAppliedMigrations.iterator)
   }
 
-  def singleUp {
-    if(notYetAppliedMigrations.size > 0){
-      val migration = notYetAppliedMigrations.head
-      try{
-        beforeApply(migration)
-        migration.up
-        afterApply(migration)
-      } catch {
-        case e:Exception => rollback; throw e
-      }
-    }
+  protected def up(migrations: Iterator[Migration[T, S]]) {
+    migrations foreach { m => m.up }
   }
 
-  def rollback: Unit
   def reset: Unit
 }

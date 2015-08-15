@@ -1,6 +1,6 @@
 package scala.migrations.slick
 
-import scala.slick.jdbc.JdbcBackend._
+import slick.jdbc.JdbcBackend._
 import scala.migrations.MigrationDatabase
 
 class SlickMigrationDatabase(db: Any, objPath: String) extends MigrationDatabase {
