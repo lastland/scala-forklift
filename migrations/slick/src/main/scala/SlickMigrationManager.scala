@@ -1,6 +1,5 @@
 package scala.migrations.slick
 
-import java.io._
 import com.typesafe.config._
 import scala.concurrent.duration._
 import scala.concurrent.Future
@@ -58,29 +57,6 @@ trait SlickMigrationManager
       })
     }
     val f = db.run(drop)
-    try {
-      (Glob.glob((f: File) => !f.isDirectory && f.getName.endsWith("schema.scala"))
-        (List(System.getProperty("user.dir")+"/src/main/scala/datamodel/")))
-        .foreach(_.delete)
-    } catch {
-      case e: FileNotFoundException =>
-    }
     Await.result(f, Duration.Inf)
-  }
-}
-
-
-object Glob{
-  // taken from: http://kotakanbe.blogspot.ch/2010/11/scaladirglobsql.html
-  def glob(filter: (File) => Boolean)(dirs: List[String]): List[File] = {
-    def recursive(dir: File, acc: List[File]): List[File] =
-      Option(dir.listFiles) match {
-        case None => throw new FileNotFoundException(dir.getAbsolutePath)
-        case Some(lists) =>
-          val filtered = lists.filter{ c =>  filter(c) }.toList
-          val childDirs = lists.filter{ c => c.isDirectory && !c.getName.startsWith(".") }
-          return ( (acc ::: filtered) /: childDirs){ (a, dir) => recursive(dir, a)}
-      }
-    dirs.flatMap{ d => recursive(new File(d), Nil)}
   }
 }

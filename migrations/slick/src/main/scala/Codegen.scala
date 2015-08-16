@@ -1,5 +1,6 @@
 package scala.migrations.slick
 
+import java.io._
 import scala.language.postfixOps
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -55,5 +56,30 @@ object Version{
       }
     }
     Await.result(f, Duration.Inf)
+  }
+
+  def remove() {
+    try {
+      val f = (Glob.glob((f: File) => !f.isDirectory && f.getName == fileName)
+        (List(generatedDir)))
+      f.foreach(_.delete)
+    } catch {
+      case e: FileNotFoundException =>
+    }
+  }
+}
+
+object Glob{
+  // taken from: http://kotakanbe.blogspot.ch/2010/11/scaladirglobsql.html
+  def glob(filter: (File) => Boolean)(dirs: List[String]): List[File] = {
+    def recursive(dir: File, acc: List[File]): List[File] =
+      Option(dir.listFiles) match {
+        case None => throw new FileNotFoundException(dir.getAbsolutePath)
+        case Some(lists) =>
+          val filtered = lists.filter{ c =>  filter(c) }.toList
+          val childDirs = lists.filter{ c => c.isDirectory && !c.getName.startsWith(".") }
+          return ( (acc ::: filtered) /: childDirs){ (a, dir) => recursive(dir, a)}
+      }
+    dirs.flatMap{ d => recursive(new File(d), Nil)}
   }
 }

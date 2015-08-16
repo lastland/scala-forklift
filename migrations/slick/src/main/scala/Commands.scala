@@ -133,6 +133,7 @@ trait SlickMigrationCommands extends MigrationCommands[Int, DBIO[Unit]]
   override def resetOp {
     super.resetOp
     reset
+    remove()
   }
 
   override def resetCommand {
