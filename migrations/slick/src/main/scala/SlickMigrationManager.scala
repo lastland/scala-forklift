@@ -8,6 +8,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
+import slick.jdbc.meta.MTable
 import scala.migrations.Migration
 import scala.migrations.MigrationManager
 
@@ -19,6 +20,11 @@ trait SlickMigrationManager
 
   class MigrationsTable(tag: Tag) extends Table[Int](tag, "__migrations__") {
     def id = column[Int]("id", O.PrimaryKey)
+    def * = id
+  }
+
+  class DummyTable(tag: Tag, name: String) extends Table[Int](tag, name) {
+    def id = column[Int]("id")
     def * = id
   }
 
@@ -45,8 +51,13 @@ trait SlickMigrationManager
     Await.result(f, Duration.Inf)
   }
 
-  override def reset() = {
-    val f = db.run(sqlu"DROP ALL OBJECTS DELETE FILES")
+  override def reset = {
+    val drop = MTable.getTables.flatMap { s =>
+      DBIO.sequence(s map { t =>
+        TableQuery(new DummyTable(_, t.name.name)).schema.drop
+      })
+    }
+    val f = db.run(drop)
     try {
       (Glob.glob((f: File) => !f.isDirectory && f.getName.endsWith("schema.scala"))
         (List(System.getProperty("user.dir")+"/src/main/scala/datamodel/")))
