@@ -1,9 +1,9 @@
-package scala.migrations.plain
+package com.liyaos.migrations.plain
 
 import java.io._
 import scala.io.Source
-import scala.migrations.Migration
-import scala.migrations.MigrationManager
+import com.liyaos.migrations.core.Migration
+import com.liyaos.migrations.core.MigrationManager
 
 trait PlainMigrationManager extends MigrationManager[Int, Unit] {
   def dblocation = System.getProperty("user.dir")+"/migrationInfo.txt"

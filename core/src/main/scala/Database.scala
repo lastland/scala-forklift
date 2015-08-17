@@ -1,4 +1,4 @@
-package scala.migrations
+package com.liyaos.migrations.core
 
 abstract class MigrationDatabase {
   def copy(branch: String, commitId: String): Unit

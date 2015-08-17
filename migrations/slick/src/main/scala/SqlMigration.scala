@@ -1,9 +1,9 @@
-package scala.migrations.slick
+package com.liyaos.migrations.slick
 
 import slick.dbio.DBIO
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
-import scala.migrations.Migration
+import com.liyaos.migrations.core.Migration
 
 trait SqlMigrationInterface[T] extends Migration[T, DBIO[Unit]]{
   def queries : Seq[DBIO[Int]]

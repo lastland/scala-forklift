@@ -1,11 +1,11 @@
-package scala.migrations.slick
+package com.liyaos.migrations.slick
 
 import slick.driver.JdbcDriver.api._
-import scala.migrations.MigrationFilesHandler
-import scala.migrations.RescueCommands
-import scala.migrations.RescueCommandLineTool
-import scala.migrations.MigrationCommands
-import scala.migrations.MigrationCommandLineTool
+import com.liyaos.migrations.core.MigrationFilesHandler
+import com.liyaos.migrations.core.RescueCommands
+import com.liyaos.migrations.core.RescueCommandLineTool
+import com.liyaos.migrations.core.MigrationCommands
+import com.liyaos.migrations.core.MigrationCommandLineTool
 
 import java.io.File
 

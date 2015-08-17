@@ -1,7 +1,7 @@
 package example.migration.manager
 
-import scala.migrations.slick.SlickRescueCommands
-import scala.migrations.slick.SlickRescueCommandLineTool
+import com.liyaos.migrations.slick.SlickRescueCommands
+import com.liyaos.migrations.slick.SlickRescueCommandLineTool
 
 object Tool extends App
     with SlickRescueCommandLineTool

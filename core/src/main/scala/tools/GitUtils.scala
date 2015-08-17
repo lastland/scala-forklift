@@ -1,10 +1,10 @@
-package scala.migrations.core.tools
+package com.liyaos.migrations.core.tools
 
 import java.io.File
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import scala.migrations.MigrationDatabase
+import com.liyaos.migrations.core.MigrationDatabase
 
 class GitUtil(db: MigrationDatabase, gitLoc: String) {
   lazy val repo =

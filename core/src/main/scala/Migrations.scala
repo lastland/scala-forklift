@@ -1,4 +1,4 @@
-package scala.migrations
+package com.liyaos.migrations.core
 
 trait Migration[T, S]{
   def id : T

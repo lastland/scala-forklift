@@ -1,5 +1,5 @@
 import slick.driver.H2Driver.api._
-import scala.migrations.slick.GenericMigration
+import com.liyaos.migrations.slick.GenericMigration
 import datamodel.v1.schema.tables.Users
 import datamodel.v1.schema.tables.UsersRow
 

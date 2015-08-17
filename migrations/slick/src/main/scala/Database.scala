@@ -1,7 +1,7 @@
-package scala.migrations.slick
+package com.liyaos.migrations.slick
 
 import slick.jdbc.JdbcBackend._
-import scala.migrations.MigrationDatabase
+import com.liyaos.migrations.core.MigrationDatabase
 
 class SlickMigrationDatabase(db: Any, objPath: String) extends MigrationDatabase {
   def copy(branch: String, commitId: String) {

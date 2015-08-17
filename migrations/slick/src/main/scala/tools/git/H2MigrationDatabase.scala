@@ -1,9 +1,9 @@
-package scala.migrations.slick.tools.git
+package com.liyaos.migrations.slick.tools.git
 import java.io.File
 import scala.sys.process._
 import java.nio.file.{Paths, Files, StandardCopyOption}
-import scala.migrations.core.tools.helpers.Helpers._
-import scala.migrations.MigrationDatabase
+import com.liyaos.migrations.core.tools.helpers.Helpers._
+import com.liyaos.migrations.core.MigrationDatabase
 
 class H2MigrationDatabase(dbLoc: String, objLoc: String) extends MigrationDatabase {
 

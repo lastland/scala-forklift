@@ -1,4 +1,4 @@
-organization := "com.typesafe"
+organization := "com.liyaos"
 
 name := "plain-migrations"
 

@@ -1,4 +1,4 @@
-package scala.migrations.tools.git.hooks
+package com.liyaos.migrations.tools.git.hooks
 
 import scala.sys.process._
 import java.io.PrintWriter

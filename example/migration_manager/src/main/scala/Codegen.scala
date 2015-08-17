@@ -1,6 +1,6 @@
 package example.migration.manager
 
-import scala.migrations.slick.SlickCodegen
+import com.liyaos.migrations.slick.SlickCodegen
 
 // override the default code generator here
 trait MyCodegen extends SlickCodegen {

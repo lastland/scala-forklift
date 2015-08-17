@@ -1,4 +1,4 @@
-import scala.migrations.slick._
+import com.liyaos.migrations.slick._
 
 object MyMigrations extends App
     with SlickMigrationCommandLineTool

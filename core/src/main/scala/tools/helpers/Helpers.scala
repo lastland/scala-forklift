@@ -1,4 +1,4 @@
-package scala.migrations.core.tools.helpers
+package com.liyaos.migrations.core.tools.helpers
 
 import java.io.{InputStream, OutputStream}
 import scala.util.{Try, Success, Failure}

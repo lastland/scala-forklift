@@ -1,10 +1,10 @@
-package scala.migrations.slick
+package com.liyaos.migrations.slick
 
 import slick.dbio.DBIO
 import slick.driver.JdbcDriver.api._
 import scala.language.experimental.macros
 
-import scala.migrations.Migration
+import com.liyaos.migrations.core.Migration
 
 abstract class GenericMigration[T](val id:T)(f: DBIO[Unit])
     extends Migration[T, DBIO[Unit]] {
