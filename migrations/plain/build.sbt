@@ -1,14 +1,4 @@
-organization := "com.liyaos"
-
 name := "plain-migrations"
-
-version := "1.0"
-
-scalaVersion := "2.11.6"
-
-scalacOptions += "-deprecation"
-
-scalacOptions += "-feature"
 
 libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % "2.11.6"
