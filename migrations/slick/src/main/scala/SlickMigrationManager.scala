@@ -1,4 +1,4 @@
-package com.liyaos.migrations.slick
+package com.liyaos.forklift.slick
 
 import com.typesafe.config._
 import scala.concurrent.duration._
@@ -8,8 +8,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 import slick.jdbc.meta.MTable
-import com.liyaos.migrations.core.Migration
-import com.liyaos.migrations.core.MigrationManager
+import com.liyaos.forklift.core.Migration
+import com.liyaos.forklift.core.MigrationManager
 
 trait SlickMigrationManager
     extends MigrationManager[Int, slick.dbio.DBIO[Unit]] {

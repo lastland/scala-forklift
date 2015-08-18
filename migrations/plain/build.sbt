@@ -1,4 +1,4 @@
-name := "plain-migrations"
+name := "scala-forklift-plain"
 
 libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % "2.11.6"

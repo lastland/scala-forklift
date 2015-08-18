@@ -1,4 +1,4 @@
-import com.liyaos.migrations.slick._
+import com.liyaos.forklift.slick._
 
 object MyMigrations extends App
     with SlickMigrationCommandLineTool

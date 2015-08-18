@@ -1,11 +1,11 @@
-package com.liyaos.migrations.slick
+package com.liyaos.forklift.slick
 
 import slick.driver.JdbcDriver.api._
-import com.liyaos.migrations.core.MigrationFilesHandler
-import com.liyaos.migrations.core.RescueCommands
-import com.liyaos.migrations.core.RescueCommandLineTool
-import com.liyaos.migrations.core.MigrationCommands
-import com.liyaos.migrations.core.MigrationCommandLineTool
+import com.liyaos.forklift.core.MigrationFilesHandler
+import com.liyaos.forklift.core.RescueCommands
+import com.liyaos.forklift.core.RescueCommandLineTool
+import com.liyaos.forklift.core.MigrationCommands
+import com.liyaos.forklift.core.MigrationCommandLineTool
 
 import java.io.File
 

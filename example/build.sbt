@@ -1,6 +1,6 @@
-organization := "com.typesafe"
+organization := "com.liyaos"
 
-name := "migrations-example"
+name := "forklift-slick-example"
 
 version := "1.0"
 

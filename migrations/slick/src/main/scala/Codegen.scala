@@ -1,4 +1,4 @@
-package com.liyaos.migrations.slick
+package com.liyaos.forklift.slick
 
 import java.io._
 import scala.language.postfixOps

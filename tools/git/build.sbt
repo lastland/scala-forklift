@@ -1,1 +1,1 @@
-name := "migrations-git-tool"
+name := "scala-forklift-git-tools"

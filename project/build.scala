@@ -22,15 +22,15 @@ object migrationBuild extends Build {
     },
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"))
 
-  lazy val coreProject = Project("migrations-core", file("core")).settings(
-    commonSettings:_*)
+  lazy val coreProject = Project(
+    "scala-forklift-core", file("core")).settings(commonSettings:_*)
   lazy val slickMigrationProject = Project(
-    "slick-migrations", file("migrations/slick")).dependsOn(coreProject).settings(
-    commonSettings:_*)
+    "scala-forklift-slick", file("migrations/slick")).dependsOn(
+    coreProject).settings(commonSettings:_*)
   lazy val plainMigrationProject = Project(
-    "plain-migrations", file("migrations/plain")).dependsOn(coreProject).settings(
-    commonSettings:_*)
+    "scala-forklift-plain", file("migrations/plain")).dependsOn(
+    coreProject).settings(commonSettings:_*)
   lazy val gitToolProject = Project(
-    "git-tools", file("tools/git")).dependsOn(coreProject).settings(
-    commonSettings:_*)
+    "scala-forklift-git-tools", file("tools/git")).dependsOn(
+    coreProject).settings(commonSettings:_*)
 }

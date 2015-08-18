@@ -1,4 +1,4 @@
-package com.liyaos.migrations.core
+package com.liyaos.forklift.core
 
 trait Migration[T, S]{
   def id : T

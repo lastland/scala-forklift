@@ -1,4 +1,4 @@
-name := "migrations-core"
+name := "scala-forklift-core"
 
 libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % "2.11.6"

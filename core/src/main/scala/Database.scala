@@ -1,4 +1,4 @@
-package com.liyaos.migrations.core
+package com.liyaos.forklift.core
 
 abstract class MigrationDatabase {
   def copy(branch: String, commitId: String): Unit

@@ -1,9 +1,9 @@
 import java.io.File
 import scala.sys.process._
 import com.typesafe.config._
-import com.liyaos.migrations.slick.tools.git.H2MigrationDatabase
-import com.liyaos.migrations.core.tools.{GitUtil => Git}
-import com.liyaos.migrations.tools.git.Installer
+import com.liyaos.forklift.slick.tools.git.H2MigrationDatabase
+import com.liyaos.forklift.core.tools.{GitUtil => Git}
+import com.liyaos.forklift.tools.git.Installer
 
 class MyGitUtil(db: H2MigrationDatabase)
     extends Git(db, System.getProperty("user.dir") + "/../.git") {

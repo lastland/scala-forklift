@@ -1,4 +1,4 @@
-package com.liyaos.migrations.core
+package com.liyaos.forklift.core
 
 import com.typesafe.config._
 

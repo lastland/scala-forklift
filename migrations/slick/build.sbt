@@ -1,4 +1,4 @@
-name := "slick-migrations"
+name := "scala-forklift-slick"
 
 libraryDependencies ++= List(
   "com.typesafe.slick" %% "slick" % "3.0.0"
