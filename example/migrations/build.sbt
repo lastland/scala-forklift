@@ -11,5 +11,6 @@ scalacOptions += "-deprecation"
 scalacOptions += "-feature"
 
 libraryDependencies ++= List(
-  "com.typesafe" %% "slick-migrations" % "1.0"
+  "com.typesafe" %% "slick-migrations" % "1.0",
+  "com.zaxxer" % "HikariCP" % "2.3.9"
 )

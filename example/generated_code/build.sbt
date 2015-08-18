@@ -11,5 +11,5 @@ scalacOptions += "-deprecation"
 scalacOptions += "-feature"
 
 libraryDependencies ++= List(
-  "com.typesafe.slick" %% "slick" % "2.1.0"
+  "com.typesafe.slick" %% "slick" % "3.0.0"
 )

@@ -1,9 +1,14 @@
 package scala.migrations.slick
 
-import scala.slick.jdbc.JdbcBackend
-import scala.slick.driver.H2Driver
-import scala.slick.driver.H2Driver.simple._
-import scala.slick.codegen.SourceCodeGenerator
+import java.io._
+import scala.language.postfixOps
+import scala.concurrent.duration._
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import slick.jdbc.JdbcBackend
+import slick.driver.JdbcDriver
+import slick.driver.JdbcDriver.simple._
+import slick.codegen.SourceCodeGenerator
 import Database.dynamicSession
 
 trait SlickCodegen {
@@ -19,29 +24,62 @@ trait SlickCodegen {
 
   def tableNames: Seq[String] = List()
 
-  def genCode(mm: SlickMigrationManager){
-    mm.db withDynSession {
-      if(mm.notYetAppliedMigrations.size > 0){
-        println("Your database is not up to date, code generation denied for compatibility reasons. Please update first.")
-        return
-      }
-      val model = H2Driver.createModel(Some(
-        H2Driver.defaultTables.filter(t =>
-          tableNames.contains(t.name.name))))
+  def genCode(mm: SlickMigrationManager) {
+    import mm.config.driver.api._
+    if (mm.notYetAppliedMigrations.size > 0) {
+      println("Your database is not up to date, code generation denied for compatibility reasons. Please update first.")
+      return
+    }
+    val driver = mm.config.driver
+    val model = driver.createModel(Some(
+      driver.defaultTables.map { s =>
+        s.filter { t =>
+          tableNames.contains(t.name.name)
+        }
+      }))
+    val f = mm.db.run(model)
+    f onSuccess { case m =>
       val latest = mm.latest
       List( "v" + latest, "latest" ).foreach { version =>
-        val generator = new SourceCodeGenerator(model) {
+        val generator = new SourceCodeGenerator(m) {
           override def packageCode(
-            profile: String, pkg: String, container: String) : String =
-            super.packageCode(profile, pkg, container) + s"""
+            profile: String, pkg: String,
+            container: String, parentType: Option[String]) : String =
+            super.packageCode(profile, pkg, container, None) + s"""
 object Version{
   def version = $latest
 }
 """
         }
-        generator.writeToFile("scala.slick.driver.H2Driver",
+        generator.writeToFile(s"slick.driver.${driver}",
           generatedDir, pkgName(version), container, fileName)
       }
     }
+    Await.result(f, Duration.Inf)
+  }
+
+  def remove() {
+    try {
+      val f = (Glob.glob((f: File) => !f.isDirectory && f.getName == fileName)
+        (List(generatedDir)))
+      f.foreach(_.delete)
+    } catch {
+      case e: FileNotFoundException =>
+    }
+  }
+}
+
+object Glob{
+  // taken from: http://kotakanbe.blogspot.ch/2010/11/scaladirglobsql.html
+  def glob(filter: (File) => Boolean)(dirs: List[String]): List[File] = {
+    def recursive(dir: File, acc: List[File]): List[File] =
+      Option(dir.listFiles) match {
+        case None => throw new FileNotFoundException(dir.getAbsolutePath)
+        case Some(lists) =>
+          val filtered = lists.filter{ c =>  filter(c) }.toList
+          val childDirs = lists.filter{ c => c.isDirectory && !c.getName.startsWith(".") }
+          return ( (acc ::: filtered) /: childDirs){ (a, dir) => recursive(dir, a)}
+      }
+    dirs.flatMap{ d => recursive(new File(d), Nil)}
   }
 }
