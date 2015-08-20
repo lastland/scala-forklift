@@ -45,7 +45,7 @@ trait SlickMigrationManager
   override protected def up(migrations: Iterator[SlickMigration]) = {
     val ups = DBIO.sequence(migrations flatMap { m =>
       List(m.up, migrationsTable += m.id)
-    })
+    }).transactionally
     val f = db.run(ups)
     Await.result(f, Duration.Inf)
   }
