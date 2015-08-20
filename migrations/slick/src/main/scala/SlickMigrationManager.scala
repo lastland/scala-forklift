@@ -29,7 +29,7 @@ trait SlickMigrationManager
 
   type SlickMigration = Migration[Int, DBIO[Unit]]
 
-  val db = config.db
+  lazy val db = config.db
 
   lazy val migrationsTable = TableQuery[MigrationsTable]
   override def init = {
