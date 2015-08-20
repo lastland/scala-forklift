@@ -1,6 +1,6 @@
-package scala.migrations.plain
+package com.liyaos.forklift.plain
 
-import scala.migrations.Migration
+import com.liyaos.forklift.core.Migration
 
 trait PlainMigrationInterface[T] extends Migration[T, Unit] {
   def queries: () => Unit

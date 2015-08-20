@@ -1,4 +1,4 @@
-package scala.migrations.slick
+package com.liyaos.forklift.slick
 
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile

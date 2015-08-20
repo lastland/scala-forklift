@@ -1,7 +1,7 @@
 package example.migration.manager
 
-import scala.migrations.Migration
-import scala.migrations.slick.SlickMigrationManager
+import com.liyaos.forklift.core.Migration
+import com.liyaos.forklift.slick.SlickMigrationManager
 //import scala.migrations.plain.PlainMigrationManager
 
 trait MyMigrationManager extends SlickMigrationManager {

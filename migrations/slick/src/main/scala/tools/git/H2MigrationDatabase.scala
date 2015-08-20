@@ -1,9 +1,10 @@
-package scala.migrations.slick.tools.git
+package com.liyaos.forklift.slick.tools.git
+
 import java.io.File
 import scala.sys.process._
 import java.nio.file.{Paths, Files, StandardCopyOption}
-import scala.migrations.core.tools.helpers.Helpers._
-import scala.migrations.MigrationDatabase
+import com.liyaos.forklift.core.tools.helpers.Helpers._
+import com.liyaos.forklift.core.MigrationDatabase
 
 class H2MigrationDatabase(dbLoc: String, objLoc: String) extends MigrationDatabase {
 

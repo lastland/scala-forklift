@@ -1,14 +1,4 @@
-organization := "com.typesafe"
-
-name := "migrations-core"
-
-version := "1.0"
-
-scalaVersion := "2.11.6"
-
-scalacOptions += "-deprecation"
-
-scalacOptions += "-feature"
+name := "scala-forklift-core"
 
 libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % "2.11.6"

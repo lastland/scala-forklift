@@ -1,4 +1,4 @@
-package scala.migrations
+package com.liyaos.forklift.core
 
 import com.typesafe.config._
 

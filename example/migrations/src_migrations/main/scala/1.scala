@@ -1,5 +1,5 @@
 import slick.driver.H2Driver.api._
-import scala.migrations.slick.SqlMigration
+import com.liyaos.forklift.slick.SqlMigration
 
 object M1 {
   MyMigrations.migrations = MyMigrations.migrations :+ SqlMigration(1)(List(

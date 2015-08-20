@@ -1,6 +1,6 @@
-package scala.migrations.tools.git
+package com.liyaos.forklift.tools.git
 
-import scala.migrations.tools.git.hooks._
+import com.liyaos.forklift.tools.git.hooks._
 
 trait Installer {
   def install(sbtDir: String,

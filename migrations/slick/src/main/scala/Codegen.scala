@@ -1,4 +1,4 @@
-package scala.migrations.slick
+package com.liyaos.forklift.slick
 
 import java.io._
 import scala.language.postfixOps
@@ -9,7 +9,6 @@ import slick.jdbc.JdbcBackend
 import slick.driver.JdbcDriver
 import slick.driver.JdbcDriver.simple._
 import slick.codegen.SourceCodeGenerator
-import Database.dynamicSession
 
 trait SlickCodegen {
 
