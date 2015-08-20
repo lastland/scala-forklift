@@ -3,11 +3,9 @@ package com.liyaos.forklift.slick
 import java.io._
 import scala.language.postfixOps
 import scala.concurrent.duration._
+import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import slick.jdbc.JdbcBackend
-import slick.driver.JdbcDriver
-import slick.driver.JdbcDriver.simple._
 import slick.codegen.SourceCodeGenerator
 
 trait SlickCodegen {
@@ -30,30 +28,33 @@ trait SlickCodegen {
       return
     }
     val driver = mm.config.driver
-    val model = driver.createModel(Some(
+    val action = driver.createModel(Some(
       driver.defaultTables.map { s =>
         s.filter { t =>
           tableNames.contains(t.name.name)
         }
-      }))
-    val f = mm.db.run(model)
-    f onSuccess { case m =>
-      val latest = mm.latest
-      List( "v" + latest, "latest" ).foreach { version =>
-        val generator = new SourceCodeGenerator(m) {
-          override def packageCode(
-            profile: String, pkg: String,
-            container: String, parentType: Option[String]) : String =
-            super.packageCode(profile, pkg, container, None) + s"""
+      })) flatMap { case m =>
+        DBIO.from {
+          Future {
+            val latest = mm.latest
+            List( "v" + latest, "latest" ).foreach { version =>
+              val generator = new SourceCodeGenerator(m) {
+                override def packageCode(
+                  profile: String, pkg: String,
+                  container: String, parentType: Option[String]) : String =
+                  super.packageCode(profile, pkg, container, None) + s"""
 object Version{
   def version = $latest
 }
 """
+              }
+              generator.writeToFile(s"slick.driver.${driver}",
+                generatedDir, pkgName(version), container, fileName)
+            }
+          }
         }
-        generator.writeToFile(s"slick.driver.${driver}",
-          generatedDir, pkgName(version), container, fileName)
-      }
     }
+    val f = mm.db.run(action)
     Await.result(f, Duration.Inf)
   }
 
