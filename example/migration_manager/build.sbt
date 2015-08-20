@@ -20,6 +20,7 @@ libraryDependencies ++= List(
     ,"org.xerial" % "sqlite-jdbc" % "3.6.20"
     ,"org.slf4j" % "slf4j-nop" % "1.6.4" // <- disables logging
     ,"com.liyaos" %% "scala-forklift-slick" % "1.0-SNAPSHOT"
+    ,"com.zaxxer" % "HikariCP" % "2.3.9"
     /*
      // enables logging
      ,"org.slf4j" % "slf4j-api" % "1.6.4"
