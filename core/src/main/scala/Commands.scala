@@ -189,9 +189,13 @@ trait MigrationCommandLineTool[T, S] { this: MigrationCommands[T, S] =>
   reset     totally clears the database and deletes auto-generated source files
             (this can be used to restart the demo and start again with init)
 
+  migrate   automatically fetch migrations, preview and apply them
+
   status    display the migrations that have not been applied yet
 
-  preview      display the migrations that have not been applied yet and show
+  update    fetch migrations to apply
+
+  preview   display the migrations that have not been applied yet and show
             corresponding sql for sql migrations
 
   apply     apply all migrations which have not been applied yet

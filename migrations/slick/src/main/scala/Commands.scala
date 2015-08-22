@@ -53,11 +53,17 @@ trait SlickMigrationCommands extends MigrationCommands[Int, DBIO[Unit]]
     () => applyOp, () => codegenOp)
 
   override def statusOp {
-    val ny = notYetAppliedMigrations
-    if( ny.size == 0 ) {
-      println("your database is up-to-date")
+    val mf = migrationFiles(alreadyAppliedIds)
+    if (!mf.isEmpty) {
+      println("you still have unhandled migrations")
+      println("use mg update to fetch these migrations")
     } else {
-      println("your database is outdated, not yet applied migrations: "+notYetAppliedMigrations.map(_.id).mkString(", "))
+      val ny = notYetAppliedMigrations
+      if( ny.size == 0 ) {
+        println("your database is up-to-date")
+      } else {
+        println("your database is outdated, not yet applied migrations: "+notYetAppliedMigrations.map(_.id).mkString(", "))
+      }
     }
   }
 
@@ -185,7 +191,7 @@ trait SlickMigrationCommandLineTool
   }
 
   override def help = super.help + """
-
-  dbdump    print a dump of the current database
+  codegen   generate data model code (table objects, case classes) from the
+            database schema
 """
 }
