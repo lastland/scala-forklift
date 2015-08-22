@@ -47,6 +47,18 @@ object GenericMigrationMacros {
       }
     }
     val code_ = c.Expr[String](Literal(Constant((f.tree match {
+      case Block(_,Function(_,Block(statements,expr))) =>
+        (statements.toList :+ expr).flatMap { t =>
+          makeMoreReadable(t).toString.split("\t")
+        }.mkString("\n\t")
+      case Function(_,Block(statements,expr)) =>
+        (statements.toList :+ expr).flatMap { t =>
+          makeMoreReadable(t).toString.split("\t")
+        }.mkString("\n\t")
+      case Function(_,statement) =>
+        List(statement).flatMap { t =>
+          makeMoreReadable(t).toString.split("\t")
+        }.mkString("\n\t")
       case Apply(TypeApply(Select(Select(_, TermName(dbio)), _), _), statements)
           if dbio == "DBIO" =>
         statements.flatMap { t =>
