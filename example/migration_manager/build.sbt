@@ -10,7 +10,7 @@ scalacOptions += "-deprecation"
 
 scalacOptions += "-feature"
 
-resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= List(
   "com.typesafe.slick" %% "slick" % "3.0.0"
@@ -19,7 +19,7 @@ libraryDependencies ++= List(
     ,"com.h2database" % "h2" % "1.3.166"
     ,"org.xerial" % "sqlite-jdbc" % "3.6.20"
     ,"org.slf4j" % "slf4j-nop" % "1.6.4" // <- disables logging
-    ,"com.liyaos" %% "scala-forklift-slick" % "1.0-SNAPSHOT"
+    ,"com.liyaos" %% "scala-forklift-slick" % "0.1.0-SNAPSHOT"
     ,"com.zaxxer" % "HikariCP" % "2.3.9"
     /*
      // enables logging
