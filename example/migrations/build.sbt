@@ -1,14 +1,4 @@
-organization := "com.typesafe"
-
 name := "migrations-example-migrations"
-
-version := "1.0"
-
-scalaVersion := "2.11.6"
-
-scalacOptions += "-deprecation"
-
-scalacOptions += "-feature"
 
 resolvers ++= List(
   Resolver.sonatypeRepo("snapshots")
