@@ -22,11 +22,13 @@ trait GenericMigrationFunction {
 }
 // GenericMigrationPreviewMacros
 trait GenericMigrationMacro {
-  def apply[T](id:T)(f: DBIO[Unit]) = macro GenericMigrationMacros.impl[T]
+  def apply[T](id:T)(f: DBIO[Unit]): GenericMigration[T] =
+    macro GenericMigrationMacros.impl[T]
 }
 
 object GenericMigrationMacros {
-  def impl[T:c.WeakTypeTag](c: scala.reflect.macros.Context)(id: c.Expr[T])(f: c.Expr[DBIO[Unit]]) = {
+  def impl[T:c.WeakTypeTag](c: scala.reflect.macros.whitebox.Context)(
+    id: c.Expr[T])(f: c.Expr[DBIO[Unit]]) = {
     import c.universe._
     object makeMoreReadable extends Transformer {
       def apply( tree:Tree ) = transform(tree)
