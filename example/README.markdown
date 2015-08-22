@@ -48,6 +48,8 @@ This command will find all the not yet applied migrations, and try to apply them
 	    [alter table "users" alter column "first" rename to "firstname" ]
 	    [alter table "users" alter column "last" rename to "lastname" ]
 
+Alternatively, you can also use `~mg migrate -p` to have Scala-Forklift ask for your confirmation before actually applying the migrations.
+
 Congratulations! You have applied all the migration scripts. To see what's in current database, uncomment the code in `example/src/main/scala/App.scala` and enter the following command in your `sbt` shell:
 
     app/run
