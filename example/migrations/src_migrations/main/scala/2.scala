@@ -9,6 +9,6 @@ object M2 {
     // if you really have to do content changes in migrations, make sure they cannot conflict with data in one of your installations
     DBIO.seq(Users ++= Seq(
       UsersRow(1, "Chris","Vogt"),
-      UsersRow(2, "Stefan","Zeiger")
+      UsersRow(2, "Yao","Li")
     )))
 }
