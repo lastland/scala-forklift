@@ -23,8 +23,8 @@ class MyGitUtil(db: H2MigrationDatabase)
 
 object GitUtil {
   private val config = ConfigFactory.load()
-  val dbLoc = config.getString("db.url")
-  val objLoc = config.getString("db.version_control_dir")
+  val dbLoc = config.getString("slick.db.url")
+  val objLoc = config.getString("slick.version_control_dir")
 
   def main(args: Array[String]) {
     val db = new H2MigrationDatabase(dbLoc, objLoc)
