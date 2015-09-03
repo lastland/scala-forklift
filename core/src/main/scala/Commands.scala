@@ -8,13 +8,13 @@ import scala.io.StdIn
 
 trait MigrationFilesHandler[T] {
 
-  private lazy val config = MigrationsConfig.config
+  protected lazy val config = MigrationsConfig.config
   protected lazy val unhandledLoc =
     config.getString("migrations.unhandled_location")
   protected lazy val handledLoc =
     config.getString("migrations.handled_location")
 
-  private def getId(name: String): Option[String] = {
+  protected def getId(name: String): Option[String] = {
     if (!name.endsWith(".scala")) None
     else Some(name.substring(0, name.length - 6))
   }
