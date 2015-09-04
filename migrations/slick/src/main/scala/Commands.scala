@@ -96,8 +96,8 @@ trait SlickMigrationCommands extends MigrationCommands[Int, DBIO[Unit]]
         case m: SqlMigrationInterface[_] =>
           println( migration.id + " SqlMigration:")
           println( "\t" + m.queries.map(_.getDumpInfo.mainInfo).mkString("\n\t") )
-        case m: GenericMigration[_] =>
-          println( migration.id + " GenericMigration:")
+        case m: DBIOMigration[_] =>
+          println( migration.id + " DBIOMigration:")
           println( "\t" + m.code )
       }
       println("")
@@ -205,11 +205,11 @@ object M${version} {
 import datamodel.v${version - 1}.schema.tables.UsersRow"""
           else ""
         s"""import ${driverName}.api._
-import com.liyaos.forklift.slick.GenericMigration
+import com.liyaos.forklift.slick.DBIOMigration
 ${imports}
 
 object M${version} {
-  ${migrationObject}.migrations = ${migrationObject}.migrations :+ GenericMigration(${version})(
+  ${migrationObject}.migrations = ${migrationObject}.migrations :+ DBIOMigration(${version})(
     DBIO.seq(
       // write your dbio actions here
     ))
