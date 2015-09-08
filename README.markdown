@@ -10,7 +10,7 @@ Write your migrations in plain SQL:
 
 Or type-safe Slick queries:
 
-    MyMigrations.migrations = MyMigrations.migrations :+ GenericMigration(2)(
+    MyMigrations.migrations = MyMigrations.migrations :+ DBIOMigration(2)(
       DBIO.seq(Users ++= Seq(
         UsersRow(1, "Chris","Vogt"),
         UsersRow(2, "Yao","Li")
