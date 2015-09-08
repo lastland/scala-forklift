@@ -8,7 +8,7 @@ object migrationBuild extends Build {
 
   lazy val commonSettings = Seq(
     organization := "com.liyaos",
-    version := "0.1.0-SNAPSHOT",
+    version := "0.1.0-ALPHA",
     scalaVersion := "2.11.6",
     scalacOptions += "-deprecation",
     scalacOptions += "-feature",
