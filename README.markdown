@@ -25,15 +25,20 @@ Don't worry about the Scala code for your database schema. Our source code gener
 - A tool to help you manage your dev db with git, with supports for branching and merging.
 - High customizability.
 
+
 ## How to Use
 
 Add the following dependency to your `build.sbt`:
 
-    resolvers += Resolver.sonatypeRepo("snapshots")
-
-    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.1.0-SNAPSHOT"
+    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.1.0-ALPHA"
 
 check [example](/example) for tutorial and example code.
+
+### Quick Start
+
+Alternatively, you can use our start template on GitHub to quickly start a project with Scala-Forklift:
+
+    git clone https://github.com/lastland/scala-forklift-start-template.git
 
 ## Known Issues
 
