@@ -6,27 +6,27 @@ import scala.language.experimental.macros
 
 import com.liyaos.forklift.core.Migration
 
-abstract class GenericMigration[T](val id:T)(f: DBIO[Unit])
+abstract class DBIOMigration[T](val id:T)(f: DBIO[Unit])
     extends Migration[T, DBIO[Unit]] {
   def up: DBIO[Unit] = f
   def code: String
 }
 
-object GenericMigration extends GenericMigrationMacro // comment out all usages when compiling this
-//object GenericMigration extends GenericMigrationFunction
+object DBIOMigration extends DBIOMigrationMacro // comment out all usages when compiling this
+//object DBIOMigration extends DBIOMigrationFunction
 
-trait GenericMigrationFunction {
-  def apply[T](id: T)(f: DBIO[Unit]) = new GenericMigration[T](id)(f){
-    def code = "(Scala source code preview requires GenericMigration extends GenericMigrationMacro but it currently extends GenericMigrationFunction.)"
+trait DBIOMigrationFunction {
+  def apply[T](id: T)(f: DBIO[Unit]) = new DBIOMigration[T](id)(f){
+    def code = "(Scala source code preview requires DBIOMigration extends DBIOMigrationMacro but it currently extends DBIOMigrationFunction.)"
   }
 }
-// GenericMigrationPreviewMacros
-trait GenericMigrationMacro {
-  def apply[T](id:T)(f: DBIO[Unit]): GenericMigration[T] =
-    macro GenericMigrationMacros.impl[T]
+// DBIOMigrationPreviewMacros
+trait DBIOMigrationMacro {
+  def apply[T](id:T)(f: DBIO[Unit]): DBIOMigration[T] =
+    macro DBIOMigrationMacros.impl[T]
 }
 
-object GenericMigrationMacros {
+object DBIOMigrationMacros {
   def impl[T:c.WeakTypeTag](c: scala.reflect.macros.whitebox.Context)(
     id: c.Expr[T])(f: c.Expr[DBIO[Unit]]) = {
     import c.universe._
@@ -69,7 +69,7 @@ object GenericMigrationMacros {
       case tree => showRaw(tree)
     }).toString)))
     reify{
-      new GenericMigration[T](id.splice)(f.splice){
+      new DBIOMigration[T](id.splice)(f.splice){
         def code = code_.splice
       }
     }

@@ -22,12 +22,12 @@ trait SlickCodegen {
   def tableNames: Seq[String] = List()
 
   def genCode(mm: SlickMigrationManager) {
-    import mm.config.driver.api._
+    import mm.dbConfig.driver.api._
     if (mm.notYetAppliedMigrations.size > 0) {
       println("Your database is not up to date, code generation denied for compatibility reasons. Please update first.")
       return
     }
-    val driver = mm.config.driver
+    val driver = mm.dbConfig.driver
     val action = driver.createModel(Some(
       driver.defaultTables.map { s =>
         s.filter { t =>

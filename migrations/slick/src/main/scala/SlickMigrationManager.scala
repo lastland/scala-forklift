@@ -13,9 +13,9 @@ import com.liyaos.forklift.core.MigrationManager
 
 trait SlickMigrationManager
     extends MigrationManager[Int, slick.dbio.DBIO[Unit]] {
-  val config = SlickMigrationsConfig.config
+  val dbConfig = SlickMigrationsConfig.dbConfig
 
-  import config.driver.api._
+  import dbConfig.driver.api._
 
   class MigrationsTable(tag: Tag) extends Table[Int](tag, "__migrations__") {
     def id = column[Int]("id", O.PrimaryKey)
@@ -29,7 +29,7 @@ trait SlickMigrationManager
 
   type SlickMigration = Migration[Int, DBIO[Unit]]
 
-  lazy val db = config.db
+  lazy val db = dbConfig.db
 
   lazy val migrationsTable = TableQuery[MigrationsTable]
   override def init = {

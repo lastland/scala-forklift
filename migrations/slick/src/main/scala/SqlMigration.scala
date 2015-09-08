@@ -11,6 +11,6 @@ trait SqlMigrationInterface[T] extends Migration[T, DBIO[Unit]]{
 
 case class SqlMigration[T](val id:T)(val queries: Seq[DBIO[Int]])
     extends SqlMigrationInterface[T] {
-  protected val config = SlickMigrationsConfig.config
+  protected val config = SlickMigrationsConfig.dbConfig
   def up = DBIO.seq(queries:_*)
 }
