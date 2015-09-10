@@ -30,7 +30,9 @@ Don't worry about the Scala code for your database schema. Our source code gener
 
 Add the following dependency to your `build.sbt`:
 
-    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.1.0-ALPHA"
+    resolvers += Resolver.sonatypeRepo("snapshots")
+
+    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.1.0-SNAPSHOT"
 
 check [example](/example) for tutorial and example code.
 
