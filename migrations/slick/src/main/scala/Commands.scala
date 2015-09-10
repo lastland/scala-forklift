@@ -193,7 +193,7 @@ trait SlickMigrationCommands extends MigrationCommands[Int, DBIO[Unit]]
 import com.liyaos.forklift.slick.SqlMigration
 
 object M${version} {
-  ${migrationObject}.migrations = ${migrationObject}.migratiin :+ SqlMigration(${version})(List(
+  ${migrationObject}.migrations = ${migrationObject}.migrations :+ SqlMigration(${version})(List(
     sqlu"" // your sql code goes here
   ))
 }
