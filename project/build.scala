@@ -8,10 +8,14 @@ object migrationBuild extends Build {
 
   lazy val commonSettings = Seq(
     organization := "com.liyaos",
-    version := "0.1.0-ALPHA",
+    licenses := Seq("BSD-2-Clause" -> url("http://opensource.org/licenses/BSD-2-Clause")),
+    homepage := Some(url("https://github.com/lastland/scala-forklift")),
+    version := "0.1.0-SNAPSHOT",
     scalaVersion := "2.11.6",
     scalacOptions += "-deprecation",
     scalacOptions += "-feature",
+    publishMavenStyle := true,
+    publishArtifact in Test := false,
     repoKind <<= (version)(v =>
       if(v.trim.endsWith("SNAPSHOT")) "snapshots" else "releases"),
     publishTo <<= (repoKind){
@@ -20,7 +24,18 @@ object migrationBuild extends Build {
       case "releases" =>  Some("releases"  at
           "https://oss.sonatype.org/service/local/staging/deploy/maven2")
     },
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"))
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
+    pomExtra := (
+      <scm>
+        <url>git@github.com:lastland/scala-forklift.git</url>
+        <connection>scm:git:git@github.com:lastland/scala-forklift.git</connection>
+      </scm>
+      <developers>
+        <developer>
+        <id>lastland</id>
+        <name>Yao Li</name>
+        </developer>
+      </developers>))
 
   lazy val coreProject = Project(
     "scala-forklift-core", file("core")).settings(commonSettings:_*)

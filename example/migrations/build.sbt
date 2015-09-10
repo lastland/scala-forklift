@@ -6,7 +6,7 @@ resolvers ++= List(
 )
 
 libraryDependencies ++= List(
-  "com.liyaos" %% "scala-forklift-slick" % "0.1.0-ALPHA"
+  "com.liyaos" %% "scala-forklift-slick" % "0.1.0-SNAPSHOT"
 //  ,"io.github.nafg" %% "slick-migration-api" % "0.1.1"
   ,"com.zaxxer" % "HikariCP" % "2.3.9"
 )
