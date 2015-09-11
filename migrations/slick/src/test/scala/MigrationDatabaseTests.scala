@@ -4,7 +4,7 @@ import java.nio.file.{Paths, Files, StandardCopyOption}
 import org.apache.commons.io.FileUtils
 import scala.sys.process._
 import collection.mutable.ListBuffer
-import scala.migrations.slick.tools.git.H2MigrationDatabase
+import com.liyaos.forklift.slick.tools.git.H2MigrationDatabase
 
 class TestDir {
   val path = "tmp"
