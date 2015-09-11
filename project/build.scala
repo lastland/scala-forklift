@@ -8,7 +8,7 @@ object migrationBuild extends Build {
 
   lazy val commonSettings = Seq(
     organization := "com.liyaos",
-    licenses := Seq("BSD-2-Clause" -> url("http://opensource.org/licenses/BSD-2-Clause")),
+    licenses := Seq("BSD-2-Clause" -> url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
     homepage := Some(url("https://github.com/lastland/scala-forklift")),
     version := "0.1.0-SNAPSHOT",
     scalaVersion := "2.11.6",
