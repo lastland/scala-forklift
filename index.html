@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Scala-forklift by lastland</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Scala-forklift</h1>
+        <p>Scala-Forklift helps manage and apply database migrations for your Scala project.</p>
+
+        <p class="view"><a href="https://github.com/lastland/scala-forklift">View the Project on GitHub <small>lastland/scala-forklift</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/lastland/scala-forklift/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/lastland/scala-forklift/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/lastland/scala-forklift">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="scala-forklift" class="anchor" href="#scala-forklift" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scala-Forklift</h1>
+
+<p>Scala-Forklift helps manage and apply database migrations for your Scala project.</p>
+
+<p>Write your migrations in plain SQL:</p>
+
+<pre><code>MyMigrations.migrations = MyMigrations.migrations :+ SqlMigration(1)(List(
+  sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)"""
+))
+</code></pre>
+
+<p>Or type-safe Slick queries:</p>
+
+<pre><code>MyMigrations.migrations = MyMigrations.migrations :+ DBIOMigration(2)(
+  DBIO.seq(Users ++= Seq(
+    UsersRow(1, "Chris","Vogt"),
+    UsersRow(2, "Yao","Li")
+  )))
+</code></pre>
+
+<p>Don't worry about the Scala code for your database schema. Our source code generator will have it generated for you automatically.</p>
+
+<p><strong>Key Features</strong>:</p>
+
+<ul>
+<li>Supports for Slick (and Casbah is on the way!).</li>
+<li>A source code generator to generate and manage Scala models from your database schemas.</li>
+<li>A tool to help you manage your dev db with git, with supports for branching and merging.</li>
+<li>High customizability.</li>
+</ul>
+
+<h2>
+<a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to Use</h2>
+
+<p>Add the following dependency to your <code>build.sbt</code>:</p>
+
+<pre><code>libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.0-ALPHA"
+</code></pre>
+
+<p>check <a href="/example">example</a> for tutorial and example code.</p>
+
+<h3>
+<a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span class="octicon octicon-link"></span></a>Quick Start</h3>
+
+<p>Alternatively, you can use our start template on GitHub to quickly start a project with Scala-Forklift:</p>
+
+<pre><code>git clone https://github.com/lastland/scala-forklift-start-template.git
+</code></pre>
+
+<h2>
+<a id="known-issues" class="anchor" href="#known-issues" aria-hidden="true"><span class="octicon octicon-link"></span></a>Known Issues</h2>
+
+<ul>
+<li>The <code>reset</code> command may not correctly handle database schemas with foreign keys.</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/lastland">lastland</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
