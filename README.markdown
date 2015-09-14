@@ -1,5 +1,6 @@
 # Scala-Forklift
 
+[![Circle CI](https://circleci.com/gh/lastland/scala-forklift.svg?style=shield)](https://circleci.com/gh/lastland/scala-forklift)
 [![Join the chat at https://gitter.im/lastland/scala-forklift](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lastland/scala-forklift?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Scala-Forklift helps manage and apply database migrations for your Scala project.
