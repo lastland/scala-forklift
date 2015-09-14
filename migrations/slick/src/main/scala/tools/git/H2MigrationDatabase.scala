@@ -8,6 +8,9 @@ import com.liyaos.forklift.core.MigrationDatabase
 
 class H2MigrationDatabase(dbLoc: String, objLoc: String) extends MigrationDatabase {
 
+  // TODO: de-hardcode it
+  private val migIterations = 5
+
   lazy val dbName = {
     val prefix = "jdbc:h2:"
     dbLoc.substring(dbLoc.indexOfSlice(prefix) + prefix.length) + ".h2.db"
@@ -52,8 +55,9 @@ class H2MigrationDatabase(dbLoc: String, objLoc: String) extends MigrationDataba
   }
 
   def rebuild() {
-    Seq("sbt", "mg reset", "mg init").!
-    for (i <- 0 until 10) Seq("sbt", "mg migrate").!
+    Seq("sbt", "mg reset").!
+    Seq("sbt", "mg init").!
+    for (i <- 0 until migIterations) Seq("sbt", "mg migrate").!
     //Seq("sbt", "~mg migrate").!->
   }
 
