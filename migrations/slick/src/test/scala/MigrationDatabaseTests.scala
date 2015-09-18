@@ -6,23 +6,10 @@ import collection.mutable.ListBuffer
 import ammonite.ops._
 import com.liyaos.forklift.slick.tools.git.H2MigrationDatabase
 
-class TestDir(cwd: Path) {
-  val path = cwd/'tmp
-  val testPath = path/'test
-
-  def setup() {
-    rm! path
-    mkdir! path
-    cp(cwd/'example, testPath)
-  }
-
-  override def toString = path.toString
-}
-
 class MigrationDatabaseTest extends FlatSpec
     with BeforeAndAfter with GivenWhenThen {
   val wd = cwd
-  val dir = new TestDir(wd)
+  val dir = TestDir.createTestDir(wd)
   val testDir = dir.testPath
   val objDir = testDir/".db"
 
@@ -35,6 +22,10 @@ class MigrationDatabaseTest extends FlatSpec
     assert((%git 'init) === 0)
     assert((%git('config, "user.email", "test@test.com")) === 0)
     assert((%git('config, "user.name", "Testser")) === 0)
+  }
+
+  after {
+    dir.destroy()
   }
 
   "commit" should "copy db into .db on master branch" in {
