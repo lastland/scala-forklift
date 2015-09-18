@@ -25,6 +25,9 @@ class TestDir(wd: Path) {
     mkdir! testPath/".db"
     // rm .git
     rm! path/".git"
+    // set up git ignore
+    rm! path/".gitignore"
+    cp(wd/".gitignore", path/".gitignore")
     // rm generated code
     rm! testPath/'generated_code/'src
   }

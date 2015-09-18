@@ -104,14 +104,13 @@ class MigrationDatabaseTest extends FlatSpec
 
     Given("an example project with two branches with different db")
     val sourcePath = dir.testPath/'migrations/'src_migrations/'main/'scala
-    mv(sourcePath/"3.scala", sourcePath/"3.scala.disabled")
+    mv(sourcePath/"3.scala", sourcePath/"3.scala.swp")
     assert((%sbt("git-tools/run install")) === 0)
     assert((%sbt("git-tools/run rebuild")) === 0)
-    write(dir.path/".gitignore", "*.disabled\n*.db")
     assert((%git("add", ".")) === 0)
     assert((%git("commit", "-m", "initial")) === 0)
     assert((%git("checkout", "-b", "test")) === 0)
-    mv(sourcePath/"3.scala.disabled", sourcePath/"3.scala")
+    mv(sourcePath/"3.scala.swp", sourcePath/"3.scala")
     assert((%sbt("git-tools/run rebuild")) === 0)
     assert((%git("add", ".")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
