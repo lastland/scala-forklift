@@ -3,12 +3,13 @@ package com.liyaos.forklift.slick.tests.unittests
 import com.liyaos.forklift.core.Migration
 import com.liyaos.forklift.slick._
 import org.scalatest._
+import java.sql.SQLException
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait MigrationTests extends FlatSpec {
-  this: ConfigFile with Tables=>
+trait MigrationTests extends FlatSpec with PrivateMethodTester {
+  this: ConfigFile with Tables =>
 
   import profile.api._
 
@@ -50,9 +51,31 @@ trait MigrationTests extends FlatSpec {
     }
   }
 
-  it should "apply empty migrations with no exception" in {
+  it should "deprecate object models of previous versions" in {
     val m = new SlickMigrationManager {
       override lazy val dbConfig = theDBConfig(1)
+      migrations = MigrationSeq.example
+    }
+    try {
+      m.init
+      m.up
+      val f = m.db.run {
+        UsersV2.result
+      } map { users =>
+        for (user <- users) yield (user.first, user.last)
+      }
+      intercept[SQLException] {
+        Await.result(f, Duration.Inf)
+      }
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  it should "apply empty migrations with no exception" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig(2)
       migrations = MigrationSeq.empty
     }
     try {
