@@ -9,4 +9,6 @@ libraryDependencies ++= List(
   ,"org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
   ,"com.lihaoyi" %% "ammonite-ops" % "0.4.7" % "test"
   ,"commons-io" % "commons-io" % "2.4" % "test"
+  ,"com.zaxxer" % "HikariCP" % "2.3.9" % "test"
+  ,"com.h2database" % "h2" % "1.3.166" % "test"
 )

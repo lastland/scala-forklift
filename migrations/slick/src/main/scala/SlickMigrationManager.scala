@@ -13,7 +13,7 @@ import com.liyaos.forklift.core.MigrationManager
 
 trait SlickMigrationManager
     extends MigrationManager[Int, slick.dbio.DBIO[Unit]] {
-  val dbConfig = SlickMigrationsConfig.dbConfig
+  lazy val dbConfig = SlickMigrationsConfig.dbConfig
 
   import dbConfig.driver.api._
 
