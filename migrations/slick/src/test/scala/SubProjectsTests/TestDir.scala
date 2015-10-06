@@ -1,3 +1,5 @@
+package com.liyaos.forklift.slick.tests.subprojects
+
 import ammonite.ops._
 
 object TestDir {

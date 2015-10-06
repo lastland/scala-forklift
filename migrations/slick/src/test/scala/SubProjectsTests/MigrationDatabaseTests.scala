@@ -1,3 +1,5 @@
+package com.liyaos.forklift.slick.tests.subprojects
+
 import org.scalatest._
 import java.io.File
 import scala.language.implicitConversions
