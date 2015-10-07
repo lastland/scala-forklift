@@ -21,9 +21,9 @@ class MigrationDatabaseTest extends FlatSpec
     dir.setup()
     rm(objDir)
     implicit val wd = dir.path
-    assert((%git 'init) === 0)
-    assert((%git('config, "user.email", "test@test.com")) === 0)
-    assert((%git('config, "user.name", "Testser")) === 0)
+    %%git 'init
+    %%git('config, "user.email", "test@test.com")
+    %%git('config, "user.name", "Testser")
   }
 
   after {
@@ -38,7 +38,7 @@ class MigrationDatabaseTest extends FlatSpec
     assert((%sbt("git-tools/run rebuild")) === 0)
 
     When("commit on master branch")
-    assert((%git("add", ".")) === 0)
+    assert((%git("add", "build.sbt")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
 
     Then("a db file should be stored in objDir")
@@ -60,7 +60,7 @@ class MigrationDatabaseTest extends FlatSpec
 
     When("commit on master branch")
     assert((%git("checkout", "-b", "test")) === 0)
-    assert((%git("add", ".")) === 0)
+    assert((%git("add", "build.sbt")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
 
     Then("a db file should be stored in objDir")
@@ -109,12 +109,12 @@ class MigrationDatabaseTest extends FlatSpec
     mv(sourcePath/"3.scala", sourcePath/"3.scala.swp")
     assert((%sbt("git-tools/run install")) === 0)
     assert((%sbt("git-tools/run rebuild")) === 0)
-    assert((%git("add", ".")) === 0)
+    assert((%git("add", "build.sbt")) === 0)
     assert((%git("commit", "-m", "initial")) === 0)
     assert((%git("checkout", "-b", "test")) === 0)
     mv(sourcePath/"3.scala.swp", sourcePath/"3.scala")
     assert((%sbt("git-tools/run rebuild")) === 0)
-    assert((%git("add", ".")) === 0)
+    assert((%git("add", sourcePath/"3.scala")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
     assert((%git("checkout", "master")) === 0)
     write(wd/"test_file", "Hello World!")
