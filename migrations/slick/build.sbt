@@ -12,6 +12,7 @@ libraryDependencies ++= List(
   ,"com.zaxxer" % "HikariCP" % "2.4.1" % "test"
   ,"com.h2database" % "h2" % "1.3.166" % "test"
   ,"org.xerial" % "sqlite-jdbc" % "3.8.11.2" % "test"
+  ,"mysql" % "mysql-connector-java" % "5.1.36" % "test"
 )
 
 parallelExecution in Test := false

@@ -50,3 +50,13 @@ trait SQLiteConfigFile extends ConfigFile with Tables {
 
   val profile = slick.driver.SQLiteDriver
 }
+
+trait MySQLConfigFile extends ConfigFile with Tables {
+  val user = System.getProperty("user.name")
+  val path = Path(System.getProperty("user.dir"))
+  val driver = "slick.driver.MySQLDriver$"
+  val dbDriver = "com.mysql.jdbc.Driver"
+  def dbUrl(n: Int) = s"jdbc:mysql://$user@localhost/test$n"
+
+  val profile = slick.driver.MySQLDriver
+}
