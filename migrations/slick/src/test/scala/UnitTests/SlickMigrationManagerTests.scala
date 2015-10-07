@@ -7,6 +7,7 @@ import java.sql.SQLException
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
+import slick.jdbc.meta.MTable
 
 trait MigrationTests extends FlatSpec with PrivateMethodTester {
   this: ConfigFile with Tables =>
@@ -30,9 +31,75 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
         )))
   }
 
+  object NextInt {
+    var counter = 0
+    def next = synchronized {
+      counter += 1
+      counter
+    }
+  }
+
+  "init" should "create the migration tables" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig(NextInt.next)
+      migrations = MigrationSeq.empty
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        MTable.getTables), Duration.Inf).toList
+      assert(tablesBefore.length === 0)
+      m.init
+      val tablesAfter = Await.result(m.db.run(
+        MTable.getTables), Duration.Inf).toList
+      assert(tablesAfter.exists(_.name.name == "__migrations__"))
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  "reset" should "drop the migration table" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig(NextInt.next)
+      migrations = MigrationSeq.empty
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        MTable.getTables), Duration.Inf).toList
+      assert(tablesBefore.length === 0)
+      m.init
+      m.reset
+      val tablesReset = Await.result(m.db.run(
+        MTable.getTables), Duration.Inf).toList
+      assert(tablesReset.length === 0)
+    } finally {
+      m.db.close()
+    }
+  }
+
+  it should "drop all the tables" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig(NextInt.next)
+      migrations = MigrationSeq.example
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        MTable.getTables), Duration.Inf).toList
+      assert(tablesBefore.length === 0)
+      m.init
+      m.up
+      m.reset
+      val tablesReset = Await.result(m.db.run(
+        MTable.getTables), Duration.Inf).toList
+      assert(tablesReset.length === 0)
+    } finally {
+      m.db.close()
+    }
+  }
+
   "up" should "apply the migrations" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(0)
+      override lazy val dbConfig = theDBConfig(NextInt.next)
       migrations = MigrationSeq.example
     }
     try {
@@ -53,7 +120,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   it should "deprecate object models of previous versions" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(1)
+      override lazy val dbConfig = theDBConfig(NextInt.next)
       migrations = MigrationSeq.example
     }
     try {
@@ -75,7 +142,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   it should "apply empty migrations with no exception" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(2)
+      override lazy val dbConfig = theDBConfig(NextInt.next)
       migrations = MigrationSeq.empty
     }
     try {
