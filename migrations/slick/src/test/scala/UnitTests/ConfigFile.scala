@@ -37,7 +37,16 @@ trait H2ConfigFile extends ConfigFile with Tables {
   val path = Path(System.getProperty("user.dir"))
   val driver = "slick.driver.H2Driver$"
   val dbDriver = "org.h2.Driver"
-  def dbUrl(n: Int) = s"jdbc:h2:$path/test$n.tb"
+  def dbUrl(n: Int) = s"jdbc:h2:$path/test$n"
 
   val profile = slick.driver.H2Driver
+}
+
+trait SQLiteConfigFile extends ConfigFile with Tables {
+  val path = Path(System.getProperty("user.dir"))
+  val driver = "slick.driver.SQLiteDriver$"
+  val dbDriver = "org.sqlite.JDBC"
+  def dbUrl(n: Int) = s"jdbc:sqlite:$path/test$n.sqlite.db"
+
+  val profile = slick.driver.SQLiteDriver
 }

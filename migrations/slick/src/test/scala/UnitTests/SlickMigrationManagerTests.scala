@@ -25,9 +25,12 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
             UsersRow(1, "Chris","Vogt"),
             UsersRow(2, "Yao","Li")
           ))),
+        // SQLite does not support renaming columns directly
         SqlMigration(3)(List(
-          sqlu"""alter table "users" alter column "first" rename to "firstname" """,
-          sqlu"""alter table "users" alter column "last" rename to "lastname" """
+          sqlu"""alter table "users" rename to "users_old" """,
+          sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY, "firstname" VARCHAR NOT NULL, "lastname" VARCHAR NOT NULL)""",
+          sqlu"""insert into "users"("id", "firstname", "lastname") select "id", "first", "last" from "users_old" """,
+          sqlu"""drop table "users_old" """
         )))
   }
 
@@ -160,3 +163,5 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 }
 
 class H2MigrationTests extends MigrationTests with H2ConfigFile
+
+class SQLiteMigrationTests extends MigrationTests with SQLiteConfigFile
