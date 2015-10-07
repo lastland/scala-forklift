@@ -9,16 +9,20 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 import slick.jdbc.meta.MTable
+import slick.driver.JdbcProfile
 
 trait MigrationTests extends FlatSpec with PrivateMethodTester {
   this: ConfigFile with Tables =>
 
   import profile.api._
 
-  object MigrationSeq {
+  class MigrationSeq {
     lazy val empty: List[Migration[Int, DBIO[Unit]]] = List()
+    lazy val example = empty
+  }
 
-    lazy val example: List[Migration[Int, DBIO[Unit]]] =
+  val MigrationSeq: MigrationSeq = new MigrationSeq {
+    override lazy val example: List[Migration[Int, DBIO[Unit]]] =
       List(SqlMigration(1)(List(
         sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)""")),
         DBIOMigration(2)(
@@ -35,17 +39,9 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
         )))
   }
 
-  object NextInt {
-    var counter = 0
-    def next = {
-      counter += 1
-      counter
-    }
-  }
-
   "init" should "create the migration tables" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(NextInt.next)
+      override lazy val dbConfig = theDBConfig
       migrations = MigrationSeq.empty
     }
     try {
@@ -64,7 +60,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   "reset" should "drop the migration table" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(NextInt.next)
+      override lazy val dbConfig = theDBConfig
       migrations = MigrationSeq.empty
     }
     try {
@@ -83,7 +79,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   it should "drop all the tables" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(NextInt.next)
+      override lazy val dbConfig = theDBConfig
       migrations = MigrationSeq.example
     }
     try {
@@ -103,7 +99,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   "up" should "apply the migrations" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(NextInt.next)
+      override lazy val dbConfig = theDBConfig
       migrations = MigrationSeq.example
     }
     try {
@@ -124,7 +120,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   it should "deprecate object models of previous versions" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(NextInt.next)
+      override lazy val dbConfig = theDBConfig
       migrations = MigrationSeq.example
     }
     try {
@@ -146,7 +142,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   it should "apply empty migrations with no exception" in {
     val m = new SlickMigrationManager {
-      override lazy val dbConfig = theDBConfig(NextInt.next)
+      override lazy val dbConfig = theDBConfig
       migrations = MigrationSeq.empty
     }
     try {
@@ -167,4 +163,21 @@ class H2MigrationTests extends MigrationTests with H2ConfigFile
 
 class SQLiteMigrationTests extends MigrationTests with SQLiteConfigFile
 
-class MySQLMigrationTests extends MigrationTests with MySQLConfigFile
+class MySQLMigrationTests extends MigrationTests with MySQLConfigFile {
+  import profile.api._
+
+  override val MigrationSeq = new MigrationSeq {
+    override lazy val example: List[Migration[Int, DBIO[Unit]]] =
+      List(SqlMigration(1)(List(
+        sqlu"""create table `users` (`id` INTEGER NOT NULL PRIMARY KEY,`first` VARCHAR(255) NOT NULL,`last` VARCHAR(255) NOT NULL)""")),
+        DBIOMigration(2)(
+          DBIO.seq(UsersV2 ++= Seq(
+            UsersRow(1, "Chris","Vogt"),
+            UsersRow(2, "Yao","Li")
+          ))),
+        SqlMigration(3)(List(
+          sqlu"""alter table `users` change `first` `firstname` VARCHAR(255)""",
+          sqlu"""alter table `users` change `last` `lastname` VARCHAR(255)"""
+        )))
+  }
+}
