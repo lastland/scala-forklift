@@ -108,10 +108,10 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       val f = m.db.run {
         UsersV3.result
       } map { users =>
-        for (user <- users) yield (user.first, user.last)
+        for (user <- users) yield (user.id, user.first, user.last)
       }
       val us = Await.result(f, 1 second)
-      assert(us.toSet === Set(("Chris", "Vogt"), ("Yao", "Li")))
+      assert(us.toSet === Set((1, "Chris", "Vogt"), (2, "Yao", "Li")))
     } finally {
       m.reset
       m.db.close()
