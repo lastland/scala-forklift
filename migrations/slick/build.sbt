@@ -13,3 +13,5 @@ libraryDependencies ++= List(
   ,"com.h2database" % "h2" % "1.3.166" % "test"
   ,"org.xerial" % "sqlite-jdbc" % "3.8.11.2" % "test"
 )
+
+parallelExecution in Test := false

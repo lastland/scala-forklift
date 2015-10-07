@@ -7,6 +7,7 @@ import java.sql.SQLException
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 import slick.jdbc.meta.MTable
 
 trait MigrationTests extends FlatSpec with PrivateMethodTester {
@@ -36,7 +37,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   object NextInt {
     var counter = 0
-    def next = synchronized {
+    def next = {
       counter += 1
       counter
     }
@@ -49,11 +50,11 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     }
     try {
       val tablesBefore = Await.result(m.db.run(
-        MTable.getTables), Duration.Inf).toList
+        MTable.getTables), 1 second)
       assert(tablesBefore.length === 0)
       m.init
       val tablesAfter = Await.result(m.db.run(
-        MTable.getTables), Duration.Inf).toList
+        MTable.getTables), 1 second).toList
       assert(tablesAfter.exists(_.name.name == "__migrations__"))
     } finally {
       m.reset
@@ -68,12 +69,12 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     }
     try {
       val tablesBefore = Await.result(m.db.run(
-        MTable.getTables), Duration.Inf).toList
+        MTable.getTables), 1 second).toList
       assert(tablesBefore.length === 0)
       m.init
       m.reset
       val tablesReset = Await.result(m.db.run(
-        MTable.getTables), Duration.Inf).toList
+        MTable.getTables), 1 second).toList
       assert(tablesReset.length === 0)
     } finally {
       m.db.close()
@@ -87,13 +88,13 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     }
     try {
       val tablesBefore = Await.result(m.db.run(
-        MTable.getTables), Duration.Inf).toList
+        MTable.getTables), 1 second).toList
       assert(tablesBefore.length === 0)
       m.init
       m.up
       m.reset
       val tablesReset = Await.result(m.db.run(
-        MTable.getTables), Duration.Inf).toList
+        MTable.getTables), 1 second).toList
       assert(tablesReset.length === 0)
     } finally {
       m.db.close()
@@ -113,7 +114,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       } map { users =>
         for (user <- users) yield (user.first, user.last)
       }
-      val us = Await.result(f, Duration.Inf)
+      val us = Await.result(f, 1 second)
       assert(us.toSet === Set(("Chris", "Vogt"), ("Yao", "Li")))
     } finally {
       m.reset
@@ -135,7 +136,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
         for (user <- users) yield (user.first, user.last)
       }
       intercept[SQLException] {
-        Await.result(f, Duration.Inf)
+        Await.result(f, 1 second)
       }
     } finally {
       m.reset
@@ -152,8 +153,8 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       m.init
       m.up
     } catch {
-      case e =>
-        // should not be here
+      case e: Throwable =>
+        // should never reach here
         assert(e === null)
     } finally {
       m.reset
