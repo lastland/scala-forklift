@@ -52,7 +52,9 @@ trait SlickMigrationManager
 
   override def reset = {
     val drop = MTable.getTables.flatMap { s =>
-      DBIO.sequence(s map { t =>
+      DBIO.sequence(s filter { t =>
+        t.tableType != null && t.tableType.toLowerCase == "table"
+      } map { t =>
         TableQuery(new DummyTable(_, t.name.name)).schema.drop
       })
     }
