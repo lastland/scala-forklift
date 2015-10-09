@@ -13,6 +13,7 @@ libraryDependencies ++= List(
   ,"com.h2database" % "h2" % "1.3.166" % "test"
   ,"org.xerial" % "sqlite-jdbc" % "3.8.11.2" % "test"
   ,"mysql" % "mysql-connector-java" % "5.1.36" % "test"
+  ,"org.postgresql" % "postgresql" % "9.4-1203-jdbc42" % "test"
 )
 
 parallelExecution in Test := false

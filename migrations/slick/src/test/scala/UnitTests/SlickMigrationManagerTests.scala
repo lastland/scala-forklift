@@ -47,7 +47,8 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     try {
       val tablesBefore = Await.result(m.db.run(
         MTable.getTables), 1 second)
-      assert(tablesBefore.length === 0)
+      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assert(!tablesBefore.exists(_.name.name == "users"))
       m.init
       val tablesAfter = Await.result(m.db.run(
         MTable.getTables), 1 second).toList
@@ -66,12 +67,14 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     try {
       val tablesBefore = Await.result(m.db.run(
         MTable.getTables), 1 second).toList
-      assert(tablesBefore.length === 0)
+      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assert(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.reset
       val tablesReset = Await.result(m.db.run(
         MTable.getTables), 1 second).toList
-      assert(tablesReset.length === 0)
+      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assert(!tablesBefore.exists(_.name.name == "users"))
     } finally {
       m.db.close()
     }
@@ -85,13 +88,15 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     try {
       val tablesBefore = Await.result(m.db.run(
         MTable.getTables), 1 second).toList
-      assert(tablesBefore.length === 0)
+      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assert(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.up
       m.reset
       val tablesReset = Await.result(m.db.run(
         MTable.getTables), 1 second).toList
-      assert(tablesReset.length === 0)
+      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assert(!tablesBefore.exists(_.name.name == "users"))
     } finally {
       m.db.close()
     }
@@ -181,3 +186,5 @@ class MySQLMigrationTests extends MigrationTests with MySQLConfigFile {
         )))
   }
 }
+
+class PostgresMigrationTests extends MigrationTests with PostgresConfigFile

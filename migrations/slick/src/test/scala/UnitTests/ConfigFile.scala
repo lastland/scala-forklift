@@ -82,3 +82,19 @@ trait MySQLConfigFile extends ConfigFile with Tables {
     dbMap
   }
 }
+
+trait PostgresConfigFile extends ConfigFile with Tables {
+  val user = System.getProperty("user.name")
+  val path = Path(System.getProperty("user.dir"))
+  val driver = "slick.driver.PostgresDriver$"
+  val dbDriver = "org.postgresql.Driver"
+  val dbUrl = s"jdbc:postgresql://localhost/circle_test"
+
+  val profile = slick.driver.PostgresDriver
+
+  protected override def dbMap = {
+    val dbMap = super.dbMap
+    dbMap.put("user", user)
+    dbMap
+  }
+}
