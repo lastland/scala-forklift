@@ -51,7 +51,7 @@ trait SlickMigrationManager
   }
 
   override def reset = {
-    val drop = MTable.getTables.flatMap { s =>
+    val drop = MTable.getTables(None, None, None, None).flatMap { s =>
       DBIO.sequence(s filter { t =>
         t.tableType != null && t.tableType.toLowerCase == "table"
       } map { t =>
