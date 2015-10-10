@@ -115,4 +115,10 @@ trait DerbyConfigFile extends ConfigFile with Tables {
   val dbUrl = s"jdbc:derby:$path/test.derby.db;create=true"
 
   val profile = slick.driver.DerbyDriver
+
+  protected override def dbMap = {
+    val dbMap = super.dbMap
+    dbMap.put("connectionTimeout", new Integer(5000))
+    dbMap
+  }
 }
