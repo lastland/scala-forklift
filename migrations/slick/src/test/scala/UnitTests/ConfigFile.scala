@@ -1,14 +1,13 @@
 package com.liyaos.forklift.slick.tests.unittests
 
 import java.util.HashMap
-import ammonite.ops._
 import com.typesafe.config._
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 
 trait ConfigFile {
   this: Tables =>
-  val path: Path
+  val path = System.getProperty("user.dir")
   val driver: String
   val dbDriver: String
   val dbUrl: String
@@ -50,7 +49,6 @@ trait ConfigFile {
 }
 
 trait H2ConfigFile extends ConfigFile with Tables {
-  val path = Path(System.getProperty("user.dir"))
   val driver = "slick.driver.H2Driver$"
   val dbDriver = "org.h2.Driver"
   val dbUrl = s"jdbc:h2:$path/test"
@@ -59,7 +57,6 @@ trait H2ConfigFile extends ConfigFile with Tables {
 }
 
 trait SQLiteConfigFile extends ConfigFile with Tables {
-  val path = Path(System.getProperty("user.dir"))
   val driver = "slick.driver.SQLiteDriver$"
   val dbDriver = "org.sqlite.JDBC"
   val dbUrl = s"jdbc:sqlite:$path/test.sqlite.db"
@@ -69,7 +66,6 @@ trait SQLiteConfigFile extends ConfigFile with Tables {
 
 trait MySQLConfigFile extends ConfigFile with Tables {
   val user = System.getProperty("user.name")
-  val path = Path(System.getProperty("user.dir"))
   val driver = "slick.driver.MySQLDriver$"
   val dbDriver = "com.mysql.jdbc.Driver"
   val dbUrl = s"jdbc:mysql://localhost/circle_test"
@@ -85,7 +81,6 @@ trait MySQLConfigFile extends ConfigFile with Tables {
 
 trait PostgresConfigFile extends ConfigFile with Tables {
   val user = System.getProperty("user.name")
-  val path = Path(System.getProperty("user.dir"))
   val driver = "slick.driver.PostgresDriver$"
   val dbDriver = "org.postgresql.Driver"
   val dbUrl = s"jdbc:postgresql://localhost/circle_test"
@@ -100,7 +95,6 @@ trait PostgresConfigFile extends ConfigFile with Tables {
 }
 
 trait HsqldbConfigFile extends ConfigFile with Tables {
-  val path = Path(System.getProperty("user.dir"))
   val driver = "slick.driver.HsqldbDriver$"
   val dbDriver = "org.hsqldb.jdbc.JDBCDriver"
   val dbUrl = s"jdbc:hsqldb:mem:test"
@@ -109,7 +103,6 @@ trait HsqldbConfigFile extends ConfigFile with Tables {
 }
 
 trait DerbyConfigFile extends ConfigFile with Tables {
-  val path = Path(System.getProperty("user.dir"))
   val driver = "slick.driver.DerbyDriver$"
   val dbDriver = "org.apache.derby.jdbc.EmbeddedDriver"
   val dbUrl = s"jdbc:derby:$path/test.derby.db;create=true"
