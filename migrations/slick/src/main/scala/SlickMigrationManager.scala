@@ -40,7 +40,9 @@ trait SlickMigrationManager
     val f = db.run(migrationsTable.map(_.id).result)
     Await.result(f, Duration.Inf)
   }
-  def latest = alreadyAppliedIds.last
+  def latest =
+    if (alreadyAppliedIds.isEmpty) None
+    else Some(alreadyAppliedIds.last)
 
   override protected def up(migrations: Iterator[SlickMigration]) = {
     val ups = DBIO.sequence(migrations flatMap { m =>
