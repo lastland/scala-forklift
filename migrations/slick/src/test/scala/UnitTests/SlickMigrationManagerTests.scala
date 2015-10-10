@@ -177,6 +177,175 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       m.db.close()
     }
   }
+
+  "alreadyAppliedIds" should "return an empty seq at the beginning" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.example
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      assert(m.alreadyAppliedIds === List())
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  it should "return the applied migration id if one migration is applied" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.first
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      m.up
+      assert(m.alreadyAppliedIds === List(1))
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  it should "return all migration ids if multiple migrations are applied" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.example
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      m.up
+      assert(m.alreadyAppliedIds === List(1, 2, 3))
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  "notYetAppliedMigrations" should "return all migrations in the beginning" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.example
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      assert(m.notYetAppliedMigrations === MigrationSeq.example)
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  it should "return an empty seq if all migrations are applied" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.example
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      m.up
+      assert(m.notYetAppliedMigrations === List())
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  it should "return unapplied migrations if some migrations are applied" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.first
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      m.up
+      m.migrations = MigrationSeq.example
+      assert(m.notYetAppliedMigrations === MigrationSeq.example.tail)
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  "latest" should "return None if no migration is applied" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.example
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      assert(m.latest === None)
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  it should "return the the version number if one migration is applied" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.first
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      m.up
+      assert(m.latest === Some(1))
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  it should "return the latest migration id if multiple migrations are applied" in {
+    val m = new SlickMigrationManager {
+      override lazy val dbConfig = theDBConfig
+      migrations = MigrationSeq.example
+    }
+    try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
+      m.init
+      m.up
+      assert(m.latest === Some(3))
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
 }
 
 class H2MigrationTests extends MigrationTests with H2ConfigFile
