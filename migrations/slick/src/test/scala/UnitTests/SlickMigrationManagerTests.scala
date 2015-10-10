@@ -50,8 +50,8 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     try {
       val tablesBefore = Await.result(m.db.run(
         getTables), 1 second)
-      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
-      assert(!tablesBefore.exists(_.name.name == "users"))
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
       m.init
       val tablesAfter = Await.result(m.db.run(
         getTables), 1 second).toList
@@ -69,9 +69,9 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     }
     try {
       val tablesBefore = Await.result(m.db.run(
-        getTables), 1 second).toList
-      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
-      assert(!tablesBefore.exists(_.name.name == "users"))
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.reset
       val tablesReset = Await.result(m.db.run(
@@ -90,9 +90,9 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     }
     try {
       val tablesBefore = Await.result(m.db.run(
-        getTables), 1 second).toList
-      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
-      assert(!tablesBefore.exists(_.name.name == "users"))
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.up
       m.reset
@@ -111,6 +111,10 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       migrations = MigrationSeq.example
     }
     try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.up
       val f = m.db.run {
@@ -132,6 +136,10 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       migrations = MigrationSeq.example
     }
     try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.up
       val f = m.db.run {
@@ -154,6 +162,10 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       migrations = MigrationSeq.empty
     }
     try {
+      val tablesBefore = Await.result(m.db.run(
+        getTables), 1 second)
+      assume(!tablesBefore.exists(_.name.name == "__migrations__"))
+      assume(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.up
     } catch {
