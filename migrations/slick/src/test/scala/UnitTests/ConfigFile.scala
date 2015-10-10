@@ -107,3 +107,12 @@ trait HsqldbConfigFile extends ConfigFile with Tables {
 
   val profile = slick.driver.HsqldbDriver
 }
+
+trait DerbyConfigFile extends ConfigFile with Tables {
+  val path = Path(System.getProperty("user.dir"))
+  val driver = "slick.driver.DerbyDriver$"
+  val dbDriver = "org.apache.derby.jdbc.EmbeddedDriver"
+  val dbUrl = s"jdbc:derby:$path/test.derby.db;create=true"
+
+  val profile = slick.driver.DerbyDriver
+}

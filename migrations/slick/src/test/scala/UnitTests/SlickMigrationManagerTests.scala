@@ -27,7 +27,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
   val MigrationSeq: MigrationSeq = new MigrationSeq {
     override lazy val example: List[Migration[Int, DBIO[Unit]]] =
       List(SqlMigration(1)(List(
-        sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)""")),
+        sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR(255) NOT NULL,"last" VARCHAR(255) NOT NULL)""")),
         DBIOMigration(2)(
           DBIO.seq(UsersV2 ++= Seq(
             UsersRow(1, "Chris","Vogt"),
@@ -36,7 +36,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
         // SQLite does not support renaming columns directly
         SqlMigration(3)(List(
           sqlu"""alter table "users" rename to "users_old" """,
-          sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY, "firstname" VARCHAR NOT NULL, "lastname" VARCHAR NOT NULL)""",
+          sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY, "firstname" VARCHAR(255) NOT NULL, "lastname" VARCHAR(255) NOT NULL)""",
           sqlu"""insert into "users"("id", "firstname", "lastname") select "id", "first", "last" from "users_old" """,
           sqlu"""drop table "users_old" """
         )))
@@ -192,13 +192,15 @@ class MySQLMigrationTests extends MigrationTests with MySQLConfigFile {
 
 class PostgresMigrationTests extends MigrationTests with PostgresConfigFile
 
-class HsqldbMigrationTests extends MigrationTests with HsqldbConfigFile {
+class HsqldbMigrationTests extends MigrationTests with HsqldbConfigFile
+
+class DerbyMigrationTests extends MigrationTests with DerbyConfigFile {
   import profile.api._
 
   override val MigrationSeq: MigrationSeq = new MigrationSeq {
     override lazy val example: List[Migration[Int, DBIO[Unit]]] =
       List(SqlMigration(1)(List(
-        sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR(255) NOT NULL,"last" VARCHAR(255) NOT NULL)""")),
+        sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY, "first" VARCHAR(255) NOT NULL, "last" VARCHAR(255) NOT NULL)""")),
         DBIOMigration(2)(
           DBIO.seq(UsersV2 ++= Seq(
             UsersRow(1, "Chris","Vogt"),
@@ -206,10 +208,8 @@ class HsqldbMigrationTests extends MigrationTests with HsqldbConfigFile {
           ))),
         // SQLite does not support renaming columns directly
         SqlMigration(3)(List(
-          sqlu"""alter table "users" rename to "users_old" """,
-          sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY, "firstname" VARCHAR(255) NOT NULL, "lastname" VARCHAR(255) NOT NULL)""",
-          sqlu"""insert into "users"("id", "firstname", "lastname") select "id", "first", "last" from "users_old" """,
-          sqlu"""drop table "users_old" """
+          sqlu"""rename column "users"."first" to "firstname" """,
+          sqlu"""rename column "users"."last" to "lastname" """
         )))
   }
 }

@@ -15,6 +15,7 @@ libraryDependencies ++= List(
   ,"mysql" % "mysql-connector-java" % "5.1.36" % "test"
   ,"org.postgresql" % "postgresql" % "9.4-1203-jdbc42" % "test"
   ,"org.hsqldb" % "hsqldb" % "2.3.3" % "test"
+  ,"org.apache.derby" % "derby" % "10.11.1.1" % "test"
 )
 
 parallelExecution in Test := false
