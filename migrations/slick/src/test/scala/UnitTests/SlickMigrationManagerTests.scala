@@ -16,6 +16,8 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
   import profile.api._
 
+  protected def getTables = MTable.getTables(None, None, None, None)
+
   class MigrationSeq {
     lazy val empty: List[Migration[Int, DBIO[Unit]]] = List()
     lazy val example = empty
@@ -46,12 +48,12 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     }
     try {
       val tablesBefore = Await.result(m.db.run(
-        MTable.getTables), 1 second)
+        getTables), 1 second)
       assert(!tablesBefore.exists(_.name.name == "__migrations__"))
       assert(!tablesBefore.exists(_.name.name == "users"))
       m.init
       val tablesAfter = Await.result(m.db.run(
-        MTable.getTables), 1 second).toList
+        getTables), 1 second).toList
       assert(tablesAfter.exists(_.name.name == "__migrations__"))
     } finally {
       m.reset
@@ -66,13 +68,13 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     }
     try {
       val tablesBefore = Await.result(m.db.run(
-        MTable.getTables), 1 second).toList
+        getTables), 1 second).toList
       assert(!tablesBefore.exists(_.name.name == "__migrations__"))
       assert(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.reset
       val tablesReset = Await.result(m.db.run(
-        MTable.getTables), 1 second).toList
+        getTables), 1 second).toList
       assert(!tablesBefore.exists(_.name.name == "__migrations__"))
       assert(!tablesBefore.exists(_.name.name == "users"))
     } finally {
@@ -87,14 +89,14 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
     }
     try {
       val tablesBefore = Await.result(m.db.run(
-        MTable.getTables), 1 second).toList
+        getTables), 1 second).toList
       assert(!tablesBefore.exists(_.name.name == "__migrations__"))
       assert(!tablesBefore.exists(_.name.name == "users"))
       m.init
       m.up
       m.reset
       val tablesReset = Await.result(m.db.run(
-        MTable.getTables), 1 second).toList
+        getTables), 1 second).toList
       assert(!tablesBefore.exists(_.name.name == "__migrations__"))
       assert(!tablesBefore.exists(_.name.name == "users"))
     } finally {
@@ -188,3 +190,25 @@ class MySQLMigrationTests extends MigrationTests with MySQLConfigFile {
 }
 
 class PostgresMigrationTests extends MigrationTests with PostgresConfigFile
+
+class HsqldbMigrationTests extends MigrationTests with HsqldbConfigFile {
+  import profile.api._
+
+  override val MigrationSeq: MigrationSeq = new MigrationSeq {
+    override lazy val example: List[Migration[Int, DBIO[Unit]]] =
+      List(SqlMigration(1)(List(
+        sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR(255) NOT NULL,"last" VARCHAR(255) NOT NULL)""")),
+        DBIOMigration(2)(
+          DBIO.seq(UsersV2 ++= Seq(
+            UsersRow(1, "Chris","Vogt"),
+            UsersRow(2, "Yao","Li")
+          ))),
+        // SQLite does not support renaming columns directly
+        SqlMigration(3)(List(
+          sqlu"""alter table "users" rename to "users_old" """,
+          sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY, "firstname" VARCHAR(255) NOT NULL, "lastname" VARCHAR(255) NOT NULL)""",
+          sqlu"""insert into "users"("id", "firstname", "lastname") select "id", "first", "last" from "users_old" """,
+          sqlu"""drop table "users_old" """
+        )))
+  }
+}

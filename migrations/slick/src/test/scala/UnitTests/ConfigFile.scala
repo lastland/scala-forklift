@@ -98,3 +98,12 @@ trait PostgresConfigFile extends ConfigFile with Tables {
     dbMap
   }
 }
+
+trait HsqldbConfigFile extends ConfigFile with Tables {
+  val path = Path(System.getProperty("user.dir"))
+  val driver = "slick.driver.HsqldbDriver$"
+  val dbDriver = "org.hsqldb.jdbc.JDBCDriver"
+  val dbUrl = s"jdbc:hsqldb:mem:test"
+
+  val profile = slick.driver.HsqldbDriver
+}
