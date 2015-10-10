@@ -21,6 +21,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
   class MigrationSeq {
     lazy val empty: List[Migration[Int, DBIO[Unit]]] = List()
     lazy val example = empty
+    lazy val first = List(example.head)
   }
 
   val MigrationSeq: MigrationSeq = new MigrationSeq {
@@ -85,7 +86,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
   it should "drop all the tables" in {
     val m = new SlickMigrationManager {
       override lazy val dbConfig = theDBConfig
-      migrations = MigrationSeq.example
+      migrations = MigrationSeq.first
     }
     try {
       val tablesBefore = Await.result(m.db.run(
