@@ -30,12 +30,21 @@ class MigrationDatabaseTest extends FlatSpec
     dir.destroy()
   }
 
+  val migrationIterNum = 5
+
+  def rebuild(implicit wd: Path) {
+    %%sbt("mg reset")
+    %%sbt("mg init")
+    for (i <- 0 until migrationIterNum)
+      %%sbt("mg migrate")
+  }
+
   "commit" should "copy db into .db on master branch" in {
     implicit val wd = dir.testPath
 
     Given("an example project")
     assert((%sbt("git-tools/run install")) === 0)
-    assert((%sbt("git-tools/run rebuild")) === 0)
+    rebuild
 
     When("commit on master branch")
     assert((%git("add", "build.sbt")) === 0)
@@ -56,7 +65,7 @@ class MigrationDatabaseTest extends FlatSpec
 
     Given("an example project")
     assert((%sbt("git-tools/run install")) === 0)
-    assert((%sbt("git-tools/run rebuild")) === 0)
+    rebuild
 
     When("commit on master branch")
     assert((%git("checkout", "-b", "test")) === 0)
@@ -81,7 +90,7 @@ class MigrationDatabaseTest extends FlatSpec
     assert((%git("commit", "-m", "initial")) === 0)
     assert((%git("checkout", "-b", "test")) === 0)
     assert((%sbt("git-tools/run install")) === 0)
-    assert((%sbt("git-tools/run rebuild")) === 0)
+    rebuild
     write(wd/"test_file", "Hello World!")
     assert((%git("add", wd/"test_file")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
@@ -108,12 +117,12 @@ class MigrationDatabaseTest extends FlatSpec
     val sourcePath = dir.testPath/'migrations/'src_migrations/'main/'scala
     mv(sourcePath/"3.scala", sourcePath/"3.scala.swp")
     assert((%sbt("git-tools/run install")) === 0)
-    assert((%sbt("git-tools/run rebuild")) === 0)
+    rebuild
     assert((%git("add", "build.sbt")) === 0)
     assert((%git("commit", "-m", "initial")) === 0)
     assert((%git("checkout", "-b", "test")) === 0)
     mv(sourcePath/"3.scala.swp", sourcePath/"3.scala")
-    assert((%sbt("git-tools/run rebuild")) === 0)
+    rebuild
     assert((%git("add", sourcePath/"3.scala")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
     assert((%git("checkout", "master")) === 0)
