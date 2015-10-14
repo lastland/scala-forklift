@@ -78,8 +78,8 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       m.reset
       val tablesReset = Await.result(m.db.run(
         getTables), waitTime).toList
-      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
-      assert(!tablesBefore.exists(_.name.name == "users"))
+      assert(!tablesReset.exists(_.name.name == "__migrations__"))
+      assert(!tablesReset.exists(_.name.name == "users"))
     } finally {
       m.db.close()
     }
@@ -100,8 +100,8 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
       m.reset
       val tablesReset = Await.result(m.db.run(
         getTables), waitTime).toList
-      assert(!tablesBefore.exists(_.name.name == "__migrations__"))
-      assert(!tablesBefore.exists(_.name.name == "users"))
+      assert(!tablesReset.exists(_.name.name == "__migrations__"))
+      assert(!tablesReset.exists(_.name.name == "users"))
     } finally {
       m.db.close()
     }
