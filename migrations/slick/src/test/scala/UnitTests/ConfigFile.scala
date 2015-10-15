@@ -2,6 +2,7 @@ package com.liyaos.forklift.slick.tests.unittests
 
 import java.util.HashMap
 import com.typesafe.config._
+import ammonite.ops._
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 
@@ -30,8 +31,14 @@ trait ConfigFile {
   }
 
   protected def migrationsMap = {
+    val tmpDir = Path(Path.makeTmp)
+    val handled = tmpDir/'main/'scala
+    mkdir! handled
     val migrationsMap = new HashMap[String, Object]
     migrationsMap.put("slick", slickMap)
+    migrationsMap.put("unhandled_location",
+      s"$path/example/migrations/src_migrations/main/scala")
+    migrationsMap.put("handled_location", handled.toString)
     migrationsMap
   }
 
@@ -45,9 +52,11 @@ trait ConfigFile {
     finalMap
   }
 
+  def theConfig = ConfigFactory.parseMap(content)
+
   def theDBConfig =
     DatabaseConfig.forConfig[JdbcProfile]("migrations.slick",
-      ConfigFactory.parseMap(content))
+      theConfig)
 }
 
 trait H2ConfigFile extends ConfigFile with Tables {

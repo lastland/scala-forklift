@@ -4,9 +4,7 @@ import org.scalatest._
 import java.io.File
 import scala.language.implicitConversions
 import org.apache.commons.io.FileUtils
-import collection.mutable.ListBuffer
 import ammonite.ops._
-import com.liyaos.forklift.slick.tools.git.H2MigrationDatabase
 
 class MigrationDatabaseTest extends FlatSpec
     with BeforeAndAfter with GivenWhenThen {

@@ -7,7 +7,7 @@ libraryDependencies ++= List(
   ,"com.typesafe" % "config" % "1.3.0"
   ,"org.slf4j" % "slf4j-nop" % "1.6.4" // <- disables logging
   ,"org.scalatest" %% "scalatest" % "2.2.4" % "test"
-  ,"com.lihaoyi" %% "ammonite-ops" % "0.4.7" % "test"
+  ,"com.lihaoyi" %% "ammonite-ops" % "0.4.8" % "test"
   ,"commons-io" % "commons-io" % "2.4" % "test"
   ,"com.zaxxer" % "HikariCP" % "2.4.1" % "test"
   ,"com.h2database" % "h2" % "1.3.166" % "test"

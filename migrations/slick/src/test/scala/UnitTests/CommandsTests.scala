@@ -65,7 +65,26 @@ ${"\t"}CommandTests.profile.api.queryInsertActionExtensionMethods[CommandTests.t
 --------------------------------------------------------------------------------
 """)
 
-  "preview" should "display the no migration when there's nothing to preview" in {
+  "initOp" should "create migration tables" in {
+    val m = new SlickMigrationManager
+        with SlickMigrationCommands
+        with SlickCodegen {
+      override lazy val dbConfig = theDBConfig
+      override lazy val config = theConfig
+      migrations = MigrationSeq.empty
+    }
+    try {
+      m.initOp
+      val tablesAfter = Await.result(m.db.run(
+        getTables), waitTime).toList
+      assert(tablesAfter.exists(_.name.name == "__migrations__"))
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  "previewOp" should "display the no migration when there's nothing to preview" in {
     val m = new SlickMigrationManager
         with SlickMigrationCommands
         with SlickCodegen {
@@ -140,6 +159,30 @@ ${"\t"}CommandTests.profile.api.queryInsertActionExtensionMethods[CommandTests.t
     try {
       m.init
       m.applyOp
+      val f = m.db.run {
+        UsersV3.result
+      } map { users =>
+        for (user <- users) yield (user.id, user.first, user.last)
+      }
+      val us = Await.result(f, waitTime)
+      assert(us.toSet === Set((1, "Chris", "Vogt"), (2, "Yao", "Li")))
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+
+  "migrateOp" should "apply the migrations if there are migrations to apply" in {
+    val m = new SlickMigrationManager
+        with SlickMigrationCommands
+        with SlickCodegen {
+      override lazy val dbConfig = theDBConfig
+      override lazy val config = theConfig
+      migrations = MigrationSeq.example
+    }
+    try {
+      m.init
+      m.migrateOp(Seq())
       val f = m.db.run {
         UsersV3.result
       } map { users =>
