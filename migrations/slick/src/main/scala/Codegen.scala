@@ -37,19 +37,24 @@ trait SlickCodegen {
         DBIO.from {
           Future {
             val latest = mm.latest
-            List( "v" + latest, "latest" ).foreach { version =>
-              val generator = new SourceCodeGenerator(m) {
-                override def packageCode(
-                  profile: String, pkg: String,
-                  container: String, parentType: Option[String]) : String =
-                  super.packageCode(profile, pkg, container, None) + s"""
+            latest match {
+              case Some(latestVersion) =>
+                List( "v" + latestVersion, "latest" ).foreach { version =>
+                  val generator = new SourceCodeGenerator(m) {
+                    override def packageCode(
+                      profile: String, pkg: String,
+                      container: String, parentType: Option[String]) : String =
+                      super.packageCode(profile, pkg, container, None) + s"""
 object Version{
   def version = $latest
 }
 """
-              }
-              generator.writeToFile(s"slick.driver.${driver}",
-                generatedDir, pkgName(version), container, fileName)
+                  }
+                  generator.writeToFile(s"slick.driver.${driver}",
+                    generatedDir, pkgName(version), container, fileName)
+                }
+              case None =>
+                println("No migrations are applied yet, so nothing to be generated.")
             }
           }
         }

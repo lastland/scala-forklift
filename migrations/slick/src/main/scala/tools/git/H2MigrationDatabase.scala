@@ -57,8 +57,7 @@ class H2MigrationDatabase(dbLoc: String, objLoc: String) extends MigrationDataba
   def rebuild() {
     Seq("sbt", "mg reset").!
     Seq("sbt", "mg init").!
-    for (i <- 0 until migIterations) Seq("sbt", "mg migrate").!
-    //Seq("sbt", "~mg migrate").!->
+    Seq("sbt", "~mg migrate").!->
   }
 
   def rebuild(branch: String, commitId: String) {

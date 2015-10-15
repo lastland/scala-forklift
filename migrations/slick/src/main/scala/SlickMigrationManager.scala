@@ -13,7 +13,7 @@ import com.liyaos.forklift.core.MigrationManager
 
 trait SlickMigrationManager
     extends MigrationManager[Int, slick.dbio.DBIO[Unit]] {
-  val dbConfig = SlickMigrationsConfig.dbConfig
+  lazy val dbConfig = SlickMigrationsConfig.dbConfig
 
   import dbConfig.driver.api._
 
@@ -40,7 +40,9 @@ trait SlickMigrationManager
     val f = db.run(migrationsTable.map(_.id).result)
     Await.result(f, Duration.Inf)
   }
-  def latest = alreadyAppliedIds.last
+  def latest =
+    if (alreadyAppliedIds.isEmpty) None
+    else Some(alreadyAppliedIds.last)
 
   override protected def up(migrations: Iterator[SlickMigration]) = {
     val ups = DBIO.sequence(migrations flatMap { m =>
@@ -51,8 +53,10 @@ trait SlickMigrationManager
   }
 
   override def reset = {
-    val drop = MTable.getTables.flatMap { s =>
-      DBIO.sequence(s map { t =>
+    val drop = MTable.getTables(None, None, None, None).flatMap { s =>
+      DBIO.sequence(s filter { t =>
+        t.tableType != null && t.tableType.toLowerCase == "table"
+      } map { t =>
         TableQuery(new DummyTable(_, t.name.name)).schema.drop
       })
     }

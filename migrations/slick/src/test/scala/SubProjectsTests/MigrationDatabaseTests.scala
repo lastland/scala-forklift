@@ -1,28 +1,15 @@
+package com.liyaos.forklift.slick.tests.subprojects
+
 import org.scalatest._
 import java.io.File
 import scala.language.implicitConversions
 import org.apache.commons.io.FileUtils
-import collection.mutable.ListBuffer
 import ammonite.ops._
-import com.liyaos.forklift.slick.tools.git.H2MigrationDatabase
-
-class TestDir(cwd: Path) {
-  val path = cwd/'tmp
-  val testPath = path/'test
-
-  def setup() {
-    rm! path
-    mkdir! path
-    cp(cwd/'example, testPath)
-  }
-
-  override def toString = path.toString
-}
 
 class MigrationDatabaseTest extends FlatSpec
     with BeforeAndAfter with GivenWhenThen {
   val wd = cwd
-  val dir = new TestDir(wd)
+  val dir = TestDir.createTestDir(wd)
   val testDir = dir.testPath
   val objDir = testDir/".db"
 
@@ -32,9 +19,22 @@ class MigrationDatabaseTest extends FlatSpec
     dir.setup()
     rm(objDir)
     implicit val wd = dir.path
-    assert((%git 'init) === 0)
-    assert((%git('config, "user.email", "test@test.com")) === 0)
-    assert((%git('config, "user.name", "Testser")) === 0)
+    %%git 'init
+    %%git('config, "user.email", "test@test.com")
+    %%git('config, "user.name", "Testser")
+  }
+
+  after {
+    dir.destroy()
+  }
+
+  val migrationIterNum = 5
+
+  def rebuild(implicit wd: Path) {
+    %%sbt("mg reset")
+    %%sbt("mg init")
+    for (i <- 0 until migrationIterNum)
+      %%sbt("mg migrate")
   }
 
   "commit" should "copy db into .db on master branch" in {
@@ -42,10 +42,10 @@ class MigrationDatabaseTest extends FlatSpec
 
     Given("an example project")
     assert((%sbt("git-tools/run install")) === 0)
-    assert((%sbt("git-tools/run rebuild")) === 0)
+    rebuild
 
     When("commit on master branch")
-    assert((%git("add", ".")) === 0)
+    assert((%git("add", "build.sbt")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
 
     Then("a db file should be stored in objDir")
@@ -63,11 +63,11 @@ class MigrationDatabaseTest extends FlatSpec
 
     Given("an example project")
     assert((%sbt("git-tools/run install")) === 0)
-    assert((%sbt("git-tools/run rebuild")) === 0)
+    rebuild
 
     When("commit on master branch")
     assert((%git("checkout", "-b", "test")) === 0)
-    assert((%git("add", ".")) === 0)
+    assert((%git("add", "build.sbt")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
 
     Then("a db file should be stored in objDir")
@@ -88,7 +88,7 @@ class MigrationDatabaseTest extends FlatSpec
     assert((%git("commit", "-m", "initial")) === 0)
     assert((%git("checkout", "-b", "test")) === 0)
     assert((%sbt("git-tools/run install")) === 0)
-    assert((%sbt("git-tools/run rebuild")) === 0)
+    rebuild
     write(wd/"test_file", "Hello World!")
     assert((%git("add", wd/"test_file")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
@@ -113,16 +113,15 @@ class MigrationDatabaseTest extends FlatSpec
 
     Given("an example project with two branches with different db")
     val sourcePath = dir.testPath/'migrations/'src_migrations/'main/'scala
-    mv(sourcePath/"3.scala", sourcePath/"3.scala.disabled")
+    mv(sourcePath/"3.scala", sourcePath/"3.scala.swp")
     assert((%sbt("git-tools/run install")) === 0)
-    assert((%sbt("git-tools/run rebuild")) === 0)
-    write(dir.path/".gitignore", "*.disabled\n*.db")
-    assert((%git("add", ".")) === 0)
+    rebuild
+    assert((%git("add", "build.sbt")) === 0)
     assert((%git("commit", "-m", "initial")) === 0)
     assert((%git("checkout", "-b", "test")) === 0)
-    mv(sourcePath/"3.scala.disabled", sourcePath/"3.scala")
-    assert((%sbt("git-tools/run rebuild")) === 0)
-    assert((%git("add", ".")) === 0)
+    mv(sourcePath/"3.scala.swp", sourcePath/"3.scala")
+    rebuild
+    assert((%git("add", sourcePath/"3.scala")) === 0)
     assert((%git("commit", "-m", "test")) === 0)
     assert((%git("checkout", "master")) === 0)
     write(wd/"test_file", "Hello World!")
