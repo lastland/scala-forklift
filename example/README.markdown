@@ -111,7 +111,7 @@ In project `migration_manager`, you can define your own migration manager and co
 
 Scala-Forklift provides a `SlickMigrationManager` to manage your slick migration scripts. To use `SlickMigrationManager`, add the following library dependency to your `build.sbt` in this project.
 
-    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "1.0-SNAPSHOT"
+    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.0-BETA"
 
 Then you can override original methods or define new methods for your migration manager here:
 
