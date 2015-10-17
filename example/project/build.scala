@@ -7,25 +7,63 @@ object AppBuild extends Build {
     version := "1.0",
     scalaVersion := "2.11.6",
     scalacOptions += "-deprecation",
-    scalacOptions += "-feature")
+    scalacOptions += "-feature",
+    resolvers += Resolver.sonatypeRepo("snapshots")
+)
+
+  lazy val slickDependencies = List(
+    "com.typesafe.slick" %% "slick" % "3.0.0"
+  )
+
+  lazy val dbDependencies = List(
+    "com.zaxxer" % "HikariCP" % "2.3.9",
+    "com.h2database" % "h2" % "1.3.166"
+  )
+
+  lazy val forkliftDependencies = List(
+    "com.liyaos" %% "scala-forklift-slick" % "0.2.0-BETA"
+  )
+
+  lazy val appDependencies = dbDependencies
+
+  lazy val migrationsDependencies = dbDependencies ++ forkliftDependencies
+
+  lazy val migrationManagerDependencies = dbDependencies ++ forkliftDependencies
 
   lazy val example = Project("example", file(".")).aggregate(
     app, migrations, migrationManager, generatedCode, tools).settings(
     commonSettings:_*)
 
   lazy val app = Project("app",
-    file("app")).dependsOn(generatedCode).settings(commonSettings:_*)
+    file("app")).dependsOn(generatedCode).settings(
+    commonSettings:_*).settings {
+    libraryDependencies ++= appDependencies
+  }
 
   lazy val migrationManager = Project("migration_manager",
-    file("migration_manager")).settings(commonSettings:_*)
+    file("migration_manager")).settings(
+    commonSettings:_*).settings {
+    libraryDependencies ++= migrationManagerDependencies
+  }
 
   lazy val migrations = Project("migrations",
-    file("migrations")).dependsOn(generatedCode, migrationManager).settings(
-    commonSettings:_*)
+    file("migrations")).dependsOn(
+    generatedCode, migrationManager).settings(
+    commonSettings:_*).settings {
+    libraryDependencies ++= migrationsDependencies
+  }
 
   lazy val tools = Project("git-tools",
-    file("tools/git")).settings(commonSettings:_*)
+    file("tools/git")).settings(commonSettings:_*).settings {
+    libraryDependencies ++= forkliftDependencies ++ List(
+      "com.liyaos" %% "scala-forklift-git-tools" % "0.2.0-BETA",
+      "com.typesafe" % "config" % "1.3.0",
+      "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
+    )
+  }
 
   lazy val generatedCode = Project("generate_code",
-    file("generated_code")).settings(commonSettings:_*)
+    file("generated_code")).settings(commonSettings:_*).settings {
+    libraryDependencies ++= slickDependencies
+  }
 }
