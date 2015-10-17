@@ -12,6 +12,8 @@ class MigrationDatabaseTest extends FlatSpec
   val dir = TestDir.createTestDir(wd)
   val testDir = dir.testPath
   val objDir = testDir/".db"
+  val filesToWrite = (0 until 5).map(x => testDir/("file" + x))
+  val dbName = testDir/"test.tb.mv.db"
 
   implicit def pathToString(path: Path) = path.toString
 
@@ -22,6 +24,9 @@ class MigrationDatabaseTest extends FlatSpec
     %%git 'init
     %%git('config, "user.email", "test@test.com")
     %%git('config, "user.name", "Testser")
+    for (file <- filesToWrite) {
+      write(file, "dummy file")
+    }
   }
 
   after {
@@ -31,10 +36,9 @@ class MigrationDatabaseTest extends FlatSpec
   val migrationIterNum = 5
 
   def rebuild(implicit wd: Path) {
-    %%sbt("mg reset")
-    %%sbt("mg init")
-    for (i <- 0 until migrationIterNum)
-      %%sbt("mg migrate")
+    %sbt("mg reset")
+    %sbt("mg init")
+    %sbt((0 until migrationIterNum).map(_ =>"mg migrate"))
   }
 
   "commit" should "copy db into .db on master branch" in {
@@ -55,7 +59,7 @@ class MigrationDatabaseTest extends FlatSpec
 
     And("the stored db should be identical with current db")
     assert(FileUtils.contentEquals(dbFile,
-      new File(dir.testPath/"test.tb.h2.db")) === true)
+      new File(dbName)) === true)
   }
 
   it should "copy db into .db on test branch" in {
@@ -63,11 +67,11 @@ class MigrationDatabaseTest extends FlatSpec
 
     Given("an example project")
     assert((%sbt("git-tools/run install")) === 0)
-    rebuild
 
-    When("commit on master branch")
+    When("commit on test branch")
     assert((%git("checkout", "-b", "test")) === 0)
-    assert((%git("add", "build.sbt")) === 0)
+    rebuild
+    assert((%git("add", filesToWrite(0))) === 0)
     assert((%git("commit", "-m", "test")) === 0)
 
     Then("a db file should be stored in objDir")
@@ -77,7 +81,7 @@ class MigrationDatabaseTest extends FlatSpec
 
     And("the stored db should be identical with current db")
     assert(FileUtils.contentEquals(dbFile,
-      new File(dir.testPath/"test.tb.h2.db")) === true)
+      new File(dbName)) === true)
   }
 
   "checkout" should "use the db of the target branch" in {
@@ -89,17 +93,16 @@ class MigrationDatabaseTest extends FlatSpec
     assert((%git("checkout", "-b", "test")) === 0)
     assert((%sbt("git-tools/run install")) === 0)
     rebuild
-    write(wd/"test_file", "Hello World!")
-    assert((%git("add", wd/"test_file")) === 0)
+    assert((%git("add", filesToWrite(0))) === 0)
     assert((%git("commit", "-m", "test")) === 0)
     assert((%git("checkout", "master")) === 0)
-    rm! dir.testPath/"test.tb.h2.db"
+    rm! dbName
 
     When("checkout to test branch")
     assert((%git("checkout", "test")) === 0)
 
     Then("the db should be in the test directory")
-    val db = new File(dir.testPath + "/test.tb.h2.db")
+    val db = new File(dbName)
     assert(db.exists === true)
     assert(db.isFile === true)
 
@@ -121,18 +124,17 @@ class MigrationDatabaseTest extends FlatSpec
     assert((%git("checkout", "-b", "test")) === 0)
     mv(sourcePath/"3.scala.swp", sourcePath/"3.scala")
     rebuild
-    assert((%git("add", sourcePath/"3.scala")) === 0)
+    assert((%git("add", filesToWrite(0))) === 0)
     assert((%git("commit", "-m", "test")) === 0)
     assert((%git("checkout", "master")) === 0)
-    write(wd/"test_file", "Hello World!")
-    assert((%git("add", wd/"test_file")) === 0)
+    assert((%git("add", filesToWrite(1))) === 0)
     assert((%git("commit", "-m", "master")) === 0)
 
     When("two branches are merged")
     assert((%git("merge", "test", "-m", "merge")) === 0)
 
     Then("the db should be in test directory")
-    val db = new File(dir.testPath/"test.tb.h2.db")
+    val db = new File(dbName)
     assert(db.exists === true)
     assert(db.isFile === true)
 

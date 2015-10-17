@@ -26,8 +26,15 @@ object GitUtil {
   val dbLoc = config.getString("slick.db.url")
   val objLoc = config.getString("slick.version_control_dir")
 
+  def dbName(mv: Boolean) = {
+    val prefix = "jdbc:h2:"
+    dbLoc.substring(dbLoc.indexOfSlice(prefix) + prefix.length) +
+      (if (mv) ".mv.db" else ".h2.db")
+  }
+
+
   def main(args: Array[String]) {
-    val db = new H2MigrationDatabase(dbLoc, objLoc)
+    val db = new H2MigrationDatabase(dbName(true), objLoc)
     val tool = new MyGitUtil(db)
     tool.run(args.toList)
   }
