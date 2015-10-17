@@ -231,7 +231,7 @@ object M${version} {
       }
       addMigrationOp(tpe, nextId)
     } catch {
-      case e =>
+      case e: Throwable =>
         println("you must enter a proper parameter!")
     } finally {
       // no need to close db since it's not initialized in this command
