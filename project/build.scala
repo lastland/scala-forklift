@@ -13,15 +13,15 @@ object migrationBuild extends Build {
   )
 
   lazy val slickDependencies = coreDependencies ++ List(
-    "com.typesafe.slick" %% "slick" % "3.0.0",
-    "com.typesafe.slick" %% "slick-codegen" % "3.0.0"
+    "com.typesafe.slick" %% "slick" % "3.1.1",
+    "com.typesafe.slick" %% "slick-codegen" % "3.1.1"
   )
 
   lazy val slickDependenciesWithTests = slickDependencies ++ List(
     "org.scalatest" %% "scalatest" % "2.2.5",
     "com.lihaoyi" %% "ammonite-ops" % "0.4.8",
     "commons-io" % "commons-io" % "2.4",
-    "com.zaxxer" % "HikariCP" % "2.4.1",
+    "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1",
     "com.h2database" % "h2" % "1.4.190",
     "org.xerial" % "sqlite-jdbc" % "3.8.11.2",
     "mysql" % "mysql-connector-java" % "5.1.36",

@@ -16,12 +16,12 @@ object AppBuild extends Build {
   )
 
   lazy val slickDependencies = List(
-    "com.typesafe.slick" %% "slick" % "3.0.0"
+    "com.typesafe.slick" %% "slick" % "3.1.1"
   )
 
   lazy val dbDependencies = List(
-    "com.zaxxer" % "HikariCP" % "2.4.1",
-    "com.h2database" % "h2" % "1.4.190"
+    "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1"
+    ,"com.h2database" % "h2" % "1.4.190"
   )
 
   lazy val forkliftDependencies = List(

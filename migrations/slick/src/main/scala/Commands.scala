@@ -3,7 +3,6 @@ package com.liyaos.forklift.slick
 import java.io.File
 import java.io.BufferedWriter
 import java.io.FileWriter
-import slick.driver.JdbcDriver.api._
 import com.liyaos.forklift.core.MigrationsConfig
 import com.liyaos.forklift.core.MigrationFilesHandler
 import com.liyaos.forklift.core.RescueCommands
@@ -57,7 +56,7 @@ trait SlickRescueCommandLineTool extends RescueCommandLineTool[Int] {
   this: SlickRescueCommands =>
 }
 
-trait SlickMigrationCommands extends MigrationCommands[Int, DBIO[Unit]]
+trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit]]
     with SlickMigrationFilesHandler {
   this: SlickMigrationManager with SlickCodegen =>
 
@@ -253,7 +252,7 @@ object M${version} {
 
 
 trait SlickMigrationCommandLineTool
-    extends MigrationCommandLineTool[Int, DBIO[Unit]] {
+    extends MigrationCommandLineTool[Int, slick.dbio.DBIO[Unit]] {
   this: SlickMigrationCommands =>
 
   override def execCommands(args: List[String]) = args match {

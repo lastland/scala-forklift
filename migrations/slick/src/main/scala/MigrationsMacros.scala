@@ -1,7 +1,6 @@
 package com.liyaos.forklift.slick
 
 import slick.dbio.DBIO
-import slick.driver.JdbcDriver.api._
 import scala.language.experimental.macros
 
 import com.liyaos.forklift.core.Migration
