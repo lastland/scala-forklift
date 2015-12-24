@@ -24,10 +24,10 @@ object migrationBuild extends Build {
     "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1",
     "com.h2database" % "h2" % "1.4.190",
     "org.xerial" % "sqlite-jdbc" % "3.8.11.2",
-    "mysql" % "mysql-connector-java" % "5.1.36",
+    "mysql" % "mysql-connector-java" % "5.1.38",
     "org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
     "org.hsqldb" % "hsqldb" % "2.3.3",
-    "org.apache.derby" % "derby" % "10.11.1.1"
+    "org.apache.derby" % "derby" % "10.12.1.1"
   ).map(_ % "test")
 
   lazy val commonSettings = Seq(
