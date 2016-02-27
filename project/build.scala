@@ -27,7 +27,7 @@ object migrationBuild extends Build {
     "mysql" % "mysql-connector-java" % "5.1.38",
     "org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
     "org.hsqldb" % "hsqldb" % "2.3.3",
-    "org.apache.derby" % "derby" % "10.12.1.1"
+    "org.apache.derby" % "derby" % "10.11.1.1"
   ).map(_ % "test")
 
   lazy val commonSettings = Seq(
