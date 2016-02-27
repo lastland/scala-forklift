@@ -6,16 +6,7 @@ import java.nio.file.{Paths, Files, StandardCopyOption}
 import com.liyaos.forklift.core.tools.helpers.Helpers._
 import com.liyaos.forklift.core.MigrationDatabase
 
-class H2MigrationDatabase(dbLoc: String, objLoc: String) extends MigrationDatabase {
-
-  // TODO: de-hardcode it
-  private val migIterations = 5
-
-  lazy val dbName = {
-    val prefix = "jdbc:h2:"
-    dbLoc.substring(dbLoc.indexOfSlice(prefix) + prefix.length) + ".h2.db"
-  }
-
+class H2MigrationDatabase(dbName: String, objLoc: String) extends MigrationDatabase {
   private def getOrMkDir(name: String): File = {
     val file = new File(name)
     if (!file.exists) file.mkdir()
@@ -36,7 +27,7 @@ class H2MigrationDatabase(dbLoc: String, objLoc: String) extends MigrationDataba
   def copy(branch: String, commitId: String) {
     val db = new File(dbName)
     if (!db.isFile) {
-      throw new RuntimeException("The DB must be a file!")
+      throw new RuntimeException(s"The DB ${db.getAbsolutePath} must be a file!")
     }
     val gitDbName = dbNameOfBranch(branch)
     val dbStream = Files.newInputStream(Paths.get(db.getAbsolutePath))

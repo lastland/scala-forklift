@@ -352,7 +352,7 @@ trait MigrationTests extends FlatSpec with PrivateMethodTester {
 
 class H2MigrationTests extends MigrationTests with H2ConfigFile
 
-class SQLiteMigrationTests extends MigrationTests with SQLiteConfigFile
+// class SQLiteMigrationTests extends MigrationTests with SQLiteConfigFile
 
 class MySQLMigrationTests extends MigrationTests with MySQLConfigFile {
   import profile.api._

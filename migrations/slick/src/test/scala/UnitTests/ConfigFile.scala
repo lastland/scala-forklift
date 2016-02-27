@@ -117,6 +117,7 @@ trait DerbyConfigFile extends ConfigFile with Tables {
   val driver = "slick.driver.DerbyDriver$"
   val dbDriver = "org.apache.derby.jdbc.EmbeddedDriver"
   val dbUrl = s"jdbc:derby:$path/test.derby.db;create=true"
+  override val timeout = new Integer(10000)
 
   val profile = slick.driver.DerbyDriver
 }
