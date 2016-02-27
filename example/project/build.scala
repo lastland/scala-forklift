@@ -25,7 +25,7 @@ object AppBuild extends Build {
   )
 
   lazy val forkliftDependencies = List(
-    "com.liyaos" %% "scala-forklift-slick" % "0.2.0-SNAPSHOT"
+    "com.liyaos" %% "scala-forklift-slick" % "0.2.0"
   )
 
   lazy val appDependencies = dbDependencies ++ loggingDependencies
@@ -61,7 +61,7 @@ object AppBuild extends Build {
   lazy val tools = Project("git-tools",
     file("tools/git")).settings(commonSettings:_*).settings {
     libraryDependencies ++= forkliftDependencies ++ List(
-      "com.liyaos" %% "scala-forklift-git-tools" % "0.2.0-SNAPSHOT",
+      "com.liyaos" %% "scala-forklift-git-tools" % "0.2.0",
       "com.typesafe" % "config" % "1.3.0",
       "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
     )

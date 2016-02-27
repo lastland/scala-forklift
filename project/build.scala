@@ -34,7 +34,7 @@ object migrationBuild extends Build {
     organization := "com.liyaos",
     licenses := Seq("BSD-2-Clause" -> url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
     homepage := Some(url("https://github.com/lastland/scala-forklift")),
-    version := "0.2.0-SNAPSHOT",
+    version := "0.2.0",
     scalaVersion := "2.11.7",
     scalacOptions += "-deprecation",
     scalacOptions += "-feature",
