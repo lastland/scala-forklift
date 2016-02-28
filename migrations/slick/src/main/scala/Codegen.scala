@@ -43,6 +43,8 @@ object Version{
     }
   }
 
+  val waitDuration = Duration.Inf
+
   def genCode(mm: SlickMigrationManager) {
     import mm.dbConfig.driver.api._
     if (mm.notYetAppliedMigrations.size > 0) {
@@ -68,7 +70,7 @@ object Version{
         }
     }
     val f = mm.db.run(action)
-    Await.result(f, Duration.Inf)
+    Await.result(f, waitDuration)
   }
 
   def remove() {
