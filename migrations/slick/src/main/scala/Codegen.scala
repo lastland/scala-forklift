@@ -30,18 +30,20 @@ trait SlickCodegen {
       }
     }))
 
-  def getGenerator(m: Model, version: Int) = {
-    new SourceCodeGenerator(m) {
-      override def packageCode(
-        profile: String, pkg: String,
-        container: String, parentType: Option[String]) : String =
-        super.packageCode(profile, pkg, container, None) + s"""
+  class SlickSourceCodeGenerator(m: Model, version: Int)
+      extends SourceCodeGenerator(m) {
+    override def packageCode(
+      profile: String, pkg: String,
+      container: String, parentType: Option[String]) : String =
+      super.packageCode(profile, pkg, container, None) + s"""
 object Version{
   def version = $version
 }
 """
-    }
   }
+
+  def getGenerator(m: Model, version: Int) =
+    new SlickSourceCodeGenerator(m, version)
 
   val waitDuration = Duration.Inf
 
