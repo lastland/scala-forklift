@@ -6,6 +6,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
+import slick.model.Model
 import slick.codegen.SourceCodeGenerator
 
 trait SlickCodegen {
@@ -20,6 +21,19 @@ trait SlickCodegen {
   def pkgName(version: String) = "datamodel." + version + ".schema"
 
   def tableNames: Seq[String] = List()
+
+  def getGenerator(m: Model, version: Int) = {
+    new SourceCodeGenerator(m) {
+      override def packageCode(
+        profile: String, pkg: String,
+        container: String, parentType: Option[String]) : String =
+        super.packageCode(profile, pkg, container, None) + s"""
+object Version{
+  def version = $version
+}
+"""
+    }
+  }
 
   def genCode(mm: SlickMigrationManager) {
     import mm.dbConfig.driver.api._
@@ -40,16 +54,7 @@ trait SlickCodegen {
             latest match {
               case Some(latestVersion) =>
                 List( "v" + latestVersion, "latest" ).foreach { version =>
-                  val generator = new SourceCodeGenerator(m) {
-                    override def packageCode(
-                      profile: String, pkg: String,
-                      container: String, parentType: Option[String]) : String =
-                      super.packageCode(profile, pkg, container, None) + s"""
-object Version{
-  def version = $latest
-}
-"""
-                  }
+                  val generator = getGenerator(m, latestVersion)
                   generator.writeToFile(s"slick.driver.${driver}",
                     generatedDir, pkgName(version), container, fileName)
                 }
