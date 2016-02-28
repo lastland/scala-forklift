@@ -7,6 +7,7 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.model.Model
+import slick.driver.JdbcProfile
 import slick.codegen.SourceCodeGenerator
 
 trait SlickCodegen {
@@ -21,6 +22,13 @@ trait SlickCodegen {
   def pkgName(version: String) = "datamodel." + version + ".schema"
 
   def tableNames: Seq[String] = List()
+
+  def getTables(driver: JdbcProfile) = driver.createModel(Some(
+    driver.defaultTables.map { s =>
+      s.filter { t =>
+        tableNames.contains(t.name.name)
+      }
+    }))
 
   def getGenerator(m: Model, version: Int) = {
     new SourceCodeGenerator(m) {
@@ -42,12 +50,7 @@ object Version{
       return
     }
     val driver = mm.dbConfig.driver
-    val action = driver.createModel(Some(
-      driver.defaultTables.map { s =>
-        s.filter { t =>
-          tableNames.contains(t.name.name)
-        }
-      })) flatMap { case m =>
+    val action = getTables(driver).flatMap { case m =>
         DBIO.from {
           Future {
             val latest = mm.latest
