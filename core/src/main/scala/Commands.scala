@@ -58,8 +58,11 @@ trait MigrationFilesHandler[T] {
   }
 
   protected def writeSummary(ids: Seq[String]) {
-    val code = "object MigrationSummary {\n" + ids.map(
-      n => "M" + n).mkString("\n") + "\n}\n"
+    // need to sort the migration ids before writing them to
+    // the Summary file, so they are read in and processed
+    // in the correct order.
+    val code = "object MigrationSummary {\n" + ids.sortWith(_.toInt < _.toInt)
+      .map(n => "M" + n).mkString("\n") + "\n}\n"
     val sumFile = new File(handledLoc + "/Summary.scala")
 
     if (!sumFile.exists) sumFile.createNewFile()
