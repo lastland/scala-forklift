@@ -60,8 +60,12 @@ object migrationBuild extends Build {
         <id>lastland</id>
         <name>Yao Li</name>
         </developer>
-      </developers>))
+        </developers>))
 
+  lazy val root = Project(
+    "scala-forklift", file(".")).settings(
+    publish := { }, publishLocal := { }).aggregate(
+    coreProject, slickMigrationProject, plainMigrationProject, gitToolProject)
   lazy val coreProject = Project(
     "scala-forklift-core", file("core")).settings(
     commonSettings:_*).settings {
