@@ -6,6 +6,8 @@ object migrationBuild extends Build {
   val repoKind = SettingKey[String]("repo-kind",
     "Maven repository kind (\"snapshots\" or \"releases\")")
 
+  lazy val slickVersion = "3.1.1"
+
   lazy val coreDependencies = List(
     "org.scala-lang" % "scala-compiler" % "2.11.8",
     "com.typesafe" % "config" % "1.3.0",
@@ -13,15 +15,15 @@ object migrationBuild extends Build {
   )
 
   lazy val slickDependencies = coreDependencies ++ List(
-    "com.typesafe.slick" %% "slick" % "3.1.1",
-    "com.typesafe.slick" %% "slick-codegen" % "3.1.1"
+    "com.typesafe.slick" %% "slick" % slickVersion,
+    "com.typesafe.slick" %% "slick-codegen" % slickVersion
   )
 
   lazy val slickDependenciesWithTests = slickDependencies ++ List(
     "org.scalatest" %% "scalatest" % "2.2.5",
     "com.lihaoyi" %% "ammonite-ops" % "0.4.8",
     "commons-io" % "commons-io" % "2.4",
-    "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1",
+    "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
     "com.h2database" % "h2" % "1.4.192",
     "org.xerial" % "sqlite-jdbc" % "3.8.11.2",
     "mysql" % "mysql-connector-java" % "5.1.39",

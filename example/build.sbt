@@ -5,6 +5,8 @@ addCommandAlias("mgm", "migration_manager/run")
 addCommandAlias("mg", "migrations/run")
 
 
+lazy val slickVersion = "3.1.1"
+
 lazy val commonSettings = Seq(
   organization := "com.liyaos",
   version := "1.0",
@@ -19,11 +21,11 @@ lazy val loggingDependencies = List(
 )
 
 lazy val slickDependencies = List(
-  "com.typesafe.slick" %% "slick" % "3.1.1"
+  "com.typesafe.slick" %% "slick" % slickVersion
 )
 
 lazy val dbDependencies = List(
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1"
+  "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
   ,"com.h2database" % "h2" % "1.4.192"
 )
 
