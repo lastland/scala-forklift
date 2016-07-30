@@ -7,7 +7,7 @@ object migrationBuild extends Build {
     "Maven repository kind (\"snapshots\" or \"releases\")")
 
   lazy val coreDependencies = List(
-    "org.scala-lang" % "scala-compiler" % "2.11.7",
+    "org.scala-lang" % "scala-compiler" % "2.11.8",
     "com.typesafe" % "config" % "1.3.0",
     "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
   )
@@ -22,11 +22,11 @@ object migrationBuild extends Build {
     "com.lihaoyi" %% "ammonite-ops" % "0.4.8",
     "commons-io" % "commons-io" % "2.4",
     "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1",
-    "com.h2database" % "h2" % "1.4.190",
+    "com.h2database" % "h2" % "1.4.192",
     "org.xerial" % "sqlite-jdbc" % "3.8.11.2",
-    "mysql" % "mysql-connector-java" % "5.1.38",
-    "org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
-    "org.hsqldb" % "hsqldb" % "2.3.3",
+    "mysql" % "mysql-connector-java" % "5.1.39",
+    "org.postgresql" % "postgresql" % "9.4.1209.jre7",
+    "org.hsqldb" % "hsqldb" % "2.3.4",
     "org.apache.derby" % "derby" % "10.11.1.1"
   ).map(_ % "test")
 
@@ -34,8 +34,8 @@ object migrationBuild extends Build {
     organization := "com.liyaos",
     licenses := Seq("BSD-2-Clause" -> url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
     homepage := Some(url("https://github.com/lastland/scala-forklift")),
-    version := "0.2.2-SNAPSHOT",
-    scalaVersion := "2.11.7",
+    version := "0.2.2",
+    scalaVersion := "2.11.8",
     scalacOptions += "-deprecation",
     scalacOptions += "-feature",
     publishMavenStyle := true,

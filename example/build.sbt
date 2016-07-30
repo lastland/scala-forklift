@@ -8,7 +8,7 @@ addCommandAlias("mg", "migrations/run")
 lazy val commonSettings = Seq(
   organization := "com.liyaos",
   version := "1.0",
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.11.8",
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
   resolvers += Resolver.sonatypeRepo("snapshots")
@@ -24,11 +24,11 @@ lazy val slickDependencies = List(
 
 lazy val dbDependencies = List(
   "com.typesafe.slick" %% "slick-hikaricp" % "3.1.1"
-  ,"com.h2database" % "h2" % "1.4.190"
+  ,"com.h2database" % "h2" % "1.4.192"
 )
 
 lazy val forkliftDependencies = List(
-  "com.liyaos" %% "scala-forklift-slick" % "0.2.2-SNAPSHOT"
+  "com.liyaos" %% "scala-forklift-slick" % "0.2.2"
 )
 
 lazy val appDependencies = dbDependencies ++ loggingDependencies
@@ -64,7 +64,7 @@ lazy val migrations = Project("migrations",
 lazy val tools = Project("git-tools",
   file("tools/git")).settings(commonSettings:_*).settings {
   libraryDependencies ++= forkliftDependencies ++ List(
-    "com.liyaos" %% "scala-forklift-git-tools" % "0.2.2-SNAPSHOT",
+    "com.liyaos" %% "scala-forklift-git-tools" % "0.2.2",
     "com.typesafe" % "config" % "1.3.0",
     "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
   )
