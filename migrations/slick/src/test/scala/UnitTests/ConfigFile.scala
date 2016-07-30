@@ -3,8 +3,8 @@ package com.liyaos.forklift.slick.tests.unittests
 import java.util.HashMap
 import com.typesafe.config._
 import ammonite.ops._
-import slick.backend.DatabaseConfig
-import slick.driver.JdbcProfile
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 
 trait ConfigFile {
   this: Tables =>
@@ -60,28 +60,28 @@ trait ConfigFile {
 }
 
 trait H2ConfigFile extends ConfigFile with Tables {
-  val driver = "slick.driver.H2Driver$"
+  val driver = "slick.jdbc.H2Profile$"
   val dbDriver = "org.h2.Driver"
   val dbUrl = s"jdbc:h2:$path/test"
 
-  val profile = slick.driver.H2Driver
+  val profile = slick.jdbc.H2Profile
 }
 
 trait SQLiteConfigFile extends ConfigFile with Tables {
-  val driver = "slick.driver.SQLiteDriver$"
+  val driver = "slick.jdbc.SQLiteProfile$"
   val dbDriver = "org.sqlite.JDBC"
   val dbUrl = s"jdbc:sqlite:$path/test.sqlite.db"
 
-  val profile = slick.driver.SQLiteDriver
+  val profile = slick.jdbc.SQLiteProfile
 }
 
 trait MySQLConfigFile extends ConfigFile with Tables {
   val user = System.getProperty("user.name")
-  val driver = "slick.driver.MySQLDriver$"
+  val driver = "slick.jdbc.MySQLProfile$"
   val dbDriver = "com.mysql.jdbc.Driver"
   val dbUrl = s"jdbc:mysql://localhost/circle_test"
 
-  val profile = slick.driver.MySQLDriver
+  val profile = slick.jdbc.MySQLProfile
 
   protected override def dbMap = {
     val dbMap = super.dbMap
@@ -92,11 +92,11 @@ trait MySQLConfigFile extends ConfigFile with Tables {
 
 trait PostgresConfigFile extends ConfigFile with Tables {
   val user = System.getProperty("user.name")
-  val driver = "slick.driver.PostgresDriver$"
+  val driver = "slick.jdbc.PostgresProfile$"
   val dbDriver = "org.postgresql.Driver"
   val dbUrl = s"jdbc:postgresql://localhost/circle_test"
 
-  val profile = slick.driver.PostgresDriver
+  val profile = slick.jdbc.PostgresProfile
 
   protected override def dbMap = {
     val dbMap = super.dbMap
@@ -106,18 +106,18 @@ trait PostgresConfigFile extends ConfigFile with Tables {
 }
 
 trait HsqldbConfigFile extends ConfigFile with Tables {
-  val driver = "slick.driver.HsqldbDriver$"
+  val driver = "slick.jdbc.HsqldbProfile$"
   val dbDriver = "org.hsqldb.jdbc.JDBCDriver"
   val dbUrl = s"jdbc:hsqldb:mem:test"
 
-  val profile = slick.driver.HsqldbDriver
+  val profile = slick.jdbc.HsqldbProfile
 }
 
 trait DerbyConfigFile extends ConfigFile with Tables {
-  val driver = "slick.driver.DerbyDriver$"
+  val driver = "slick.jdbc.DerbyProfile$"
   val dbDriver = "org.apache.derby.jdbc.EmbeddedDriver"
   val dbUrl = s"jdbc:derby:$path/test.derby.db;create=true"
   override val timeout = new Integer(10000)
 
-  val profile = slick.driver.DerbyDriver
+  val profile = slick.jdbc.DerbyProfile
 }

@@ -1,4 +1,4 @@
-import slick.driver.H2Driver.api._
+import slick.jdbc.H2Profile.api._
 import com.liyaos.forklift.slick.DBIOMigration
 import datamodel.v1.schema.tables.Users
 import datamodel.v1.schema.tables.UsersRow

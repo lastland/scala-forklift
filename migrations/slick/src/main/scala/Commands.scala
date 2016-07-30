@@ -186,9 +186,9 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
 
   def addMigrationOp(tpe: MigrationType, version: Int) {
     val migrationObject = config.getString("migrations.migration_object")
-    val driverName = dbConfig.driverName
+    val profileName = dbConfig.profileName
     val content = tpe match {
-      case SQL => s"""import ${driverName}.api._
+      case SQL => s"""import ${profileName}.api._
 import com.liyaos.forklift.slick.SqlMigration
 
 object M${version} {
@@ -203,7 +203,7 @@ object M${version} {
             s"""import datamodel.v${version - 1}.schema.tables.Users
 import datamodel.v${version - 1}.schema.tables.UsersRow"""
           else ""
-        s"""import ${driverName}.api._
+        s"""import ${profileName}.api._
 import com.liyaos.forklift.slick.DBIOMigration
 ${imports}
 

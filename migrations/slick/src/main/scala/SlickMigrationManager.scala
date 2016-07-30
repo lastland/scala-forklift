@@ -5,8 +5,8 @@ import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import slick.backend.DatabaseConfig
-import slick.driver.JdbcProfile
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 import slick.jdbc.meta.MTable
 import com.liyaos.forklift.core.Migration
 import com.liyaos.forklift.core.MigrationManager
@@ -15,7 +15,7 @@ trait SlickMigrationManager
     extends MigrationManager[Int, slick.dbio.DBIO[Unit]] {
   lazy val dbConfig = SlickMigrationsConfig.dbConfig
 
-  import dbConfig.driver.api._
+  import dbConfig.profile.api._
 
   class MigrationsTable(tag: Tag) extends Table[Int](tag, "__migrations__") {
     def id = column[Int]("id", O.PrimaryKey)
