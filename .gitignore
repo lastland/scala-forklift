@@ -14,3 +14,4 @@ target/
 *.swp
 migrationInfo.txt
 example/src/main/scala/datamodel/
+generated_code/*
