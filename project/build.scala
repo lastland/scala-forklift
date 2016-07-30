@@ -27,7 +27,7 @@ object migrationBuild extends Build {
     "com.h2database" % "h2" % "1.4.192",
     "org.xerial" % "sqlite-jdbc" % "3.8.11.2",
     "mysql" % "mysql-connector-java" % "5.1.39",
-    "org.postgresql" % "postgresql" % "9.4.1209.jre7",
+    "org.postgresql" % "postgresql" % "9.4.1209",
     "org.hsqldb" % "hsqldb" % "2.3.4",
     "org.apache.derby" % "derby" % "10.11.1.1"
   ).map(_ % "test")
