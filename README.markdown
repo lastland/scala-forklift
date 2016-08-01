@@ -31,9 +31,13 @@ Don't worry about the Scala code for your database schema. Our source code gener
 
 ## How to Use
 
-Add the following dependency to your `build.sbt`:
+To use Slick 3.1.1 with Scala-Forklift, add the following dependency to your `build.sbt`:
 
-    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.2"
+    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.3"
+
+To use Slick 3.2.0-M1, use the alternative version:
+
+    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.3-slick3.2"
 
 check [example](/example) for tutorial and example code.
 
