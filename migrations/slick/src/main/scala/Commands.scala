@@ -200,8 +200,7 @@ object M${version} {
       case DBIO =>
         val imports =
           if (version > 1)
-            s"""import datamodel.v${version - 1}.schema.tables.Users
-import datamodel.v${version - 1}.schema.tables.UsersRow"""
+            s"""import ${pkgName("v" + (version - 1))}.tables._"""
           else ""
         s"""import ${profileName}.api._
 import com.liyaos.forklift.slick.DBIOMigration
