@@ -166,7 +166,7 @@ class CommandsTest extends FlatSpec
     val filePath = unhandled/"2.scala"
     assume(new File(filePath).exists)
     changeMigrationFile(filePath, "\\(.*//.*\\)".r,
-      """(TableMigration(Users).renameColumn(_.first, "firstname"))""")
+      """(TableMigration(Coders).renameColumn(_.first, "firstname"))""")
     %sbt("mg update", "mg apply", "mg codegen",
       "mg update", "mg apply", "mg codegen")
   }
