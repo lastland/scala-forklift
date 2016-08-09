@@ -183,13 +183,21 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
 
   object MigrationType extends Enumeration {
     type MigrationType = Value
-    val SQL, DBIO = Value
+    val SQL, DBIO, API = Value
   }
   import MigrationType._
 
   def addMigrationOp(tpe: MigrationType, version: Int) {
     val migrationObject = config.getString("migrations.migration_object")
     val profileName = dbConfig.profileName
+    val dbName = profileName.substring(
+      "slick.driver.".length,
+      profileName.length - "Driver".length
+    )
+    val imports =
+      if (version > 1)
+        s"""import ${pkgName("v" + (version - 1))}.tables._"""
+      else ""
     val content = tpe match {
       case SQL => s"""import ${profileName}.api._
 import com.liyaos.forklift.slick.SqlMigration
@@ -216,6 +224,18 @@ object M${version} {
     ))
 }
 """
+      case API =>
+        s"""import ${profileName}.api._
+import slick.migration.api.TableMigration
+import slick.migration.api.${dbName}Dialect
+import com.liyaos.forklift.slick.APIMigration
+${imports}
+
+object M${version} {
+  implicit val dialect = new ${dbName}Dialect
+
+  ${migrationObject}.migrations = ${migrationObject}.migrations :+ APIMigration(${version})(// write your migration here)
+}"""
     }
     val file = new File(unhandledLoc + "/" + version + ".scala")
     if (!file.exists) file.createNewFile()
@@ -229,6 +249,7 @@ object M${version} {
       val tpe = options(0).toLowerCase match {
         case s if s == "sql" || s == "s" => SQL
         case d if d == "dbio" || d == "d" => DBIO
+        case a if a == "api" || a == "a" => API
       }
       addMigrationOp(tpe, nextId)
     } catch {
