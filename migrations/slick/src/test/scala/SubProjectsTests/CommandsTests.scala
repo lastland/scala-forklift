@@ -27,8 +27,8 @@ class CommandsTest extends FlatSpec
 
   "update" should "fetch one migration file from src_migrations" in {
     implicit val wd = dir.testPath
-    assume((%sbt("mg init")) === 0)
-    assert((%sbt("mg update")) === 0)
+    %sbt("mg init")
+    %sbt("mg update")
     val file = new File(handled/"1.scala")
     val notExistsFile = new File(handled/"2.scala")
     assert(file.exists)
@@ -38,8 +38,8 @@ class CommandsTest extends FlatSpec
 
   it should "fetch the earliest migration file that hasn't been applied" in {
     implicit val wd = dir.testPath
-    assume((%sbt("mg init", "mg update", "mg apply", "mg codegen")) === 0)
-    assert((%sbt("mg update")) === 0)
+    %sbt("mg init", "mg update", "mg apply", "mg codegen")
+    %sbt("mg update")
     val file = new File(handled/"2.scala")
     val notExistsFile = new File(handled/"3.scala")
     assert(file.exists)
@@ -49,8 +49,8 @@ class CommandsTest extends FlatSpec
 
   "migrate" should "do update when there's no migration to apply" in {
     implicit val wd = dir.testPath
-    assume((%sbt("mg init")) === 0)
-    assert((%sbt("mg migrate")) === 0)
+    %sbt("mg init")
+    %sbt("mg migrate")
     val file = new File(handled/"1.scala")
     val notExistsFile = new File(handled/"2.scala")
     assert(file.exists)
@@ -60,26 +60,31 @@ class CommandsTest extends FlatSpec
 
   "codegen" should "generate the code that later migrations can use" in {
     implicit val wd = dir.testPath
-    assume((%sbt("mg init", "mg update", "mg apply")) === 0)
-    assert((%sbt("mg codegen", "mg update", "mg apply")) === 0)
+    %sbt("mg init", "mg update", "mg apply")
+    %sbt("mg codegen", "mg update", "mg apply")
     val file = new File(
       testDir/'generated_code/'src/'main/'scala/'datamodel/'v1/'schema/"schema.scala")
     assert(file.exists)
   }
 
+  def deleteMigrations() {
+    implicit val wd = dir.testPath
+    ls! unhandled | rm
+  }
+
   def testNewMigration(arg: String, deleteExistMigrations: Boolean = true) {
     implicit val wd = dir.testPath
     if (deleteExistMigrations) {
-      ls! unhandled | rm
-      assume((%sbt("mg init")) === 0)
-      assert((%sbt(s"mg new $arg", "mg update", "mg apply")) === 0)
+      deleteMigrations()
+      %sbt("mg init")
+      %sbt(s"mg new $arg", "mg update", "mg apply")
       val file = new File(unhandled/"1.scala")
       assert(file.exists)
     } else {
-      assume((%sbt("mg init")) === 0)
+      %sbt("mg init")
       var runArg = Seq(s"mg new $arg")
       for (i <- 0 until 4) runArg ++= Seq("mg update", "mg apply", "mg codegen")
-      assert((%sbt(runArg)) === 0)
+      %sbt(runArg)
       val file = new File(unhandled/"4.scala")
       assert(file.exists)
     }
@@ -115,5 +120,37 @@ class CommandsTest extends FlatSpec
 
   it should "add a dbio migration that can be applied with existing files" in {
     testNewMigration("dbio", false)
+  }
+
+  def changeMigrationFile(filePath: Path,
+    regex: util.matching.Regex, replacement: String)
+    (implicit wd: Path) {
+    val lines = read.lines! filePath
+    val content = lines.map { line =>
+      regex.replaceAllIn(line, replacement)
+    }.mkString("\n")
+    rm(filePath)
+    write(filePath, content)
+  }
+
+  it should "work with a previous applied sql migration which creates a table" in {
+    implicit val wd = dir.testPath
+    deleteMigrations()
+    %sbt("mg init")
+    %sbt("mg new sql")
+    val filePath1 = unhandled/"1.scala"
+    assume(new File(filePath1).exists)
+    changeMigrationFile(filePath1, "sqlu\".*\"".r,
+      "sqlu\"\"\"create table \"coders\" (\"id\" INTEGER NOT NULL PRIMARY KEY,\"first\" VARCHAR NOT NULL,\"last\" VARCHAR NOT NULL)\"\"\"")
+
+    %sbt("mg new dbio")
+    val filePath2 = unhandled/"2.scala"
+    assume(new File(filePath2)exists)
+    changeMigrationFile(filePath2, "DBIO.seq\\(.*\\)".r,
+      """DBIO.seq(Users ++= Seq(
+        UsersRow(1, "Chris","Vogt"),
+        UsersRow(2, "Yao","Li")""")
+    %sbt("mg update", "mg apply", "mg codegen",
+      "mg update", "mg apply", "mg codegen")
   }
 }

@@ -11,7 +11,7 @@ object TestDir {
 }
 
 class TestDir(wd: Path) {
-  val path = Path(Path.makeTmp)
+  val path = tmp.dir()
   val testPath = path/'test
 
   def setup() {
