@@ -199,7 +199,43 @@ ${"\t"}CommandTests.profile.api.queryInsertActionExtensionMethods[CommandTests.t
 
 class H2CommandTests extends CommandTests with H2ConfigFile
 
-class SQLiteCommandTests extends CommandTests with SQLiteConfigFile
+class SQLiteCommandTests extends CommandTests with SQLiteConfigFile {
+  import profile.api._
+
+  class TestSlickMigrationManager extends SlickMigrationManager
+      with SlickMigrationCommands with SlickCodegen {
+    override lazy val dbConfig = theDBConfig
+    override lazy val config = theConfig
+    migrations = MigrationSeq.example
+  }
+
+  "migrateOp" should "apply the migrations if the db is deleted after successful migrations" in {
+    var m = new TestSlickMigrationManager
+    try {
+      m.init
+      m.migrateOp(Seq())
+    } finally {
+      m.db.close()
+    }
+    val dbFile = new java.io.File(dbUrl.substring("jdbc:sqlite:".length))
+    dbFile.delete()
+    m = new TestSlickMigrationManager
+    try {
+      m.init
+      m.migrateOp(Seq())
+      val f = m.db.run {
+        UsersV3.result
+      } map { users =>
+        for (user <- users) yield (user.id, user.first, user.last)
+      }
+      val us = Await.result(f, waitTime)
+      assert(us.toSet === Set((1, "Chris", "Vogt"), (2, "Yao", "Li")))
+    } finally {
+      m.reset
+      m.db.close()
+    }
+  }
+}
 
 class MySQLCommandTests extends CommandTests with MySQLConfigFile {
   import profile.api._
