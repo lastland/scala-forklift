@@ -31,7 +31,7 @@ trait ConfigFile {
   }
 
   protected def migrationsMap = {
-    val tmpDir = Path(Path.makeTmp)
+    val tmpDir = tmp.dir()
     val handled = tmpDir/'main/'scala
     mkdir! handled
     val migrationsMap = new HashMap[String, Object]

@@ -16,7 +16,7 @@ lazy val slickDependencies = coreDependencies ++ List(
 
 lazy val slickDependenciesWithTests = slickDependencies ++ List(
   "org.scalatest" %% "scalatest" % "2.2.5",
-  "com.lihaoyi" %% "ammonite-ops" % "0.4.8",
+  "com.lihaoyi" %% "ammonite-ops" % "0.7.0",
   "commons-io" % "commons-io" % "2.4",
   "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
   "com.h2database" % "h2" % "1.4.192",
