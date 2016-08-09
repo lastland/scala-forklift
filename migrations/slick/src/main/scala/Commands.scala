@@ -98,6 +98,9 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
         case m: DBIOMigration[_] =>
           println( migration.id + " DBIOMigration:")
           println( "\t" + m.code )
+        case m: APIMigration[_] =>
+          println( migration.id + " APIMigration:")
+          println( "\t" + m.migration.sql )
       }
       println("")
     }

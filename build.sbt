@@ -11,7 +11,8 @@ lazy val coreDependencies = List(
 
 lazy val slickDependencies = coreDependencies ++ List(
   "com.typesafe.slick" %% "slick" % slickVersion,
-  "com.typesafe.slick" %% "slick-codegen" % slickVersion
+  "com.typesafe.slick" %% "slick-codegen" % slickVersion,
+  "io.github.nafg" %% "slick-migration-api" % "0.3.0"
 )
 
 lazy val slickDependenciesWithTests = slickDependencies ++ List(
@@ -34,6 +35,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.11.8",
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
+  resolvers += Resolver.bintrayRepo("naftoligug", "maven"),
   publishMavenStyle := true,
   publishArtifact in Test := false,
   repoKind <<= (version)(v =>
