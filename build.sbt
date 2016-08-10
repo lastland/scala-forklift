@@ -61,7 +61,7 @@ lazy val commonSettings = Seq(
 
 lazy val root = Project(
   "scala-forklift", file(".")).settings(
-  publish := { }, publishLocal := { }).aggregate(
+  publishArtifact := false).aggregate(
   coreProject, slickMigrationProject, plainMigrationProject, gitToolProject)
 
 lazy val coreProject = Project(
