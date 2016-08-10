@@ -51,7 +51,6 @@ Scala-Forklift supports both Slick 3.1 and Slick 3.2. The latest versions of Sca
 | Slick Version | SBT dependency |
 |---------------|----------------|
 | 3.1.x         | `libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.3"` |
-|---------------|----------------|
 | 3.2.x         | `libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.2-slick3.2"` |
 
 For tutorial and example code, please check [example](/example).
