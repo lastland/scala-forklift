@@ -30,7 +30,7 @@ lazy val slickDependenciesWithTests = slickDependencies ++ List(
 
 lazy val commonSettings = Seq(
   organization := "com.liyaos",
-  licenses := Seq("BSD-2-Clause" -> url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
+  licenses := Seq("Apache 2.0" -> url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
   homepage := Some(url("https://github.com/lastland/scala-forklift")),
   scalaVersion := "2.11.8",
   scalacOptions += "-deprecation",
