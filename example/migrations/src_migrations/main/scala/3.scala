@@ -1,10 +1,13 @@
-import slick.driver.H2Driver.api._
-import com.liyaos.forklift.slick.SqlMigration
+import slick.migration.api.TableMigration
+import slick.migration.api.H2Dialect
+import com.liyaos.forklift.slick.APIMigration
+import datamodel.v2.schema.tables._
 
 object M3 {
-  MyMigrations.migrations = MyMigrations.migrations :+ SqlMigration( 3 )(List(
-    // SQL for changing the table again, as we do not have a type-safe, db independent API for that in Slick yet
-    sqlu"""alter table "users" alter column "first" rename to "firstname" """,
-    sqlu"""alter table "users" alter column "last" rename to "lastname" """
-  ))
+  implicit val dialect = new H2Dialect
+
+  MyMigrations.migrations = MyMigrations.migrations :+ APIMigration( 3 )(
+    TableMigration(Users).
+      renameColumn(_.first, "firstname").
+      renameColumn(_.last, "lastname"))
 }

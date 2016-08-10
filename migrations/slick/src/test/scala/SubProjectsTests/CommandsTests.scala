@@ -133,23 +133,40 @@ class CommandsTest extends FlatSpec
     write(filePath, content)
   }
 
-  it should "work with a previous applied sql migration which creates a table" in {
-    implicit val wd = dir.testPath
+  def createTable(implicit wd: Path) {
     deleteMigrations()
     %sbt("mg init")
     %sbt("mg new sql")
-    val filePath1 = unhandled/"1.scala"
-    assume(new File(filePath1).exists)
-    changeMigrationFile(filePath1, "sqlu\".*\"".r,
+    val filePath = unhandled/"1.scala"
+    assume(new File(filePath).exists)
+    changeMigrationFile(filePath, "sqlu\".*\"".r,
       "sqlu\"\"\"create table \"coders\" (\"id\" INTEGER NOT NULL PRIMARY KEY,\"first\" VARCHAR NOT NULL,\"last\" VARCHAR NOT NULL)\"\"\"")
+  }
+
+  it should "work with a previous applied sql migration which creates a table" in {
+    implicit val wd = dir.testPath
+    createTable
 
     %sbt("mg new dbio")
-    val filePath2 = unhandled/"2.scala"
-    assume(new File(filePath2)exists)
-    changeMigrationFile(filePath2, "DBIO.seq\\(.*\\)".r,
-      """DBIO.seq(Users ++= Seq(
-        UsersRow(1, "Chris","Vogt"),
-        UsersRow(2, "Yao","Li")""")
+    val filePath = unhandled/"2.scala"
+    assume(new File(filePath).exists)
+    changeMigrationFile(filePath, "DBIO.seq\\(.*\\)".r,
+      """DBIO.seq(Coders ++= Seq(
+        CodersRow(1, "Chris","Vogt"),
+        CodersRow(2, "Yao","Li")""")
+    %sbt("mg update", "mg apply", "mg codegen",
+      "mg update", "mg apply", "mg codegen")
+  }
+
+  "new api" should "work with a previous applied sql migration which creates a table" in {
+    implicit val wd = dir.testPath
+    createTable
+
+    %sbt("mg new api")
+    val filePath = unhandled/"2.scala"
+    assume(new File(filePath).exists)
+    changeMigrationFile(filePath, "\\)\\(.*//.*\\)".r,
+      """)(TableMigration(Coders).renameColumn(_.first, "firstname"))""")
     %sbt("mg update", "mg apply", "mg codegen",
       "mg update", "mg apply", "mg codegen")
   }

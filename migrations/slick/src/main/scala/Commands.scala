@@ -98,6 +98,9 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
         case m: DBIOMigration[_] =>
           println( migration.id + " DBIOMigration:")
           println( "\t" + m.code )
+        case m: APIMigration[_] =>
+          println( migration.id + " APIMigration:")
+          println( "\t" + m.migration.sql )
       }
       println("")
     }
@@ -180,13 +183,21 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
 
   object MigrationType extends Enumeration {
     type MigrationType = Value
-    val SQL, DBIO = Value
+    val SQL, DBIO, API = Value
   }
   import MigrationType._
 
   def addMigrationOp(tpe: MigrationType, version: Int) {
     val migrationObject = config.getString("migrations.migration_object")
     val driverName = dbConfig.driverName
+    val dbName = driverName.substring(
+      "slick.driver.".length,
+      driverName.length - "Driver".length
+    )
+    val imports =
+      if (version > 1)
+        s"""import ${pkgName("v" + (version - 1))}.tables._"""
+      else ""
     val content = tpe match {
       case SQL => s"""import ${driverName}.api._
 import com.liyaos.forklift.slick.SqlMigration
@@ -198,10 +209,6 @@ object M${version} {
 }
 """
       case DBIO =>
-        val imports =
-          if (version > 1)
-            s"""import ${pkgName("v" + (version - 1))}.tables._"""
-          else ""
         s"""import ${driverName}.api._
 import com.liyaos.forklift.slick.DBIOMigration
 ${imports}
@@ -213,6 +220,18 @@ object M${version} {
     ))
 }
 """
+      case API =>
+        s"""import ${driverName}.api._
+import slick.migration.api.TableMigration
+import slick.migration.api.${dbName}Dialect
+import com.liyaos.forklift.slick.APIMigration
+${imports}
+
+object M${version} {
+  implicit val dialect = new ${dbName}Dialect
+
+  ${migrationObject}.migrations = ${migrationObject}.migrations :+ APIMigration(${version})(// write your migration here)
+}"""
     }
     val file = new File(unhandledLoc + "/" + version + ".scala")
     if (!file.exists) file.createNewFile()
@@ -226,6 +245,7 @@ object M${version} {
       val tpe = options(0).toLowerCase match {
         case s if s == "sql" || s == "s" => SQL
         case d if d == "dbio" || d == "d" => DBIO
+        case a if a == "api" || a == "a" => API
       }
       addMigrationOp(tpe, nextId)
     } catch {
