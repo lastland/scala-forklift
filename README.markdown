@@ -7,23 +7,38 @@ Scala-Forklift helps manage and apply database migrations for your Scala project
 
 Write your migrations in plain SQL:
 
-    MyMigrations.migrations = MyMigrations.migrations :+ SqlMigration(1)(List(
-      sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)"""
-    ))
+```scala
+MyMigrations.migrations = MyMigrations.migrations :+ SqlMigration(1)(List(
+  sqlu"""create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)"""
+))
+```
 
 Or type-safe Slick queries:
 
-    MyMigrations.migrations = MyMigrations.migrations :+ DBIOMigration(2)(
-      DBIO.seq(Users ++= Seq(
-        UsersRow(1, "Chris","Vogt"),
-        UsersRow(2, "Yao","Li")
-      )))
+``` scala
+MyMigrations.migrations = MyMigrations.migrations :+ DBIOMigration(2)(
+  DBIO.seq(Users ++= Seq(
+    UsersRow(1, "Chris","Vogt"),
+    UsersRow(2, "Yao","Li")
+  )))
+```
 
-Don't worry about the Scala code for your database schema. Our source code generator will have it generated for you automatically.
+Or use [slick-migration-api](https://github.com/nafg/slick-migration-api):
+
+``` scala
+MyMigrations.migrations = MyMigrations.migrations :+ APIMigration(3)(
+  TableMigration(Users).
+    renameColumn(_.first, "firstname").
+    renameColumn(_.last, "lastname"))
+```
+
+(Note: `APIMigration` is not supported in versions prior to `v0.2.3`)
+
+Don't worry about keeping the Scala code and your database schema consistent. Our source code generator will have it generated for you.
 
 **Key Features**:
 
-- Supports for Slick (and Casbah is on the way!).
+- Supports for type-safe database migration with [Slick](https://github.com/slick/slick) and [slick-migration-api](https://github.com/nafg/slick-migration-api).
 - A source code generator to generate and manage Scala models from your database schemas.
 - A tool to help you manage your dev db with git, with supports for branching and merging.
 - High customizability.
@@ -31,19 +46,19 @@ Don't worry about the Scala code for your database schema. Our source code gener
 
 ## How to Use
 
-To use Slick 3.1.1 with Scala-Forklift, add the following dependency to your `build.sbt`:
+Scala-Forklift supports both Slick 3.1 and Slick 3.2. The latest versions of Scala-Forklift are given below:
 
-    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.3"
+| Slick Version | SBT dependency |
+|---------------|----------------|
+| 3.1.x         | `libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.3"` |
+|---------------|----------------|
+| 3.2.x         | `libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.2-slick3.2"` |
 
-To use Slick 3.2.0-M1, use the alternative version:
-
-    libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.3-slick3.2"
-
-check [example](/example) for tutorial and example code.
+For tutorial and example code, please check [example](/example).
 
 ### Quick Start
 
-Alternatively, you can use our start template on GitHub to quickly start a project with Scala-Forklift:
+You can use our start template on GitHub to quickly start a project with Scala-Forklift:
 
     git clone https://github.com/lastland/scala-forklift-start-template.git
 
