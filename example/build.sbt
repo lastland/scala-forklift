@@ -7,7 +7,7 @@ addCommandAlias("mg", "migrations/run")
 
 lazy val slickVersion = "3.1.1"
 
-lazy val forkliftVersion = "0.2.3-SNAPSHOT"
+lazy val forkliftVersion = "0.2.3"
 
 lazy val commonSettings = Seq(
   organization := "com.liyaos",
