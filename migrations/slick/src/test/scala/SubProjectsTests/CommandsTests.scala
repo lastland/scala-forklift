@@ -151,9 +151,9 @@ class CommandsTest extends FlatSpec
     val filePath = unhandled/"2.scala"
     assume(new File(filePath).exists)
     changeMigrationFile(filePath, "DBIO.seq\\(.*\\)".r,
-      """DBIO.seq(Users ++= Seq(
-        UsersRow(1, "Chris","Vogt"),
-        UsersRow(2, "Yao","Li")""")
+      """DBIO.seq(Coders ++= Seq(
+        CodersRow(1, "Chris","Vogt"),
+        CodersRow(2, "Yao","Li")""")
     %sbt("mg update", "mg apply", "mg codegen",
       "mg update", "mg apply", "mg codegen")
   }
