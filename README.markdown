@@ -55,6 +55,8 @@ Scala-Forklift supports both Slick 3.1 and Slick 3.2. The latest versions of Sca
 
 For tutorial and example code, please check [example](/example).
 
+Here is also a wonderful [tutorial](http://blog.novatec-gmbh.de/database-migration-slick-scala-forklift/) written by Andreas Burkard and Julian Tragé.
+
 ### Quick Start
 
 You can use our start template on GitHub to quickly start a project with Scala-Forklift:
