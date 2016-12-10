@@ -33,7 +33,7 @@ object MigrationType extends Enumeration {
     "a" -> API
   )
 
-  def getType(s: String) = nameMap get s
+  def getType(s: String) = nameMap.get(s.toLowerCase)
 }
 
 trait SlickMigrationFilesHandler extends MigrationFilesHandler[Int] {
@@ -265,7 +265,7 @@ object M${version} {
   }
 
   def addMigrationCommand(options: Seq[String]) {
-    val tpe = options.headOption.map(_.toLowerCase).toTry(
+    val tpe = options.headOption.toTry(
       CommandExceptions.WrongNumberOfArgumentsException(1, 0)
     ) flatMap { s =>
       MigrationType.getType(s).toTry(
