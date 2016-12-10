@@ -3,12 +3,42 @@ package com.liyaos.forklift.slick
 import java.io.File
 import java.io.BufferedWriter
 import java.io.FileWriter
+import scala.util.{Success, Failure}
 import com.liyaos.forklift.core.MigrationsConfig
 import com.liyaos.forklift.core.MigrationFilesHandler
 import com.liyaos.forklift.core.RescueCommands
 import com.liyaos.forklift.core.RescueCommandLineTool
 import com.liyaos.forklift.core.MigrationCommands
 import com.liyaos.forklift.core.MigrationCommandLineTool
+
+object CommandExceptions {
+  case class WrongNumberOfArgumentsException(expected: Int, given: Int)
+      extends Exception(s"We expect $expected arguments, but we find $given.")
+  case class WrongArgumentException(arg: String)
+      extends Exception(s"We do not understand the argument you give: $arg.")
+}
+
+object MigrationType extends Enumeration {
+  import CommandExceptions._
+
+  type MigrationType = Value
+  val SQL, DBIO, API = Value
+
+  val nameMap = Map(
+    "sql" -> SQL,
+    "s" -> SQL,
+    "dbio" -> DBIO,
+    "d" -> DBIO,
+    "api" -> API,
+    "a" -> API
+  )
+
+  def getType(s: String) = nameMap get s
+  def tryGetType(s: String) = getType(s) match {
+    case Some(t) => Success(t)
+    case None => Failure(WrongArgumentException(s))
+  }
+}
 
 trait SlickMigrationFilesHandler extends MigrationFilesHandler[Int] {
   def nameIsId(name: String) =
@@ -181,10 +211,6 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
 //    }
 //  }
 
-  object MigrationType extends Enumeration {
-    type MigrationType = Value
-    val SQL, DBIO, API = Value
-  }
   import MigrationType._
 
   def addMigrationOp(tpe: MigrationType, version: Int) {
@@ -241,18 +267,19 @@ object M${version} {
   }
 
   def addMigrationCommand(options: Seq[String]) {
-    try {
-      val tpe = options(0).toLowerCase match {
-        case s if s == "sql" || s == "s" => SQL
-        case d if d == "dbio" || d == "d" => DBIO
-        case a if a == "api" || a == "a" => API
-      }
-      addMigrationOp(tpe, nextId)
-    } catch {
-      case e: Throwable =>
-        println("you must enter a proper parameter!")
-    } finally {
-      // no need to close db since it's not initialized in this command
+    val arg = options.headOption.map(_.toLowerCase) match {
+      case Some(s) => Success(s)
+      case None => Failure(
+        CommandExceptions.WrongNumberOfArgumentsException(1, 0))
+    }
+    val tpe = arg flatMap { s =>
+      MigrationType.tryGetType(s)
+    }
+    tpe match {
+      case Success(t) =>
+        addMigrationOp(t, nextId)
+      case Failure(e) =>
+        throw e
     }
   }
 
