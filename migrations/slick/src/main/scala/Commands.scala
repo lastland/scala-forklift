@@ -271,12 +271,8 @@ object M${version} {
       MigrationType.getType(s).toTry(
         CommandExceptions.WrongArgumentException(s))
     }
-    tpe match {
-      case Success(t) =>
-        addMigrationOp(t, nextId)
-      case Failure(e) =>
-        throw e
-    }
+    val t = tpe.get
+    addMigrationOp(t, nextId)
   }
 
   def codegenOp {
