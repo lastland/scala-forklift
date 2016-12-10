@@ -34,10 +34,6 @@ object MigrationType extends Enumeration {
   )
 
   def getType(s: String) = nameMap get s
-  def tryGetType(s: String) = getType(s) match {
-    case Some(t) => Success(t)
-    case None => Failure(WrongArgumentException(s))
-  }
 }
 
 trait SlickMigrationFilesHandler extends MigrationFilesHandler[Int] {
@@ -89,6 +85,9 @@ trait SlickRescueCommandLineTool extends RescueCommandLineTool[Int] {
 trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit]]
     with SlickMigrationFilesHandler {
   this: SlickMigrationManager with SlickCodegen =>
+
+  import MigrationType._
+  import OptionToTry._
 
   override def applyOps: Seq[() => Unit] = List(
     () => applyOp, () => codegenOp)
@@ -211,7 +210,6 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
 //    }
 //  }
 
-  import MigrationType._
 
   def addMigrationOp(tpe: MigrationType, version: Int) {
     val migrationObject = config.getString("migrations.migration_object")
@@ -267,13 +265,11 @@ object M${version} {
   }
 
   def addMigrationCommand(options: Seq[String]) {
-    val arg = options.headOption.map(_.toLowerCase) match {
-      case Some(s) => Success(s)
-      case None => Failure(
-        CommandExceptions.WrongNumberOfArgumentsException(1, 0))
-    }
-    val tpe = arg flatMap { s =>
-      MigrationType.tryGetType(s)
+    val tpe = options.headOption.map(_.toLowerCase).toTry(
+      CommandExceptions.WrongNumberOfArgumentsException(1, 0)
+    ) flatMap { s =>
+      MigrationType.getType(s).toTry(
+        CommandExceptions.WrongArgumentException(s))
     }
     tpe match {
       case Success(t) =>
