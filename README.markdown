@@ -65,6 +65,11 @@ You can use our start template on GitHub to quickly start a project with Scala-F
 git clone https://github.com/lastland/scala-forklift-start-template.git
 ```
 
+## More Examples
+
+- [Demo with Play and Slick](https://github.com/lastland/play-slick-forklift-example)
+- [Demo with Quill](https://github.com/lastland/scala-forklift-quill)
+
 ## Known Issues
 
 - The `reset` command may not correctly handle database schemas with foreign keys.
