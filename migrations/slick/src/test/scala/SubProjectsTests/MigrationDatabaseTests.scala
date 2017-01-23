@@ -6,7 +6,6 @@ import scala.language.implicitConversions
 import org.apache.commons.io.FileUtils
 import ammonite.ops._
 
-@Ignore
 class MigrationDatabaseTest extends FlatSpec
     with BeforeAndAfter with GivenWhenThen {
   val wd = cwd
@@ -46,12 +45,12 @@ class MigrationDatabaseTest extends FlatSpec
     implicit val wd = dir.testPath
 
     Given("an example project")
-    assert((%sbt("git-tools/run install")) === 0)
+    %sbt("git-tools/run install")
     rebuild
 
     When("commit on master branch")
-    assert((%git("add", "build.sbt")) === 0)
-    assert((%git("commit", "-m", "test")) === 0)
+    %git("add", "build.sbt")
+    %git("commit", "-m", "test")
 
     Then("a db file should be stored in objDir")
     val dbFile = new File(objDir/'master/'db)
@@ -67,13 +66,13 @@ class MigrationDatabaseTest extends FlatSpec
     implicit val wd = dir.testPath
 
     Given("an example project")
-    assert((%sbt("git-tools/run install")) === 0)
+    %sbt("git-tools/run install")
 
     When("commit on test branch")
-    assert((%git("checkout", "-b", "test")) === 0)
+    %git("checkout", "-b", "test")
     rebuild
-    assert((%git("add", filesToWrite(0))) === 0)
-    assert((%git("commit", "-m", "test")) === 0)
+    %git("add", filesToWrite(0))
+    %git("commit", "-m", "test")
 
     Then("a db file should be stored in objDir")
     val dbFile = new File(objDir/'test/'db)
@@ -89,18 +88,18 @@ class MigrationDatabaseTest extends FlatSpec
     implicit val wd = dir.testPath
 
     Given("an example project with two branches and one commit on test branch")
-    assert((%git("add", "build.sbt")) === 0)
-    assert((%git("commit", "-m", "initial")) === 0)
-    assert((%git("checkout", "-b", "test")) === 0)
-    assert((%sbt("git-tools/run install")) === 0)
+    %git("add", "build.sbt")
+    %git("commit", "-m", "initial")
+    %git("checkout", "-b", "test")
+    %sbt("git-tools/run install")
     rebuild
-    assert((%git("add", filesToWrite(0))) === 0)
-    assert((%git("commit", "-m", "test")) === 0)
-    assert((%git("checkout", "master")) === 0)
+    %git("add", filesToWrite(0))
+    %git("commit", "-m", "test")
+    %git("checkout", "master")
     rm! dbName
 
     When("checkout to test branch")
-    assert((%git("checkout", "test")) === 0)
+    %git("checkout", "test")
 
     Then("the db should be in the test directory")
     val db = new File(dbName)
@@ -118,21 +117,21 @@ class MigrationDatabaseTest extends FlatSpec
     Given("an example project with two branches with different db")
     val sourcePath = dir.testPath/'migrations/'src_migrations/'main/'scala
     mv(sourcePath/"3.scala", sourcePath/"3.scala.swp")
-    assert((%sbt("git-tools/run install")) === 0)
+    %sbt("git-tools/run install")
     rebuild
-    assert((%git("add", "build.sbt")) === 0)
-    assert((%git("commit", "-m", "initial")) === 0)
-    assert((%git("checkout", "-b", "test")) === 0)
+    %git("add", "build.sbt")
+    %git("commit", "-m", "initial")
+    %git("checkout", "-b", "test")
     mv(sourcePath/"3.scala.swp", sourcePath/"3.scala")
     rebuild
-    assert((%git("add", filesToWrite(0))) === 0)
-    assert((%git("commit", "-m", "test")) === 0)
-    assert((%git("checkout", "master")) === 0)
-    assert((%git("add", filesToWrite(1))) === 0)
-    assert((%git("commit", "-m", "master")) === 0)
+    %git("add", filesToWrite(0))
+    %git("commit", "-m", "test")
+    %git("checkout", "master")
+    %git("add", filesToWrite(1))
+    %git("commit", "-m", "master")
 
     When("two branches are merged")
-    assert((%git("merge", "test", "-m", "merge")) === 0)
+    %git("merge", "test", "-m", "merge")
 
     Then("the db should be in test directory")
     val db = new File(dbName)
