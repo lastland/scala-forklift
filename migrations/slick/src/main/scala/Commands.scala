@@ -213,7 +213,7 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
 
   def addMigrationOp(tpe: MigrationType, version: Int) {
     val migrationObject = config.getString("migrations.migration_object")
-    val driverName = dbConfig.driverName
+    val driverName = dbConfig.profileName
     val dbName = driverName.substring(
       "slick.driver.".length,
       driverName.length - "Driver".length

@@ -7,7 +7,7 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.model.Model
-import slick.driver.JdbcProfile
+import slick.jdbc.JdbcProfile
 import slick.codegen.SourceCodeGenerator
 
 trait SlickCodegen {
@@ -48,12 +48,12 @@ object Version{
   val waitDuration = Duration.Inf
 
   def genCode(mm: SlickMigrationManager) {
-    import mm.dbConfig.driver.api._
+    import mm.dbConfig.profile.api._
     if (mm.notYetAppliedMigrations.size > 0) {
       println("Your database is not up to date, code generation denied for compatibility reasons. Please update first.")
       return
     }
-    val driver = mm.dbConfig.driver
+    val driver = mm.dbConfig.profile
     val action = getTables(driver).flatMap { case m =>
         DBIO.from {
           Future {
@@ -62,7 +62,7 @@ object Version{
               case Some(latestVersion) =>
                 List( "v" + latestVersion, "latest" ).foreach { version =>
                   val generator = getGenerator(m, latestVersion)
-                  generator.writeToFile(s"slick.driver.${driver}",
+                  generator.writeToFile(s"${driver.toString.dropRight(1)}",
                     generatedDir, pkgName(version), container, fileName)
                 }
               case None =>
