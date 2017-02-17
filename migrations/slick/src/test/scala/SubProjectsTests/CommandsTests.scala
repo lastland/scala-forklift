@@ -8,7 +8,7 @@ import ammonite.ops._
 
 class CommandsTest extends FlatSpec
     with BeforeAndAfter {
-  val wd = cwd
+  val wd = pwd
   val dir = TestDir.createTestDir(wd)
   val testDir = dir.testPath
 

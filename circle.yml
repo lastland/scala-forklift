@@ -7,7 +7,7 @@ machine:
     version: 2.7.9
 dependencies:
   pre:
-    - wget -q https://dl.bintray.com/sbt/debian/sbt-0.13.12.deb
+    - wget -q https://dl.bintray.com/sbt/debian/sbt-0.13.13.deb
     - sudo dpkg -i sbt-0.13.12.deb
   cache_directories:
     - "~/.ivy2"
