@@ -39,14 +39,14 @@ lazy val commonSettings = Seq(
   resolvers += Resolver.bintrayRepo("naftoligug", "maven"),
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  repoKind <<= (version)(v =>
-    if(v.trim.endsWith("SNAPSHOT")) "snapshots" else "releases"),
-  publishTo <<= (repoKind){
+  repoKind := { if (version.value.trim.endsWith("SNAPSHOT")) "snapshots"
+                else "releases" },
+  publishTo := { repoKind.value match {
     case "snapshots" => Some("snapshots" at
         "https://oss.sonatype.org/content/repositories/snapshots")
     case "releases" =>  Some("releases"  at
         "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-  },
+  }},
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
   pomExtra := (
     <scm>
