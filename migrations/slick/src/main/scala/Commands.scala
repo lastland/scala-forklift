@@ -215,8 +215,8 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
     val migrationObject = config.getString("migrations.migration_object")
     val driverName = dbConfig.profileName
     val dbName = driverName.substring(
-      "slick.driver.".length,
-      driverName.length - "Driver".length
+      "slick.jdbc.".length,
+      driverName.length - "Profile".length
     )
     val imports =
       if (version > 1)
