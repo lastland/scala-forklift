@@ -12,6 +12,10 @@ dependencies:
   cache_directories:
     - "~/.ivy2"
     - "~/.sbt"
+  override:
+    - sbt +test:compile
 test:
   pre:
     - sbt publishLocal
+  override:
+    - sbt +test:test
