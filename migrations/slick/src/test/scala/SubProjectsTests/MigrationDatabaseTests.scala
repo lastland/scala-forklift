@@ -6,6 +6,7 @@ import scala.language.implicitConversions
 import org.apache.commons.io.FileUtils
 import ammonite.ops._
 
+@Ignore
 class MigrationDatabaseTest extends FlatSpec
     with BeforeAndAfter with GivenWhenThen {
   val wd = pwd
