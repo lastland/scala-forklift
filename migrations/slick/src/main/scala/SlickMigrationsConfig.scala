@@ -1,7 +1,7 @@
 package com.liyaos.forklift.slick
 
-import slick.backend.DatabaseConfig
-import slick.driver.JdbcProfile
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 
 trait SlickMigrationsConfig {
   val dbConfig = DatabaseConfig.forConfig[JdbcProfile]("migrations.slick")

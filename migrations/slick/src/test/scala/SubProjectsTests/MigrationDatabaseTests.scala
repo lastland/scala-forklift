@@ -6,9 +6,10 @@ import scala.language.implicitConversions
 import org.apache.commons.io.FileUtils
 import ammonite.ops._
 
+@Ignore
 class MigrationDatabaseTest extends FlatSpec
     with BeforeAndAfter with GivenWhenThen {
-  val wd = cwd
+  val wd = pwd
   val dir = TestDir.createTestDir(wd)
   val testDir = dir.testPath
   val objDir = testDir/".db"

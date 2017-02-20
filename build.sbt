@@ -1,10 +1,10 @@
 val repoKind = SettingKey[String]("repo-kind",
   "Maven repository kind (\"snapshots\" or \"releases\")")
 
-lazy val slickVersion = "3.1.1"
+lazy val slickVersion = "3.2.0-M2"
 
 lazy val coreDependencies = List(
-  "org.scala-lang" % "scala-compiler" % "2.11.8",
+  "org.scala-lang" % "scala-compiler" % "2.12.1",
   "com.typesafe" % "config" % "1.3.0",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
 )
@@ -12,12 +12,12 @@ lazy val coreDependencies = List(
 lazy val slickDependencies = coreDependencies ++ List(
   "com.typesafe.slick" %% "slick" % slickVersion,
   "com.typesafe.slick" %% "slick-codegen" % slickVersion,
-  "io.github.nafg" %% "slick-migration-api" % "0.3.0"
+  "io.github.nafg" %% "slick-migration-api" % "0.4.0-M1"
 )
 
 lazy val slickDependenciesWithTests = slickDependencies ++ List(
-  "org.scalatest" %% "scalatest" % "2.2.5",
-  "com.lihaoyi" %% "ammonite-ops" % "0.7.0",
+  "org.scalatest" %% "scalatest" % "3.0.1",
+  "com.lihaoyi" %% "ammonite-ops" % "0.8.2",
   "commons-io" % "commons-io" % "2.4",
   "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
   "com.h2database" % "h2" % "1.4.192",
@@ -33,20 +33,20 @@ lazy val commonSettings = Seq(
   licenses := Seq("Apache 2.0" ->
     url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
   homepage := Some(url("https://github.com/lastland/scala-forklift")),
-  scalaVersion := "2.11.8",
+  scalaVersion := "2.12.1",
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
   resolvers += Resolver.bintrayRepo("naftoligug", "maven"),
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  repoKind <<= (version)(v =>
-    if(v.trim.endsWith("SNAPSHOT")) "snapshots" else "releases"),
-  publishTo <<= (repoKind){
+  repoKind := { if (version.value.trim.endsWith("SNAPSHOT")) "snapshots"
+                else "releases" },
+  publishTo := { repoKind.value match {
     case "snapshots" => Some("snapshots" at
         "https://oss.sonatype.org/content/repositories/snapshots")
     case "releases" =>  Some("releases"  at
         "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-  },
+  }},
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
   pomExtra := (
     <scm>
