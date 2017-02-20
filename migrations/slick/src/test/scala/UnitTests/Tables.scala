@@ -1,6 +1,6 @@
 package com.liyaos.forklift.slick.tests.unittests
 
-import slick.driver.JdbcProfile
+import slick.jdbc.JdbcProfile
 
 case class UsersRow(id: Int, first: String, last: String)
 

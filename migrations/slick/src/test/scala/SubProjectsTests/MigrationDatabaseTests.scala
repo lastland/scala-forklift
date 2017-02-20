@@ -8,7 +8,7 @@ import ammonite.ops._
 
 class MigrationDatabaseTest extends FlatSpec
     with BeforeAndAfter with GivenWhenThen {
-  val wd = cwd
+  val wd = pwd
   val dir = TestDir.createTestDir(wd)
   val testDir = dir.testPath
   val objDir = testDir/".db"
