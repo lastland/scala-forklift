@@ -16,6 +16,7 @@ dependencies:
     - sbt +test:compile
 test:
   pre:
-    - sbt publishLocal
+    - sbt +publishLocal
   override:
-    - sbt +test:test
+    - case $CIRCLE_NODE_INDEX in 0) sbt "+testOnly com.liyaos.forklift.slick.tests.unittests.*" ;; 1) sbt "testOnly com.liyaos.forklift.slick.tests.subprojects.*" ;; 2) echo 'scalaVersion in ThisBuild:= "2.11.8"' > example/version.sbt && sbt "testOnly com.liyaos.forklift.slick.tests.subprojects.*" ;; esac:
+        parallel: true

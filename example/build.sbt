@@ -12,7 +12,6 @@ lazy val forkliftVersion = "0.3.0"
 lazy val commonSettings = Seq(
   organization := "com.liyaos",
   version := "2.0",
-  scalaVersion := "2.12.1",
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
   resolvers += Resolver.sonatypeRepo("snapshots")
