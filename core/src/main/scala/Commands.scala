@@ -115,6 +115,7 @@ trait MigrationCommands[T, S] {
   }
 
   def migrateOp(options: Seq[String]) {
+    updateOp
     val prompt = options.contains("-p")
     if (!notYetAppliedMigrations.isEmpty) {
       for (op <- previewOps) op()
@@ -123,7 +124,6 @@ trait MigrationCommands[T, S] {
       }
       for (op <- applyOps) op()
     }
-    updateOp
   }
   def migrateCommand(options: Seq[String]) {
     migrateOp(options)
