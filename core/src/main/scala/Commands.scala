@@ -14,10 +14,9 @@ trait MigrationFilesHandler[T] {
   protected lazy val handledLoc =
     config.getString("migrations.handled_location")
 
-  protected def getId(name: String): Option[String] = {
+  protected def getId(name: String): Option[String] =
     if (!name.endsWith(".scala")) None
     else Some(name.substring(0, name.length - 6))
-  }
 
   def nameIsId(name: String): Boolean
   def nameToId(name: String): T
@@ -38,12 +37,11 @@ trait MigrationFilesHandler[T] {
   }
 
   def handleMigrationFile(file: File) {
-    val link = new File(handledLoc + "/" + file.getName)
-    val target = new File(
-      unhandledLoc + "/" + file.getName).getAbsoluteFile.toPath
-    if (!link.exists) {
-      println("create link to " + link.toPath + " for " + target)
-      Files.createSymbolicLink(link.toPath, target)
+    val target = new File(handledLoc + "/" + file.getName)
+    val source = new File(unhandledLoc + "/" + file.getName).getAbsoluteFile.toPath
+    if (!target.exists) {
+      println("create target to " + target.toPath + " for " + source)
+      Files.copy(source, target.toPath)
     }
   }
 
@@ -61,8 +59,10 @@ trait MigrationFilesHandler[T] {
     // need to sort the migration ids before writing them to
     // the Summary file, so they are read in and processed
     // in the correct order.
-    val code = "object MigrationSummary {\n" + ids.sortWith(_.toInt < _.toInt)
-      .map(n => "M" + n).mkString("\n") + "\n}\n"
+    val code = "object MigrationSummary {\n" + ids
+      .sortWith(_.toInt < _.toInt)
+      .map(n => "M" + n)
+      .mkString("\n") + "\n}\n"
     val sumFile = new File(handledLoc + "/Summary.scala")
 
     if (!sumFile.exists) sumFile.createNewFile()
@@ -161,7 +161,7 @@ trait MigrationCommands[T, S] {
 trait RescueCommandLineTool[T] { this: RescueCommands[T] =>
   def execCommands(args: List[String]) = args match {
     case "rescue" :: Nil => rescueCommand
-    case _ => println("Unknown commands")
+    case _               => println("Unknown commands")
   }
 }
 
@@ -170,20 +170,20 @@ trait RescueCommandLineTool[T] { this: RescueCommands[T] =>
 trait MigrationCommandLineTool[T, S] { this: MigrationCommands[T, S] =>
 
   def execCommands(args: List[String]) = args match {
-    case "status" :: Nil => statusCommand
+    case "status" :: Nil  => statusCommand
     case "preview" :: Nil => previewCommand
-    case "apply" :: Nil => applyCommand
-    case "init" :: Nil => initCommand
-    case "reset" :: Nil => resetCommand
-    case "update" :: Nil => updateCommand
+    case "apply" :: Nil   => applyCommand
+    case "init" :: Nil    => initCommand
+    case "reset" :: Nil   => resetCommand
+    case "update" :: Nil  => updateCommand
     case "migrate" :: (options: Seq[String]) =>
       migrateCommand(options)
     case _ => println(helpOutput)
   }
 
-  def helpOutput = List("-" * 80,
-    "A list of command available in this proof of concept:",
-    help, "-" * 80).mkString("\n")
+  def helpOutput =
+    List("-" * 80, "A list of command available in this proof of concept:", help, "-" * 80)
+      .mkString("\n")
 
   // TODO: This may need to be rewritten in the future.
   def help = """
