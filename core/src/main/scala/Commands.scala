@@ -181,7 +181,7 @@ trait MigrationCommandLineTool[T, S] { this: MigrationCommands[T, S] =>
     case "apply" :: Nil                     => applyCommand
     case "init" :: Nil                      => initCommand
     case "reset" :: Nil                     => resetCommand
-    case "update" :: (options: Seq[String]) => updateCommand
+    case "update" :: (options: Seq[String]) => updateCommand(options)
     case "migrate" :: (options: Seq[String]) =>
       migrateCommand(options)
     case _ => println(helpOutput)
