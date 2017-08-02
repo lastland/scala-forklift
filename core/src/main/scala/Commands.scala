@@ -36,12 +36,16 @@ trait MigrationFilesHandler[T] {
     toMove.toStream
   }
 
-  def handleMigrationFile(file: File) {
+  def handleMigrationFile(file: File, cflag: Boolean) {
     val target = new File(handledLoc + "/" + file.getName)
     val source = new File(unhandledLoc + "/" + file.getName).getAbsoluteFile.toPath
     if (!target.exists) {
       println("create target to " + target.toPath + " for " + source)
-      Files.copy(source, target.toPath)
+      if (cflag) {
+        Files.copy(source, target.toPath)
+      } else {
+        Files.createSymbolicLink(target.toPath, source)
+      }
     }
   }
 
@@ -116,6 +120,7 @@ trait MigrationCommands[T, S] {
 
   def migrateOp(options: Seq[String]) {
     val prompt = options.contains("-p")
+    val cflag = options.contains("-c")
     if (!notYetAppliedMigrations.isEmpty) {
       for (op <- previewOps) op()
       if (prompt) {
@@ -123,7 +128,7 @@ trait MigrationCommands[T, S] {
       }
       for (op <- applyOps) op()
     }
-    updateOp
+    updateOp(cflag)
   }
   def migrateCommand(options: Seq[String]) {
     migrateOp(options)
@@ -143,18 +148,19 @@ trait MigrationCommands[T, S] {
     resetOp
   }
 
-  def updateOp {
+  def updateOp(cflag: Boolean = false) {
     val files = migrationFiles(alreadyAppliedIds)
     if (!files.isEmpty) {
       for (file <- files) {
-        handleMigrationFile(file)
+        handleMigrationFile(file, cflag)
       }
       // only write summary if files are moved
       writeSummary(summary)
     }
   }
-  def updateCommand {
-    updateOp
+  def updateCommand(options: Seq[String]) {
+    val cflag = options.contains("-c")
+    updateOp(cflag)
   }
 }
 
@@ -170,12 +176,12 @@ trait RescueCommandLineTool[T] { this: RescueCommands[T] =>
 trait MigrationCommandLineTool[T, S] { this: MigrationCommands[T, S] =>
 
   def execCommands(args: List[String]) = args match {
-    case "status" :: Nil  => statusCommand
-    case "preview" :: Nil => previewCommand
-    case "apply" :: Nil   => applyCommand
-    case "init" :: Nil    => initCommand
-    case "reset" :: Nil   => resetCommand
-    case "update" :: Nil  => updateCommand
+    case "status" :: Nil                    => statusCommand
+    case "preview" :: Nil                   => previewCommand
+    case "apply" :: Nil                     => applyCommand
+    case "init" :: Nil                      => initCommand
+    case "reset" :: Nil                     => resetCommand
+    case "update" :: (options: Seq[String]) => updateCommand
     case "migrate" :: (options: Seq[String]) =>
       migrateCommand(options)
     case _ => println(helpOutput)
