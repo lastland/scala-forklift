@@ -3,7 +3,7 @@ package com.liyaos.forklift.slick
 import java.io.File
 import java.io.BufferedWriter
 import java.io.FileWriter
-import scala.util.{Success, Failure}
+import scala.util.{ Failure, Success }
 import com.liyaos.forklift.core.MigrationsConfig
 import com.liyaos.forklift.core.MigrationFilesHandler
 import com.liyaos.forklift.core.RescueCommands
@@ -24,14 +24,7 @@ object MigrationType extends Enumeration {
   type MigrationType = Value
   val SQL, DBIO, API = Value
 
-  val nameMap = Map(
-    "sql" -> SQL,
-    "s" -> SQL,
-    "dbio" -> DBIO,
-    "d" -> DBIO,
-    "api" -> API,
-    "a" -> API
-  )
+  val nameMap = Map("sql" -> SQL, "s" -> SQL, "dbio" -> DBIO, "d" -> DBIO, "api" -> API, "a" -> API)
 
   def getType(s: String) = nameMap.get(s.toLowerCase)
 }
@@ -58,8 +51,7 @@ trait SlickMigrationFilesHandler extends MigrationFilesHandler[Int] {
   }
 }
 
-trait SlickRescueCommands extends RescueCommands[Int]
-    with SlickMigrationFilesHandler {
+trait SlickRescueCommands extends RescueCommands[Int] with SlickMigrationFilesHandler {
   this: SlickCodegen =>
 
   private def deleteRecursively(f: File) {
@@ -82,15 +74,15 @@ trait SlickRescueCommandLineTool extends RescueCommandLineTool[Int] {
   this: SlickRescueCommands =>
 }
 
-trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit]]
+trait SlickMigrationCommands
+    extends MigrationCommands[Int, slick.dbio.DBIO[Unit]]
     with SlickMigrationFilesHandler {
   this: SlickMigrationManager with SlickCodegen =>
 
   import MigrationType._
   import OptionToTry._
 
-  override def applyOps: Seq[() => Unit] = List(
-    () => applyOp, () => codegenOp)
+  override def applyOps: Seq[() => Unit] = List(() => applyOp, () => codegenOp)
 
   override def statusOp {
     val mf = migrationFiles(alreadyAppliedIds)
@@ -99,10 +91,14 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
       println("use mg update to fetch these migrations")
     } else {
       val ny = notYetAppliedMigrations
-      if( ny.size == 0 ) {
+      if (ny.size == 0) {
         println("your database is up-to-date")
       } else {
-        println("your database is outdated, not yet applied migrations: "+notYetAppliedMigrations.map(_.id).mkString(", "))
+        println(
+          "your database is outdated, not yet applied migrations: " + notYetAppliedMigrations
+            .map(_.id)
+            .mkString(", ")
+        )
       }
     }
   }
@@ -120,16 +116,16 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
     println("NOT YET APPLIED MIGRATIONS PREVIEW:")
     println("")
     notYetAppliedMigrations.map { migration =>
-      migration match{
+      migration match {
         case m: SqlMigrationInterface[_] =>
-          println( migration.id + " SqlMigration:")
-          println( "\t" + m.queries.map(_.getDumpInfo.mainInfo).mkString("\n\t") )
+          println(migration.id + " SqlMigration:")
+          println("\t" + m.queries.map(_.getDumpInfo.mainInfo).mkString("\n\t"))
         case m: DBIOMigration[_] =>
-          println( migration.id + " DBIOMigration:")
-          println( "\t" + m.code )
+          println(migration.id + " DBIOMigration:")
+          println("\t" + m.code)
         case m: APIMigration[_] =>
-          println( migration.id + " APIMigration:")
-          println( "\t" + m.migration.sql )
+          println(migration.id + " APIMigration:")
+          println("\t" + m.migration.sql)
       }
       println("")
     }
@@ -193,10 +189,9 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
     }
   }
 
-  override def updateCommand {
-    try {
-      super.updateCommand
-    } finally {
+  override def updateCommand(options: Seq[String]) {
+    try super.updateCommand(options)
+    finally {
       db.close()
     }
   }
@@ -210,14 +205,10 @@ trait SlickMigrationCommands extends MigrationCommands[Int, slick.dbio.DBIO[Unit
 //    }
 //  }
 
-
   def addMigrationOp(tpe: MigrationType, version: Int) {
     val migrationObject = config.getString("migrations.migration_object")
     val driverName = dbConfig.profileName
-    val dbName = driverName.substring(
-      "slick.jdbc.".length,
-      driverName.length - "Profile".length
-    )
+    val dbName = driverName.substring("slick.jdbc.".length, driverName.length - "Profile".length)
     val imports =
       if (version > 1)
         s"""import ${pkgName("v" + (version - 1))}.tables._"""
@@ -265,11 +256,9 @@ object M${version} {
   }
 
   def addMigrationCommand(options: Seq[String]) {
-    val tpe = options.headOption.toTry(
-      CommandExceptions.WrongNumberOfArgumentsException(1, 0)
-    ) flatMap { s =>
-      MigrationType.getType(s).toTry(
-        CommandExceptions.WrongArgumentException(s))
+    val tpe = options.headOption.toTry(CommandExceptions.WrongNumberOfArgumentsException(1, 0)) flatMap {
+      s =>
+        MigrationType.getType(s).toTry(CommandExceptions.WrongArgumentException(s))
     }
     val t = tpe.get
     addMigrationOp(t, nextId)
@@ -288,18 +277,17 @@ object M${version} {
   }
 }
 
-
-trait SlickMigrationCommandLineTool
-    extends MigrationCommandLineTool[Int, slick.dbio.DBIO[Unit]] {
+trait SlickMigrationCommandLineTool extends MigrationCommandLineTool[Int, slick.dbio.DBIO[Unit]] {
   this: SlickMigrationCommands =>
 
   override def execCommands(args: List[String]) = args match {
     case "codegen" :: Nil => codegenCommand
-    case "new" :: tpe => addMigrationCommand(tpe)
-    case _ => super.execCommands(args)
+    case "new" :: tpe     => addMigrationCommand(tpe)
+    case _                => super.execCommands(args)
   }
 
-  override def help = super.help + """
+  override def help =
+    super.help + """
   codegen   generate data model code (table objects, case classes) from the
             database schema
 

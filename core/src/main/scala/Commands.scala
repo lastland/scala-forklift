@@ -14,10 +14,9 @@ trait MigrationFilesHandler[T] {
   protected lazy val handledLoc =
     config.getString("migrations.handled_location")
 
-  protected def getId(name: String): Option[String] = {
+  protected def getId(name: String): Option[String] =
     if (!name.endsWith(".scala")) None
     else Some(name.substring(0, name.length - 6))
-  }
 
   def nameIsId(name: String): Boolean
   def nameToId(name: String): T
@@ -37,13 +36,16 @@ trait MigrationFilesHandler[T] {
     toMove.toStream
   }
 
-  def handleMigrationFile(file: File) {
-    val link = new File(handledLoc + "/" + file.getName)
-    val target = new File(
-      unhandledLoc + "/" + file.getName).getAbsoluteFile.toPath
-    if (!link.exists) {
-      println("create link to " + link.toPath + " for " + target)
-      Files.createSymbolicLink(link.toPath, target)
+  def handleMigrationFile(file: File, cflag: Boolean) {
+    val target = new File(handledLoc + "/" + file.getName)
+    val source = new File(unhandledLoc + "/" + file.getName).getAbsoluteFile.toPath
+    if (!target.exists) {
+      println("create target to " + target.toPath + " for " + source)
+      if (cflag) {
+        Files.copy(source, target.toPath)
+      } else {
+        Files.createSymbolicLink(target.toPath, source)
+      }
     }
   }
 
@@ -61,8 +63,10 @@ trait MigrationFilesHandler[T] {
     // need to sort the migration ids before writing them to
     // the Summary file, so they are read in and processed
     // in the correct order.
-    val code = "object MigrationSummary {\n" + ids.sortWith(_.toInt < _.toInt)
-      .map(n => "M" + n).mkString("\n") + "\n}\n"
+    val code = "object MigrationSummary {\n" + ids
+      .sortWith(_.toInt < _.toInt)
+      .map(n => "M" + n)
+      .mkString("\n") + "\n}\n"
     val sumFile = new File(handledLoc + "/Summary.scala")
 
     if (!sumFile.exists) sumFile.createNewFile()
@@ -116,6 +120,7 @@ trait MigrationCommands[T, S] {
 
   def migrateOp(options: Seq[String]) {
     val prompt = options.contains("-p")
+    val cflag = options.contains("-c")
     if (!notYetAppliedMigrations.isEmpty) {
       for (op <- previewOps) op()
       if (prompt) {
@@ -123,7 +128,7 @@ trait MigrationCommands[T, S] {
       }
       for (op <- applyOps) op()
     }
-    updateOp
+    updateOp(cflag)
   }
   def migrateCommand(options: Seq[String]) {
     migrateOp(options)
@@ -143,25 +148,26 @@ trait MigrationCommands[T, S] {
     resetOp
   }
 
-  def updateOp {
+  def updateOp(cflag: Boolean = false) {
     val files = migrationFiles(alreadyAppliedIds)
     if (!files.isEmpty) {
       for (file <- files) {
-        handleMigrationFile(file)
+        handleMigrationFile(file, cflag)
       }
       // only write summary if files are moved
       writeSummary(summary)
     }
   }
-  def updateCommand {
-    updateOp
+  def updateCommand(options: Seq[String]) {
+    val cflag = options.contains("-c")
+    updateOp(cflag)
   }
 }
 
 trait RescueCommandLineTool[T] { this: RescueCommands[T] =>
   def execCommands(args: List[String]) = args match {
     case "rescue" :: Nil => rescueCommand
-    case _ => println("Unknown commands")
+    case _               => println("Unknown commands")
   }
 }
 
@@ -170,20 +176,20 @@ trait RescueCommandLineTool[T] { this: RescueCommands[T] =>
 trait MigrationCommandLineTool[T, S] { this: MigrationCommands[T, S] =>
 
   def execCommands(args: List[String]) = args match {
-    case "status" :: Nil => statusCommand
-    case "preview" :: Nil => previewCommand
-    case "apply" :: Nil => applyCommand
-    case "init" :: Nil => initCommand
-    case "reset" :: Nil => resetCommand
-    case "update" :: Nil => updateCommand
+    case "status" :: Nil                    => statusCommand
+    case "preview" :: Nil                   => previewCommand
+    case "apply" :: Nil                     => applyCommand
+    case "init" :: Nil                      => initCommand
+    case "reset" :: Nil                     => resetCommand
+    case "update" :: (options: Seq[String]) => updateCommand(options)
     case "migrate" :: (options: Seq[String]) =>
       migrateCommand(options)
     case _ => println(helpOutput)
   }
 
-  def helpOutput = List("-" * 80,
-    "A list of command available in this proof of concept:",
-    help, "-" * 80).mkString("\n")
+  def helpOutput =
+    List("-" * 80, "A list of command available in this proof of concept:", help, "-" * 80)
+      .mkString("\n")
 
   // TODO: This may need to be rewritten in the future.
   def help = """
