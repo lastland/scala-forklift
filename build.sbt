@@ -1,7 +1,7 @@
 val repoKind = SettingKey[String]("repo-kind",
   "Maven repository kind (\"snapshots\" or \"releases\")")
 
-lazy val slickVersion = "3.2.0-M2"
+lazy val slickVersion = "3.2.1"
 
 def coreDependencies(scalaVersion: String) = List(
   "org.scala-lang" % "scala-compiler" % scalaVersion,
