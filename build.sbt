@@ -75,6 +75,7 @@ lazy val coreProject = Project(
 lazy val slickMigrationProject = Project(
   "scala-forklift-slick", file("migrations/slick")).dependsOn(
   coreProject).settings(commonSettings:_*).settings {
+  parallelExecution in Test := false
   libraryDependencies ++= slickDependenciesWithTests
 }
 
