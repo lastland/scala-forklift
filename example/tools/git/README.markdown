@@ -4,7 +4,7 @@ This is a demo to show how to use the git tools provided with our migration tool
 
 ## Installation
 
-The git tools provide a set of git hooks. To install these hooks, simply provide correct arguments to the `install` method of `import scala.migrations.tools.git.Installer`. The example code can be found in file `GitUtil.scala`::
+The git tools provide a set of git hooks. To install these hooks, simply provide correct arguments to the `install` method of `import scala.migrations.com.liyaos.forklift.slick.tools.git.Installer`. The example code can be found in file `GitUtil.scala`::
 
     class MyGitUtil(db: MyMigrationDatabase)
       extends Git(db, System.getProperty("user.dir") + "/../.git") {
