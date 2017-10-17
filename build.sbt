@@ -62,7 +62,7 @@ lazy val commonSettings = Seq(
 
 lazy val root = Project(
   "scala-forklift", file(".")).settings(
-  crossScalaVersions := Seq("2.12.1", "2.11.8"),
+  crossScalaVersions := Seq("2.12.1", "2.11.11"),
   publishArtifact := false).aggregate(
   coreProject, slickMigrationProject, plainMigrationProject, gitToolProject)
 
