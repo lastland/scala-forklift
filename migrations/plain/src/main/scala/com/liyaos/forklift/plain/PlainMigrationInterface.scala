@@ -8,3 +8,8 @@ trait PlainMigrationInterface[T] extends Migration[T, Unit] {
     queries()
   }
 }
+
+case class PlainMigration[T](val id: T)(q: => Unit)
+  extends PlainMigrationInterface[T] {
+  override def queries = () => q
+}
