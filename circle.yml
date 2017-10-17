@@ -16,6 +16,6 @@ dependencies:
     - sbt +test:compile
 test:
   pre:
-    - sbt publishLocal
+    - sbt +publishLocal
   override:
-    - sbt test:test
+    - sbt +test:test
