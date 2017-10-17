@@ -33,7 +33,7 @@ lazy val commonSettings = Seq(
   licenses := Seq("Apache 2.0" ->
     url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
   homepage := Some(url("https://github.com/lastland/scala-forklift")),
-  scalaVersion := "2.11.11",
+  scalaVersion := "2.12.3",
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
   resolvers += Resolver.bintrayRepo("naftoligug", "maven"),
