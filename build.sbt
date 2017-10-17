@@ -5,28 +5,28 @@ lazy val slickVersion = "3.2.1"
 
 def coreDependencies(scalaVersion: String) = List(
   "org.scala-lang" % "scala-compiler" % scalaVersion,
-  "com.typesafe" % "config" % "1.3.0",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
+  "com.typesafe" % "config" % "1.3.2",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.9.0.201710071750-r"
 )
 
 lazy val slickDependencies = List(
   "com.typesafe.slick" %% "slick" % slickVersion,
   "com.typesafe.slick" %% "slick-codegen" % slickVersion,
-  "io.github.nafg" %% "slick-migration-api" % "0.4.0-M1"
+  "io.github.nafg" %% "slick-migration-api" % "0.4.1"
 )
 
 lazy val slickDependenciesWithTests = slickDependencies ++ List(
   "org.scalatest" %% "scalatest" % "3.0.1",
-  "com.lihaoyi" %% "ammonite-ops" % "0.8.2",
-  "commons-io" % "commons-io" % "2.4",
+  "com.lihaoyi" %% "ammonite-ops" % "1.0.2",
+  "commons-io" % "commons-io" % "2.5",
   "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
-  "com.h2database" % "h2" % "1.4.192",
-  "org.xerial" % "sqlite-jdbc" % "3.8.11.2",
-  "mysql" % "mysql-connector-java" % "5.1.39",
-  "org.postgresql" % "postgresql" % "9.4.1209",
-  "org.hsqldb" % "hsqldb" % "2.3.4",
-  "org.apache.derby" % "derby" % "10.11.1.1"
-).map(_ % "test")
+  "com.h2database" % "h2" % "1.4.196",
+  "org.xerial" % "sqlite-jdbc" % "3.20.1",
+  "mysql" % "mysql-connector-java" % "8.0.8",
+  "org.postgresql" % "postgresql" % "42.1.4",
+  "org.hsqldb" % "hsqldb" % "2.4.0",
+  "org.apache.derby" % "derby" % "10.14.1.0"
+).map(_ % Test)
 
 lazy val commonSettings = Seq(
   organization := "com.liyaos",
