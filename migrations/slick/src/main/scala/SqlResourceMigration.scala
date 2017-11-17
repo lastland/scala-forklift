@@ -7,17 +7,17 @@ import slick.jdbc.JdbcProfile
 import scala.io.Source
 
 trait SqlResourceMigrationInterface[T] extends Migration[T, DBIO[Unit]] {
-  def sqlResource: String
+  def sqlQueries: String
 }
 
-case class SqlResourceMigration[T](id: T, profile: JdbcProfile, clazz: Class[_]) extends SqlResourceMigrationInterface[T] {
+case class SqlResourceMigration[T](id: T, profile: JdbcProfile) extends SqlResourceMigrationInterface[T] {
 
   import profile.api._
 
-  val sqlResource = Source.fromInputStream(clazz.getResourceAsStream(s"$id.sql")).mkString
+  val sqlQueries = Source.fromResource(s"$id.sql").mkString
 
   def up = {
-    slick.dbio.DBIO.seq(List(sqlu"#$sqlResource"):_*)
+    slick.dbio.DBIO.seq(List(sqlu"#$sqlQueries"):_*)
   }
 }
 

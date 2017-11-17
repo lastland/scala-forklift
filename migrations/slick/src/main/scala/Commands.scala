@@ -122,7 +122,7 @@ trait SlickMigrationCommands
           println("\t" + m.queries.map(_.getDumpInfo.mainInfo).mkString("\n\t"))
         case m: SqlResourceMigrationInterface[_] =>
           println(migration.id + " SqlResourceMigration:")
-          println(m.sqlResource)
+          println(m.sqlQueries)
         case m: DBIOMigration[_] =>
           println(migration.id + " DBIOMigration:")
           println("\t" + m.code)
