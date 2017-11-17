@@ -14,7 +14,8 @@ case class SqlResourceMigration[T](id: T, profile: JdbcProfile) extends SqlResou
 
   import profile.api._
 
-  val sqlQueries = Source.fromResource(s"$id.sql").mkString
+  private val classLoader = Thread.currentThread().getContextClassLoader
+  val sqlQueries: String = Source.fromInputStream(classLoader.getResourceAsStream(s"$id.sql")).mkString
 
   def up = {
     slick.dbio.DBIO.seq(List(sqlu"#$sqlQueries"):_*)
