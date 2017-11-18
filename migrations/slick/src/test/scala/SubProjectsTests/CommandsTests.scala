@@ -85,7 +85,7 @@ class CommandsTest extends FlatSpec
       var runArg = Seq(s"mg new $arg")
       for (i <- 0 until 4) runArg ++= Seq("mg update", "mg apply", "mg codegen")
       %sbt(runArg)
-      val file = new File(unhandled/"4.scala")
+      val file = new File(unhandled/"5.scala")
       assert(file.exists)
     }
   }

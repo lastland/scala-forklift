@@ -34,7 +34,7 @@ class MigrationDatabaseTest extends FlatSpec
     dir.destroy()
   }
 
-  val migrationIterNum = 5
+  val migrationIterNum = 6
 
   def rebuild(implicit wd: Path) {
     %sbt("mg reset")
