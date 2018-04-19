@@ -53,6 +53,12 @@ Scala-Forklift supports both Slick 3.1 and Slick 3.2. The latest versions of Sca
 | 2.11.x         | `3.1.x`       | `libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.2.3"` |
 | 2.12.x, 2.11.x | `3.2.x`       | `libraryDependencies += "com.liyaos" %% "scala-forklift-slick" % "0.3.1"` |
 
+You might have to add these resolvers to your build.sbt file:
+```
+resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers += Resolver.jcenterRepo
+```
+
 For tutorial and example code, please check [example](/example).
 
 Here is also a wonderful [tutorial](http://blog.novatec-gmbh.de/database-migration-slick-scala-forklift/) written by Andreas Burkard and Julian Tragé.
