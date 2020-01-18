@@ -22,7 +22,7 @@ lazy val slickDependenciesWithTests = slickDependencies ++ List(
   "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
   "com.h2database" % "h2" % "1.4.200",
   "org.xerial" % "sqlite-jdbc" % "3.30.1",
-  "mysql" % "mysql-connector-java" % "8.0.18",
+  "mysql" % "mysql-connector-java" % "5.1.38",
   "org.postgresql" % "postgresql" % "42.2.9",
   "org.hsqldb" % "hsqldb" % "2.5.0",
   "org.apache.derby" % "derby" % "10.15.1.3"
@@ -36,7 +36,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.13.1",
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
-  resolvers += Resolver.bintrayRepo("naftoligug", "maven"),
+  resolvers += Resolver.jcenterRepo,
   publishMavenStyle := true,
   publishArtifact in Test := false,
   repoKind := { if (version.value.trim.endsWith("SNAPSHOT")) "snapshots"

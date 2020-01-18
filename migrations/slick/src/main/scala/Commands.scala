@@ -54,7 +54,7 @@ trait SlickMigrationFilesHandler extends MigrationFilesHandler[Int] {
 trait SlickRescueCommands extends RescueCommands[Int] with SlickMigrationFilesHandler {
   this: SlickCodegen =>
 
-  private def deleteRecursively(f: File) {
+  private def deleteRecursively(f: File) : Unit = {
     if (f.isDirectory) {
       for {
         files <- Option(f.listFiles)
@@ -64,7 +64,7 @@ trait SlickRescueCommands extends RescueCommands[Int] with SlickMigrationFilesHa
     f.delete
   }
 
-  override def rescueCommand {
+  override def rescueCommand : Unit = {
     super.rescueCommand
     deleteRecursively(new File(generatedDir))
   }
@@ -84,7 +84,7 @@ trait SlickMigrationCommands
 
   override def applyOps: Seq[() => Unit] = List(() => applyOp, () => codegenOp)
 
-  override def statusOp {
+  override def statusOp : Unit = {
     val mf = migrationFiles(alreadyAppliedIds)
     if (!mf.isEmpty) {
       println("you still have unhandled migrations")
@@ -103,7 +103,7 @@ trait SlickMigrationCommands
     }
   }
 
-  override def statusCommand {
+  override def statusCommand : Unit = {
     try {
       super.statusCommand
     } finally {
@@ -111,7 +111,7 @@ trait SlickMigrationCommands
     }
   }
 
-  override def previewOp {
+  override def previewOp : Unit = {
     println("-" * 80)
     println("NOT YET APPLIED MIGRATIONS PREVIEW:")
     println("")
@@ -135,7 +135,7 @@ trait SlickMigrationCommands
     println("-" * 80)
   }
 
-  override def previewCommand {
+  override def previewCommand : Unit = {
     try {
       super.previewCommand
     } finally {
@@ -143,13 +143,13 @@ trait SlickMigrationCommands
     }
   }
 
-  override def applyOp {
+  override def applyOp : Unit = {
     val ids = notYetAppliedMigrations.map(_.id)
     println("applying migrations: " + ids.mkString(", "))
     up()
   }
 
-  override def applyCommand {
+  override def applyCommand : Unit = {
     try {
       super.applyCommand
     } finally {
@@ -157,7 +157,7 @@ trait SlickMigrationCommands
     }
   }
 
-  override def migrateCommand(options: Seq[String]) {
+  override def migrateCommand(options: Seq[String]) : Unit = {
     try {
       super.migrateCommand(options)
     } finally {
@@ -165,12 +165,12 @@ trait SlickMigrationCommands
     }
   }
 
-  override def initOp {
+  override def initOp : Unit = {
     super.initOp
     init
   }
 
-  override def initCommand {
+  override def initCommand : Unit = {
     try {
       super.initCommand
     } finally {
@@ -178,13 +178,13 @@ trait SlickMigrationCommands
     }
   }
 
-  override def resetOp {
+  override def resetOp : Unit = {
     super.resetOp
     reset
     remove()
   }
 
-  override def resetCommand {
+  override def resetCommand : Unit = {
     try {
       super.resetCommand
     } finally {
@@ -192,7 +192,7 @@ trait SlickMigrationCommands
     }
   }
 
-  override def updateCommand(options: Seq[String]) {
+  override def updateCommand(options: Seq[String]) : Unit = {
     try super.updateCommand(options)
     finally {
       db.close()
@@ -208,7 +208,7 @@ trait SlickMigrationCommands
 //    }
 //  }
 
-  def addMigrationOp(tpe: MigrationType, version: Int) {
+  def addMigrationOp(tpe: MigrationType, version: Int) : Unit = {
     val migrationObject = config.getString("migrations.migration_object")
     val driverName = dbConfig.profileName
     val dbName = driverName.substring("slick.jdbc.".length, driverName.length - "Profile".length)
@@ -258,7 +258,7 @@ object M${version} {
     bw.close()
   }
 
-  def addMigrationCommand(options: Seq[String]) {
+  def addMigrationCommand(options: Seq[String]) : Unit = {
     val tpe = options.headOption.toTry(CommandExceptions.WrongNumberOfArgumentsException(1, 0)) flatMap {
       s =>
         MigrationType.getType(s).toTry(CommandExceptions.WrongArgumentException(s))
@@ -267,11 +267,11 @@ object M${version} {
     addMigrationOp(t, nextId)
   }
 
-  def codegenOp {
+  def codegenOp : Unit = {
     genCode(this)
   }
 
-  def codegenCommand {
+  def codegenCommand : Unit = {
     try {
       codegenOp
     } finally {
