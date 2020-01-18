@@ -7,10 +7,11 @@ jobs:
       - image: circleci/mysql:8.0.18
         environment:
           MYSQL_DATABASE: circle_test
-          MYSQL_USER: root
+          MYSQL_USER: circleci
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
       - image: circleci/postgres:9.6.9
         environment:
-          POSTGRES_USER: root
+          POSTGRES_USER: circleci
           POSTGRES_DB: circle_test
     environment:
       SBT_VERSION: 1.3.7
@@ -35,11 +36,13 @@ jobs:
           name: Crossompile scala-forklift
           command: sbt +compile
       - run:
-          name: Test scala-forklift
+          name: Compile tests
           command: |
             sbt test:compile
             sbt publishLocal
-            sbt test:test
+      - run:
+          name: Test scala-forklift
+          command: sbt test:test
           environment:
             JAVA_OPTS: "-Xms256m -Xmx512m"
       - save_cache:
