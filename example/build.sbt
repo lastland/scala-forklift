@@ -15,7 +15,9 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.13.1",
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
-  resolvers += Resolver.sonatypeRepo("snapshots")
+  resolvers += Resolver.sonatypeRepo("snapshots"),
+  resolvers += Resolver.jcenterRepo,
+
 )
 
 lazy val loggingDependencies = List(
