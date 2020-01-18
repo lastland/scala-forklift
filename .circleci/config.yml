@@ -4,7 +4,7 @@ jobs:
     working_directory: ~/scala-forklift
     docker:
       - image: circleci/openjdk:8
-      - image: circleci/mysql:8.0.18
+      - image: circleci/mysql:5.7.29
         environment:
           MYSQL_DATABASE: circle_test
           MYSQL_USER: circleci

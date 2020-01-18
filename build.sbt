@@ -22,7 +22,7 @@ lazy val slickDependenciesWithTests = slickDependencies ++ List(
   "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
   "com.h2database" % "h2" % "1.4.200",
   "org.xerial" % "sqlite-jdbc" % "3.30.1",
-  "mysql" % "mysql-connector-java" % "8.0.18",
+  "mysql" % "mysql-connector-java" % "5.1.38",
   "org.postgresql" % "postgresql" % "42.2.9",
   "org.hsqldb" % "hsqldb" % "2.5.0",
   "org.apache.derby" % "derby" % "10.15.1.3"
