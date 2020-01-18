@@ -1,7 +1,7 @@
 val repoKind = SettingKey[String]("repo-kind",
   "Maven repository kind (\"snapshots\" or \"releases\")")
 
-lazy val slickVersion = "3.2.1"
+lazy val slickVersion = "3.3.2"
 
 def coreDependencies(scalaVersion: String) = List(
   "org.scala-lang" % "scala-compiler" % scalaVersion,
@@ -12,20 +12,20 @@ def coreDependencies(scalaVersion: String) = List(
 lazy val slickDependencies = List(
   "com.typesafe.slick" %% "slick" % slickVersion,
   "com.typesafe.slick" %% "slick-codegen" % slickVersion,
-  "io.github.nafg" %% "slick-migration-api" % "0.4.0-M1"
+  "io.github.nafg" %% "slick-migration-api" % "0.7.0"
 )
 
 lazy val slickDependenciesWithTests = slickDependencies ++ List(
-  "org.scalatest" %% "scalatest" % "3.0.1",
-  "com.lihaoyi" %% "ammonite-ops" % "0.8.2",
-  "commons-io" % "commons-io" % "2.4",
+  "org.scalatest" %% "scalatest" % "3.1.0",
+  "com.lihaoyi" %% "ammonite-ops" % "2.0.4",
+  "commons-io" % "commons-io" % "2.6",
   "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
-  "com.h2database" % "h2" % "1.4.192",
-  "org.xerial" % "sqlite-jdbc" % "3.8.11.2",
-  "mysql" % "mysql-connector-java" % "5.1.39",
-  "org.postgresql" % "postgresql" % "9.4.1209",
-  "org.hsqldb" % "hsqldb" % "2.3.4",
-  "org.apache.derby" % "derby" % "10.11.1.1"
+  "com.h2database" % "h2" % "1.4.200",
+  "org.xerial" % "sqlite-jdbc" % "3.30.1",
+  "mysql" % "mysql-connector-java" % "8.0.18",
+  "org.postgresql" % "postgresql" % "42.2.9",
+  "org.hsqldb" % "hsqldb" % "2.5.0",
+  "org.apache.derby" % "derby" % "10.15.1.3"
 ).map(_ % "test")
 
 lazy val commonSettings = Seq(
@@ -33,7 +33,7 @@ lazy val commonSettings = Seq(
   licenses := Seq("Apache 2.0" ->
     url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
   homepage := Some(url("https://github.com/lastland/scala-forklift")),
-  scalaVersion := "2.12.1",
+  scalaVersion := "2.13.1",
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
   resolvers += Resolver.bintrayRepo("naftoligug", "maven"),
@@ -62,7 +62,7 @@ lazy val commonSettings = Seq(
 
 lazy val root = Project(
   "scala-forklift", file(".")).settings(
-  crossScalaVersions := Seq("2.12.1", "2.11.8"),
+  crossScalaVersions := Seq("2.13.1", "2.12.1"),
   publishArtifact := false).aggregate(
   coreProject, slickMigrationProject, plainMigrationProject, gitToolProject)
 
