@@ -67,12 +67,12 @@ class CommandsTest extends FlatSpec
     assert(file.exists)
   }
 
-  def deleteMigrations() {
+  def deleteMigrations() : Unit = {
     implicit val wd = dir.testPath
     ls! unhandled | rm
   }
 
-  def testNewMigration(arg: String, deleteExistMigrations: Boolean = true) {
+  def testNewMigration(arg: String, deleteExistMigrations: Boolean = true) : Unit = {
     implicit val wd = dir.testPath
     if (deleteExistMigrations) {
       deleteMigrations()
@@ -124,7 +124,7 @@ class CommandsTest extends FlatSpec
 
   def changeMigrationFile(filePath: Path,
     regex: util.matching.Regex, replacement: String)
-    (implicit wd: Path) {
+    (implicit wd: Path) : Unit = {
     val lines = read.lines! filePath
     val content = lines.map { line =>
       regex.replaceAllIn(line, replacement)
@@ -133,7 +133,7 @@ class CommandsTest extends FlatSpec
     write(filePath, content)
   }
 
-  def createTable(implicit wd: Path) {
+  def createTable(implicit wd: Path) : Unit = {
     deleteMigrations()
     %sbt("mg init")
     %sbt("mg new sql")

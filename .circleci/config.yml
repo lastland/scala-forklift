@@ -32,10 +32,12 @@ jobs:
           # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
           key: sbt-cache
       - run:
-          name: Compile and test scala-forklift
+          name: Crossompile scala-forklift
+          command: sbt +compile
+      - run:
+          name: Test scala-forklift
           command: |
-            sbt +compile
-            sbt +test:compile
+            sbt test:compile
             sbt publishLocal
             sbt test:test
           environment:
