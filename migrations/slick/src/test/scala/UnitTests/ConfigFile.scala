@@ -79,7 +79,7 @@ trait MySQLConfigFile extends ConfigFile with Tables {
   val user = "root"
   val driver = "slick.jdbc.MySQLProfile$"
   val dbDriver = "com.mysql.jdbc.Driver"
-  val dbUrl = s"jdbc:mysql://localhost/circle_test"
+  val dbUrl = s"jdbc:mysql://localhost/circle_test?useSSL=false"
 
   val profile = slick.jdbc.MySQLProfile
 
