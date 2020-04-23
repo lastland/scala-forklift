@@ -7,7 +7,7 @@ jobs:
       - image: circleci/mysql:5.7.29
         environment:
           MYSQL_DATABASE: circle_test
-          MYSQL_USER: circleci
+          MYSQL_USER: root
           MYSQL_ALLOW_EMPTY_PASSWORD: true
       - image: circleci/postgres:9.6.9
         environment:
