@@ -65,6 +65,11 @@ lazy val commonSettings = Seq(
       </developer>
       </developers>))
 
+// Derby is running is secured mode since version 10.12.1.1, so security manager must be disabled for tests  
+// https://stackoverflow.com/questions/48008343/sbt-test-does-not-work-for-spark-test
+// https://issues.apache.org/jira/browse/DERBY-6648
+Test / testOptions += Tests.Setup(() => System.setSecurityManager(null))
+
 lazy val root = Project(
   "scala-forklift", file(".")).settings(
   crossScalaVersions := Nil,
