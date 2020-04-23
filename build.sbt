@@ -25,7 +25,8 @@ lazy val slickDependenciesWithTests = slickDependencies ++ List(
   "mysql" % "mysql-connector-java" % "5.1.38",
   "org.postgresql" % "postgresql" % "42.2.9",
   "org.hsqldb" % "hsqldb" % "2.5.0",
-  "org.apache.derby" % "derby" % "10.15.1.3"
+  "org.apache.derby" % "derby" % "10.15.1.3",
+  "ch.qos.logback" % "logback-classic" % "1.2.3"
 ).map(_ % "test")
 
 lazy val commonSettings = Seq(
