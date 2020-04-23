@@ -3,8 +3,12 @@ val repoKind = SettingKey[String]("repo-kind",
 
 lazy val slickVersion = "3.3.2"
 
-def coreDependencies(scalaVersion: String) = List(
-  "org.scala-lang" % "scala-compiler" % scalaVersion,
+lazy val scala212 = "2.12.11"
+lazy val scala213 = "2.13.1"
+lazy val supportedScalaVersions = List(scala212, scala213)
+
+lazy val coreDependencies = libraryDependencies ++= List(
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
   "com.typesafe" % "config" % "1.3.0",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
 )
@@ -34,7 +38,7 @@ lazy val commonSettings = Seq(
   licenses := Seq("Apache 2.0" ->
     url("https://github.com/lastland/scala-forklift/blob/master/LICENSE")),
   homepage := Some(url("https://github.com/lastland/scala-forklift")),
-  scalaVersion := "2.13.1",
+  scalaVersion := scala213,
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
   resolvers += Resolver.jcenterRepo,
@@ -63,26 +67,28 @@ lazy val commonSettings = Seq(
 
 lazy val root = Project(
   "scala-forklift", file(".")).settings(
-  crossScalaVersions := Seq("2.13.1", "2.12.1"),
+  crossScalaVersions := Nil,
   publishArtifact := false).aggregate(
   coreProject, slickMigrationProject, plainMigrationProject, gitToolProject)
 
 lazy val coreProject = Project(
   "scala-forklift-core", file("core")).settings(
-  commonSettings:_*).settings {
-  libraryDependencies ++= coreDependencies(scalaVersion.value)
-}
+  commonSettings:_*).settings {Seq(
+    crossScalaVersions := supportedScalaVersions,
+    coreDependencies
+  )}
 
 lazy val slickMigrationProject = Project(
   "scala-forklift-slick", file("migrations/slick")).dependsOn(
-  coreProject).settings(commonSettings:_*).settings {
-  libraryDependencies ++= slickDependenciesWithTests
-}
+  coreProject).settings(commonSettings:_*).settings { Seq(
+    crossScalaVersions := supportedScalaVersions,
+    libraryDependencies ++= slickDependenciesWithTests
+  )} 
 
 lazy val plainMigrationProject = Project(
   "scala-forklift-plain", file("migrations/plain")).dependsOn(
-  coreProject).settings(commonSettings:_*)
+  coreProject).settings(commonSettings:_*).settings(crossScalaVersions := supportedScalaVersions)
 
 lazy val gitToolProject = Project(
   "scala-forklift-git-tools", file("tools/git")).dependsOn(
-  coreProject).settings(commonSettings:_*)
+  coreProject).settings(commonSettings:_*).settings(crossScalaVersions := supportedScalaVersions)
