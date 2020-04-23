@@ -38,11 +38,16 @@ jobs:
       - run:
           name: Compile tests
           command: |
-            sbt test:compile
-            sbt publishLocal
+            sbt +test:compile
+            sbt +publishLocal
       - run:
-          name: Test scala-forklift
-          command: sbt test:test
+          name: Test scala-forklift scala 2.12
+          command: sbt '++ 2.12.11; test:test'
+          environment:
+            JAVA_OPTS: "-Xms256m -Xmx512m"
+      - run:
+          name: Test scala-forklift scala 2.13
+          command: sbt '++ 2.13.1; test:test'
           environment:
             JAVA_OPTS: "-Xms256m -Xmx512m"
       - save_cache:
