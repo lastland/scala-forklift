@@ -9,14 +9,15 @@ lazy val supportedScalaVersions = List(scala212, scala213)
 
 lazy val coreDependencies = libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "com.typesafe" % "config" % "1.3.0",
+  "com.typesafe" % "config" % "1.3.2",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
 )
 
 lazy val slickDependencies = List(
   "com.typesafe.slick" %% "slick" % slickVersion,
   "com.typesafe.slick" %% "slick-codegen" % slickVersion,
-  "io.github.nafg" %% "slick-migration-api" % "0.7.0"
+  "io.github.nafg" %% "slick-migration-api" % "0.7.0",
+  "org.scala-lang.modules" %% "scala-collection-compat" % "2.0.0"
 )
 
 lazy val slickDependenciesWithTests = slickDependencies ++ List(
