@@ -36,7 +36,7 @@ trait MigrationFilesHandler[T] {
     toMove.toStream
   }
 
-  def handleMigrationFile(file: File, cflag: Boolean) {
+  def handleMigrationFile(file: File, cflag: Boolean) : Unit = {
     val target = new File(handledLoc + "/" + file.getName)
     val source = new File(unhandledLoc + "/" + file.getName).getAbsoluteFile.toPath
     if (!target.exists) {

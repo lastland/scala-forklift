@@ -1,5 +1,6 @@
 package com.liyaos.forklift.slick.tests.unittests
 
+import java.time.Instant
 import java.util.HashMap
 import com.typesafe.config._
 import ammonite.ops._
@@ -70,16 +71,16 @@ trait H2ConfigFile extends ConfigFile with Tables {
 trait SQLiteConfigFile extends ConfigFile with Tables {
   val driver = "slick.jdbc.SQLiteProfile$"
   val dbDriver = "org.sqlite.JDBC"
-  val dbUrl = s"jdbc:sqlite:$path/test.sqlite.db"
+  val dbUrl = s"jdbc:sqlite:$path/target/test-${Instant.now.toEpochMilli}.sqlite.db"
 
   val profile = slick.jdbc.SQLiteProfile
 }
 
 trait MySQLConfigFile extends ConfigFile with Tables {
-  val user = System.getProperty("user.name")
+  val user = "root"
   val driver = "slick.jdbc.MySQLProfile$"
   val dbDriver = "com.mysql.jdbc.Driver"
-  val dbUrl = s"jdbc:mysql://localhost/circle_test"
+  val dbUrl = s"jdbc:mysql://localhost/circle_test?useSSL=false"
 
   val profile = slick.jdbc.MySQLProfile
 
@@ -116,7 +117,7 @@ trait HsqldbConfigFile extends ConfigFile with Tables {
 trait DerbyConfigFile extends ConfigFile with Tables {
   val driver = "slick.jdbc.DerbyProfile$"
   val dbDriver = "org.apache.derby.jdbc.EmbeddedDriver"
-  val dbUrl = s"jdbc:derby:$path/test.derby.db;create=true"
+  val dbUrl = s"jdbc:derby:$path/target/test-${Instant.now.toEpochMilli}.derby.db;create=true"
   override val timeout = new Integer(10000)
 
   val profile = slick.jdbc.DerbyProfile
