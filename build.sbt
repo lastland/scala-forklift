@@ -9,7 +9,7 @@ lazy val supportedScalaVersions = List(scala212, scala213)
 
 lazy val coreDependencies = libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "com.typesafe" % "config" % "1.3.2",
+  "com.typesafe" % "config" % "1.4.2",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
 )
 
