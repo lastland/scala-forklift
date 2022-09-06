@@ -1,37 +1,37 @@
 val repoKind = SettingKey[String]("repo-kind",
   "Maven repository kind (\"snapshots\" or \"releases\")")
 
-lazy val slickVersion = "3.3.2"
+lazy val slickVersion = "3.3.3"
 
 lazy val scala212 = "2.12.11"
-lazy val scala213 = "2.13.1"
+lazy val scala213 = "2.13.8"
 lazy val supportedScalaVersions = List(scala212, scala213)
 
 lazy val coreDependencies = libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "com.typesafe" % "config" % "1.3.2",
+  "com.typesafe" % "config" % "1.4.2",
   "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
 )
 
 lazy val slickDependencies = List(
   "com.typesafe.slick" %% "slick" % slickVersion,
   "com.typesafe.slick" %% "slick-codegen" % slickVersion,
-  "io.github.nafg" %% "slick-migration-api" % "0.7.0",
-  "org.scala-lang.modules" %% "scala-collection-compat" % "2.0.0"
+  "io.github.nafg" %% "slick-migration-api" % "0.8.0",
+  "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1"
 )
 
 lazy val slickDependenciesWithTests = slickDependencies ++ List(
-  "org.scalatest" %% "scalatest" % "3.1.0",
-  "com.lihaoyi" %% "ammonite-ops" % "2.0.4",
+  "org.scalatest" %% "scalatest" % "3.2.12",
+  "com.lihaoyi" %% "ammonite-ops" % "2.4.1",
   "commons-io" % "commons-io" % "2.6",
   "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
-  "com.h2database" % "h2" % "1.4.200",
+  "com.h2database" % "h2" % "2.1.214",
   "org.xerial" % "sqlite-jdbc" % "3.8.11.2",// 3.30.1 crashes SQLiteCommandTests
-  "mysql" % "mysql-connector-java" % "5.1.38",
-  "org.postgresql" % "postgresql" % "42.2.9",
-  "org.hsqldb" % "hsqldb" % "2.5.0",
-  "org.apache.derby" % "derby" % "10.14.2.0",
-  "ch.qos.logback" % "logback-classic" % "1.2.3"
+  "mysql" % "mysql-connector-java" % "8.0.30",
+  "org.postgresql" % "postgresql" % "42.5.0",
+  "org.hsqldb" % "hsqldb" % "2.7.0",
+  "org.apache.derby" % "derby" % "10.15.2.0",
+  "ch.qos.logback" % "logback-classic" % "1.2.11"
 ).map(_ % "test")
 
 lazy val commonSettings = Seq(
