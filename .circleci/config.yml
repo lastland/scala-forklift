@@ -18,16 +18,23 @@ jobs:
     steps:
       - run: echo 'export ARTIFACT_BUILD=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BUILD_NUM.zip' >> $BASH_ENV
       - run:
-          name: Get sbt binary
+          name: Install python dependencies
           command: |
-                    apt update && apt install -y curl
-                    curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb
-                    sudo dpkg -i sbt-$SBT_VERSION.deb
-                    rm sbt-$SBT_VERSION.deb
-                    sudo apt-get update
-                    sudo apt-get install -y sbt python-pip git
-                    pip install awscli
-                    sudo apt-get clean && sudo apt-get autoclean
+            apt update && apt install -y curl
+            sudo apt-get update
+            sudo apt-get install -y python3-pip git
+            pip3 install awscli
+            sudo apt-get clean && sudo apt-get autoclean
+            - run:
+                name: Setup sbt
+                command: |
+                  cd ..
+                  curl -L -o sbt-$SBT_VERSION.tgz https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz
+                  tar -xvf sbt-$SBT_VERSION.tgz
+                  cd sbt/bin
+                  sudo chmod +x sbt
+                  export PATH=$PATH:$(pwd)
+                  cd ~/scala-forklift
       - checkout
       - restore_cache:
           # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
