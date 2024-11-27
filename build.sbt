@@ -16,7 +16,7 @@ lazy val coreDependencies = libraryDependencies ++= List(
 lazy val slickDependencies = List(
   "com.typesafe.slick" %% "slick" % slickVersion,
   "com.typesafe.slick" %% "slick-codegen" % slickVersion,
-  "io.github.nafg" %% "slick-migration-api" % "0.8.0",
+  "io.github.nafg" %% "slick-migration-api" % "0.10.0",
   "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1"
 )
 
@@ -42,7 +42,7 @@ lazy val commonSettings = Seq(
   scalaVersion := scala213,
   scalacOptions += "-deprecation",
   scalacOptions += "-feature",
-  resolvers += Resolver.jcenterRepo,
+  resolvers ++= Seq(Resolver.jcenterRepo, "asana-oss-cache" at "https://asana-oss-cache.s3.us-east-1.amazonaws.com/maven/release/"),
   publishMavenStyle := true,
   publishArtifact in Test := false,
   repoKind := { if (version.value.trim.endsWith("SNAPSHOT")) "snapshots"

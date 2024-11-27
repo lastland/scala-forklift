@@ -40,7 +40,7 @@ jobs:
           # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
           key: sbt-cache
       - run:
-          name: Crossompile scala-forklift
+          name: Cross compile scala-forklift
           command: sbt +compile
       - run:
           name: Compile tests
