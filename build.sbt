@@ -1,7 +1,7 @@
 val repoKind = SettingKey[String]("repo-kind",
   "Maven repository kind (\"snapshots\" or \"releases\")")
 
-lazy val slickVersion = "3.3.3"
+lazy val slickVersion = "3.5.0"
 
 lazy val scala212 = "2.12.11"
 lazy val scala213 = "2.13.8"
@@ -9,8 +9,8 @@ lazy val supportedScalaVersions = List(scala212, scala213)
 
 lazy val coreDependencies = libraryDependencies ++= List(
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "com.typesafe" % "config" % "1.4.2",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "4.0.1.201506240215-r"
+  "com.typesafe" % "config" % "1.4.3",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "7.0.0.202409031743-r"
 )
 
 lazy val slickDependencies = List(
