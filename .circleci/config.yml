@@ -20,14 +20,14 @@ jobs:
       - run:
           name: Install python dependencies
           command: |
-            apt update && apt install -y curl
-            sudo apt-get update
-            sudo apt-get install -y python3-pip git
-            pip3 install awscli
-            sudo apt-get clean && sudo apt-get autoclean
-            - run:
-                name: Setup sbt
-                command: |
+                    apt update && apt install -y curl
+                    sudo apt-get update
+                    sudo apt-get install -y python3-pip git
+                    pip3 install awscli
+                    sudo apt-get clean && sudo apt-get autoclean
+      - run:
+          name: Setup sbt
+          command: |
                   cd ..
                   curl -L -o sbt-$SBT_VERSION.tgz https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz
                   tar -xvf sbt-$SBT_VERSION.tgz
