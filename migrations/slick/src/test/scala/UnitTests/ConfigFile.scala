@@ -10,7 +10,7 @@ import slick.jdbc.JdbcProfile
 trait ConfigFile {
   this: Tables =>
   val path = System.getProperty("user.dir")
-  val timeout = new Integer(5000)
+  val timeout = Integer.valueOf(5000)
   val driver: String
   val dbDriver: String
   val dbUrl: String
@@ -28,6 +28,7 @@ trait ConfigFile {
     slickMap.put("db", dbMap)
     slickMap.put("driver", driver)
     slickMap.put("version_control_dir", s"$path/.db")
+    slickMap.put("profile", profile.getClass.getName)
     slickMap
   }
 
