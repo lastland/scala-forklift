@@ -35,9 +35,6 @@ jobs:
                   export PATH=$PATH:$(pwd)
                   cd ~/scala-forklift
       - checkout
-      - restore_cache:
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          key: sbt-cache
       - run:
           name: Cross compile scala-forklift
           command: sbt +compile
