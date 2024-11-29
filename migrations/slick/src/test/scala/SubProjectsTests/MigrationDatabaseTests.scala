@@ -22,9 +22,9 @@ class MigrationDatabaseTest extends FlatSpec
     dir.setup()
     rm(objDir)
     implicit val wd = dir.path
-    %%git 'init
-    %%git('config, "user.email", "test@test.com")
-    %%git('config, "user.name", "Testser")
+    %%git Symbol("init")
+    %%git(Symbol("config"), "user.email", "test@test.com")
+    %%git(Symbol("config"), "user.name", "Testser")
     for (file <- filesToWrite) {
       write(file, "dummy file")
     }

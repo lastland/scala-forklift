@@ -118,16 +118,16 @@ trait SlickMigrationCommands
     notYetAppliedMigrations.map { migration =>
       migration match {
         case m: SqlMigrationInterface[_] =>
-          println(migration.id + " SqlMigration:")
+          println(s"${migration.id} SqlMigration:")
           println("\t" + m.queries.map(_.getDumpInfo.mainInfo).mkString("\n\t"))
         case m: SqlResourceMigrationInterface[_] =>
-          println(migration.id + " SqlResourceMigration:")
+          println(s"${migration.id} SqlResourceMigration:")
           println(m.sqlQueries)
         case m: DBIOMigration[_] =>
-          println(migration.id + " DBIOMigration:")
+          println(s"${migration.id} DBIOMigration:")
           println("\t" + m.code)
         case m: APIMigration[_] =>
-          println(migration.id + " APIMigration:")
+          println(s"${migration.id} APIMigration:")
           println("\t" + m.migration.sql)
       }
       println("")

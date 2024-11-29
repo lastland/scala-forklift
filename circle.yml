@@ -2,7 +2,7 @@ machine:
   environment:
     JAVA_OPTS: "-Xms256m -Xmx512m"
   java:
-    version: oraclejdk8
+    version: oraclejdk11
   python:
     version: 2.7.9
 dependencies:

@@ -5,7 +5,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import slick.backend.DatabaseConfig
+import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import slick.jdbc.meta.MTable
 import com.liyaos.forklift.core.Migration

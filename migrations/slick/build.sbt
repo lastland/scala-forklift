@@ -1,3 +1,3 @@
 name := "scala-forklift-slick"
 
-parallelExecution in Test := false
+Test / parallelExecution := false

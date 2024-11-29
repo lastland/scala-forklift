@@ -10,7 +10,7 @@ import slick.jdbc.JdbcProfile
 trait ConfigFile {
   this: Tables =>
   val path = System.getProperty("user.dir")
-  val timeout = new Integer(5000)
+  val timeout = Integer.valueOf(5000)
   val driver: String
   val dbDriver: String
   val dbUrl: String
@@ -33,7 +33,7 @@ trait ConfigFile {
 
   protected def migrationsMap = {
     val tmpDir = tmp.dir()
-    val handled = tmpDir/'main/'scala
+    val handled = tmpDir/Symbol("main")/Symbol("scala")
     mkdir! handled
     val migrationsMap = new HashMap[String, Object]
     migrationsMap.put("slick", slickMap)
@@ -79,7 +79,7 @@ trait SQLiteConfigFile extends ConfigFile with Tables {
 trait MySQLConfigFile extends ConfigFile with Tables {
   val user = "root"
   val driver = "slick.jdbc.MySQLProfile$"
-  val dbDriver = "com.mysql.jdbc.Driver"
+  val dbDriver = "com.mysql.cj.jdbc.Driver"
   val dbUrl = s"jdbc:mysql://localhost/circle_test?useSSL=false"
 
   val profile = slick.jdbc.MySQLProfile
@@ -118,7 +118,7 @@ trait DerbyConfigFile extends ConfigFile with Tables {
   val driver = "slick.jdbc.DerbyProfile$"
   val dbDriver = "org.apache.derby.jdbc.EmbeddedDriver"
   val dbUrl = s"jdbc:derby:$path/target/test-${Instant.now.toEpochMilli}.derby.db;create=true"
-  override val timeout = new Integer(10000)
+  override val timeout = Integer.valueOf(10000)
 
   val profile = slick.jdbc.DerbyProfile
 }

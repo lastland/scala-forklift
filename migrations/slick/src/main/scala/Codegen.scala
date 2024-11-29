@@ -95,7 +95,7 @@ object Glob{
         case Some(lists) =>
           val filtered = lists.filter{ c =>  filter(c) }.toList
           val childDirs = lists.filter{ c => c.isDirectory && !c.getName.startsWith(".") }
-          return ( (acc ::: filtered) /: childDirs){ (a, dir) => recursive(dir, a)}
+          return childDirs.foldLeft(acc ::: filtered){ (a, dir) => recursive(dir, a)}
       }
     dirs.flatMap{ d => recursive(new File(d), Nil)}
   }

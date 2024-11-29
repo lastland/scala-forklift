@@ -9,7 +9,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 import slick.jdbc.meta.MTable
-import slick.driver.JdbcProfile
+import slick.jdbc.JdbcProfile
 
 trait MigrationTests extends FlatSpec with PrivateMethodTester {
   this: ConfigFile with Tables =>
